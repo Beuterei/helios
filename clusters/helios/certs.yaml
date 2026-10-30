@@ -1,0 +1,18 @@
+# Requests certificates after cert-manager is up and the ai namespace exists.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: certs
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: cert-manager
+    - name: apps
+  interval: 10m
+  path: ./certs
+  prune: true
+  wait: true
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
