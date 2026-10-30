@@ -1,5 +1,5 @@
-# Issues certificates. The Cloudflare API token is the Secret
-# cert-manager/cloudflare-api-token, created on the cluster and not stored here.
+# Issues certificates. The Cloudflare DNS-01 token is
+# secrets/cloudflare-dns-01-token.enc.yaml.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

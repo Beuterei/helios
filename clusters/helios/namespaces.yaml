@@ -1,0 +1,17 @@
+# Namespace objects. Everything that targets a name waits on this.
+# force: take ownership of namespaces that used to live in apps/platform/cert-manager.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: namespaces
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./namespaces
+  prune: true
+  wait: true
+  timeout: 5m
+  force: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

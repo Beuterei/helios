@@ -7,6 +7,9 @@ kind: ConfigMap
 metadata:
   name: coredns-custom
   namespace: kube-system
+  annotations:
+    # Was applied by apps. Keep the live object when apps drops it.
+    kustomize.toolkit.fluxcd.io/prune: disabled
 data:
   blocky.override: |
     forward . 10.43.38.254

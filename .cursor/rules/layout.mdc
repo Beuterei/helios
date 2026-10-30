@@ -1,0 +1,26 @@
+---
+description: Helios GitOps layout — one directory, one kind of object
+alwaysApply: true
+---
+
+# Layout
+
+NixOS owns the host (k3s, NVIDIA, CDI). This repo owns what runs on the cluster. Flux bootstraps from `clusters/helios`.
+
+Put a manifest in the directory that matches its kind.
+
+| Path | Put here | Leave out |
+| --- | --- | --- |
+| `clusters/helios` | Flux `Kustomization` (path, dependsOn, decryption) | Workloads, Namespaces, Secrets |
+| `namespaces` | `Namespace` | Anything inside the namespace |
+| `sources` | `HelmRepository`, `OCIRepository` | HelmReleases |
+| `platform` | Node plugins and cluster DNS | User-facing apps, Certificates, Secrets |
+| `platform/cert-manager` | cert-manager HelmRelease | Its Namespace, OCIRepository, Certificates |
+| `apps` | Workload HelmReleases | Namespaces, sources, ConfigMaps, Issuers |
+| `certs` | `ClusterIssuer`, `Certificate` | cert-manager, Ingress |
+| `secrets` | SOPS `*.enc.yaml` | Plaintext, issuers |
+| `charts/` | Local chart source | The HelmRelease that installs it |
+
+Wire a new directory with a Flux Kustomization under `clusters/helios`. Leave `clusters/helios/flux-system/` untouched. Update `README.md` and `Taskfile.yml` in the same change (see the docs rule).
+
+A release that needs a namespace, chart source, or TLS secret waits via `dependsOn` on its Flux layer. Example: open-webui mounts `luisbeu-de-tls`, so the `apps` layer depends on `certs`. Do not copy the Certificate into `apps/`.

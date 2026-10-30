@@ -8,15 +8,24 @@ tasks:
   build:
     desc: Render each layer to catch mistakes before pushing
     cmds:
+      - kustomize build namespaces > /dev/null
+      - kustomize build sources > /dev/null
       - kustomize build platform > /dev/null
+      - kustomize build platform/cert-manager > /dev/null
       - kustomize build apps > /dev/null
+      - kustomize build certs > /dev/null
+      - kustomize build secrets > /dev/null
 
   diff:
     desc: Compare the working tree with what Flux has applied
     cmds:
       # flux diff exits 1 when there is a diff; treat that as success.
+      - flux diff kustomization namespaces --path ./namespaces || [ $? -eq 1 ]
+      - flux diff kustomization sources --path ./sources || [ $? -eq 1 ]
       - flux diff kustomization platform --path ./platform || [ $? -eq 1 ]
+      - flux diff kustomization cert-manager --path ./platform/cert-manager || [ $? -eq 1 ]
       - flux diff kustomization apps --path ./apps || [ $? -eq 1 ]
+      - flux diff kustomization certs --path ./certs || [ $? -eq 1 ]
 
   reconcile:
     desc: Make Flux fetch the pushed commit and apply it now
@@ -28,3 +37,24 @@ tasks:
     cmds:
       - flux get kustomizations
       - flux get helmreleases -A
+
+  sops:encrypt:
+    desc: Encrypt secrets/<name>.yaml to secrets/<name>.enc.yaml and delete the plaintext
+    cmds:
+      - |
+        set -e
+        out="{{trimSuffix ".yaml" .CLI_ARGS}}.enc.yaml"
+        sops --encrypt "{{.CLI_ARGS}}" > "$out.tmp"
+        mv "$out.tmp" "$out"
+        rm "{{.CLI_ARGS}}"
+
+  sops:edit:
+    desc: Edit secrets/<name>.enc.yaml in $EDITOR and re-encrypt it
+    interactive: true
+    cmds:
+      - sops {{.CLI_ARGS}}
+
+  sops:decrypt:
+    desc: Print secrets/<name>.enc.yaml. Writes no file.
+    cmds:
+      - sops --decrypt {{.CLI_ARGS}}

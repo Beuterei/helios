@@ -1,0 +1,10 @@
+# Namespace objects only. Applied by the Flux Kustomization named "namespaces".
+# prune: disabled so a layer move cannot garbage-collect a namespace (and everything in it).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonAnnotations:
+  kustomize.toolkit.fluxcd.io/prune: disabled
+resources:
+  - ai.yaml
+  - network.yaml
+  - cert-manager.yaml

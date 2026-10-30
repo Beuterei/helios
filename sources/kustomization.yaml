@@ -1,0 +1,12 @@
+# Chart sources only. Applied by the Flux Kustomization named "sources".
+# prune: disabled so apps/cert-manager can drop these from their inventory
+# without deleting the live HelmRepository / OCIRepository.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonAnnotations:
+  kustomize.toolkit.fluxcd.io/prune: disabled
+resources:
+  - otwld.yaml
+  - open-webui.yaml
+  - johanneskastl.yaml
+  - cert-manager.yaml

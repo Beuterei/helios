@@ -1,0 +1,28 @@
+---
+description: Keep README and Taskfile in step with layout and apply-order changes
+alwaysApply: true
+---
+
+# README and Taskfile
+
+Update `README.md` and `Taskfile.yml` in the same change when a layer, path, or dependency changes. Skip them for value edits inside an existing release (image tag, resources, chart version).
+
+Update the README when any of these change:
+
+- A directory's contents or what it is allowed to own (Layout table, and the Concerns table if ownership changed)
+- `dependsOn` or apply order
+- A task name or what `task build` / `task diff` cover
+
+Update `Taskfile.yml` when a kustomize path is added, removed, or renamed:
+
+- `task build` renders every layer, including `secrets`.
+- `task diff` lists every layer Flux can diff from the working tree. Leave `secrets` out: local diff cannot decrypt SOPS.
+
+```yaml
+# build
+- kustomize build <path> > /dev/null
+# diff — flux exits 1 when there is a diff
+- flux diff kustomization <name> --path ./<path> || [ $? -eq 1 ]
+```
+
+`<name>` is the Flux Kustomization metadata name. `<path>` is its `spec.path` without the leading `./`.

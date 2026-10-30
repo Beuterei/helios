@@ -1,4 +1,4 @@
-# Requests certificates after cert-manager is up and the ai namespace exists.
+# ClusterIssuer and Certificate. After the operator, the token, and the target namespace.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -6,8 +6,9 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
+    - name: namespaces
     - name: cert-manager
-    - name: apps
+    - name: secrets
   interval: 10m
   path: ./certs
   prune: true

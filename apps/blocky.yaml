@@ -31,10 +31,19 @@ spec:
               - op: add
                 path: /spec/clusterIP
                 value: "10.43.38.254"
+        # TODO: drop this digest pin when v0.36 is out.
+        # Chart has no image.digest.
+        images:
+          - name: ghcr.io/0xerr0r/blocky
+            digest: sha256:98627c3923fc720537dfce3da4b27b8f89dd57549555128f564fe26614a713a3
   values:
     image:
       repository: ghcr.io/0xerr0r/blocky
-      tag: v0.35.0
+      # TODO: pin tag to v0.36. v0.35.0 picks one DS and requires that
+      # KSK to sign DNSKEY. .io publishes DS 38690 and 57355 but signs
+      # only with 57355, so the TLD (quay.io included) SERVFAILs when
+      # 38690 is chosen first. #2293 is on main (v0.35.0-52-g501edc07).
+      tag: development
 
     env:
       TZ: Europe/Berlin
@@ -80,13 +89,8 @@ spec:
             - 185.95.218.42
             - 185.95.218.43
 
-      # TODO: Temp. Fix it
-      # Upstream resolvers validate DNSSEC. Blocky v0.35 does not: .io is
-      # published with two KSKs (DS 38690 and 57355) and the DNSKEY set is
-      # signed only by 57355. Blocky requires a signature from 38690 and
-      # SERVFAILs the whole TLD, including quay.io.
       dnssec:
-        validate: false
+        validate: true
 
       filtering:
         queryTypes:

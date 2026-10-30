@@ -1,0 +1,6 @@
+# Public age key only. The private key is Secret flux-system/sops-age.
+# Matches every file under secrets/, including a plaintext file before encrypt.
+creation_rules:
+  - path_regex: (^|/)secrets/.+\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: age1hx3pqxeedsmacwrfccf5anar3vs6kkzyyx8kgpwhqlnrywhfjegqmr4yak

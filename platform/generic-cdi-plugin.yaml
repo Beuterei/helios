@@ -1,14 +1,10 @@
 # Local chart, from this repo. NixOS already wrote the CDI spec on the host.
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: generic-cdi-plugin
----
+# kube-system: this is a kubelet device plugin, same as the other node agents.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: generic-cdi-plugin
-  namespace: generic-cdi-plugin
+  namespace: kube-system
 spec:
   interval: 1h
   chart:

@@ -1,0 +1,30 @@
+---
+description: Validate that each directory still owns only its kind of object
+alwaysApply: true
+---
+
+# Separation of concerns
+
+Before finishing a change that adds, moves, or deletes manifests, render every touched layer and check `kind:` against this contract. Move a file that fails it in the same change.
+
+| Path | Allowed kinds |
+| --- | --- |
+| `namespaces` | `Namespace` |
+| `sources` | `HelmRepository`, `OCIRepository` |
+| `platform` | `HelmRelease`, cluster `ConfigMap` |
+| `platform/cert-manager` | `HelmRelease` |
+| `apps` | `HelmRelease` |
+| `certs` | `ClusterIssuer`, `Certificate` |
+| `secrets` | `Secret` |
+| `clusters/helios` | Flux `Kustomization` only. `flux-system/` is generated; do not treat it as a layer to edit |
+
+```sh
+kustomize build <path> | grep '^kind:'
+```
+
+Also check:
+
+- A HelmRelease's chart repo lives in `sources/`, not beside the release.
+- A `Namespace` lives in `namespaces/`, not in the HelmRelease file.
+- `dependsOn` matches the README apply order: apps waits on certs; certs waits on cert-manager and secrets.
+- `README.md` Layout and `Taskfile.yml` `build`/`diff` list the same paths as `clusters/helios/*.yaml` (except `flux-system/`, and except `secrets` in `diff`).

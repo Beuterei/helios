@@ -1,2 +1,10 @@
 .DS_Store
 *.tgz
+age.key
+*.agekey
+
+# Plaintext secrets. Commit only *.enc.yaml and the kustomization.
+secrets/**
+!secrets/**/
+!secrets/**/*.enc.yaml
+!secrets/**/kustomization.yaml

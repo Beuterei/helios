@@ -1,4 +1,4 @@
-# Second layer. dependsOn platform so the GPU is advertised first.
+# Workload HelmReleases. Waits for GPU, chart sources, names, and TLS.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -6,7 +6,10 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
+    - name: namespaces
+    - name: sources
     - name: platform
+    - name: certs
   interval: 10m
   path: ./apps
   prune: true
