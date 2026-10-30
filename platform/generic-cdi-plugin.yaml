@@ -1,0 +1,21 @@
+# Local chart, from this repo. NixOS already wrote the CDI spec on the host.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: generic-cdi-plugin
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: generic-cdi-plugin
+  namespace: generic-cdi-plugin
+spec:
+  interval: 1h
+  chart:
+    spec:
+      # Path is relative to the GitRepository root.
+      chart: ./charts/generic-cdi-plugin
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system

@@ -1,0 +1,30 @@
+# Operator CLI. Uses the k3s kubeconfig unless KUBECONFIG is set.
+version: "3"
+
+env:
+  KUBECONFIG: '{{.KUBECONFIG | default "/etc/rancher/k3s/k3s.yaml"}}'
+
+tasks:
+  build:
+    desc: Render each layer to catch mistakes before pushing
+    cmds:
+      - kustomize build platform > /dev/null
+      - kustomize build apps > /dev/null
+
+  diff:
+    desc: Compare the working tree with what Flux has applied
+    cmds:
+      # flux diff exits 1 when there is a diff; treat that as success.
+      - flux diff kustomization platform --path ./platform || [ $? -eq 1 ]
+      - flux diff kustomization apps --path ./apps || [ $? -eq 1 ]
+
+  reconcile:
+    desc: Make Flux fetch the pushed commit and apply it now
+    cmds:
+      - flux reconcile kustomization flux-system --with-source
+
+  status:
+    desc: Show what Flux has applied
+    cmds:
+      - flux get kustomizations
+      - flux get helmreleases -A

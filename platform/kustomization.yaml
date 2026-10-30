@@ -1,0 +1,5 @@
+# Host-level addons. Applied by the Flux Kustomization named "platform".
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - generic-cdi-plugin.yaml

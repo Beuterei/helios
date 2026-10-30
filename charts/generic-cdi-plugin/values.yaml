@@ -1,0 +1,13 @@
+# Pin by digest. CDI spec is written by nvidia-container-toolkit on the host.
+image:
+  repository: ghcr.io/olfillasodikno/generic-cdi-plugin
+  digest: sha256:5399b02c75e7e1ef2f9f4d2ab75e05cfa66fac6e30bd2a8ea1045f8c02bda4ec
+
+cdiSpec: /var/run/cdi/nvidia-container-toolkit.json
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    memory: 64Mi

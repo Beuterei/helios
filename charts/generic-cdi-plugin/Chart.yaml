@@ -1,0 +1,7 @@
+# Local chart. Not published; Flux installs it from this repo.
+apiVersion: v2
+name: generic-cdi-plugin
+description: Advertise the NixOS-generated NVIDIA CDI devices to the kubelet
+type: application
+version: 0.1.0
+appVersion: main

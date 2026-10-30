@@ -1,0 +1,51 @@
+# GPU inference. Model pull can exceed Helm's wait, so install does not block Flux.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ollama
+  namespace: ai
+spec:
+  interval: 1h
+  timeout: 10m
+  chart:
+    spec:
+      chart: ollama
+      version: 1.93.0
+      sourceRef:
+        kind: HelmRepository
+        name: otwld
+        namespace: flux-system
+  install:
+    disableWait: true
+  values:
+    ollama:
+      models:
+        pull:
+          - gpt-oss:20b
+          - qwen3-coder:30b
+
+    extraEnv:
+      - name: OLLAMA_CONTEXT_LENGTH
+        value: "32768"
+      - name: OLLAMA_FLASH_ATTENTION
+        value: "1"
+      - name: OLLAMA_KV_CACHE_TYPE
+        value: q8_0
+      # One model in VRAM at a time.
+      - name: OLLAMA_MAX_LOADED_MODELS
+        value: "1"
+      - name: OLLAMA_KEEP_ALIVE
+        value: 10m
+
+    persistentVolume:
+      enabled: true
+      size: 200Gi
+
+    resources:
+      requests:
+        cpu: "1"
+        memory: 4Gi
+      limits:
+        memory: 40Gi
+        # Resource name advertised by generic-cdi-plugin.
+        nvidia.com/gpu-all: 1
