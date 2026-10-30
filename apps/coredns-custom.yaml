@@ -1,0 +1,12 @@
+# k3s CoreDNS imports *.override before the default forward to
+# /etc/resolv.conf. This makes cluster internet DNS use Blocky while
+# cluster.local stays with the kubernetes plugin.
+# 10.43.38.254 is Blocky's pinned ClusterIP (see apps/blocky.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  blocky.override: |
+    forward . 10.43.38.254

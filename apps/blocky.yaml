@@ -1,6 +1,8 @@
-# LAN DNS. Queries leave over DoH; nothing is written to a query log.
-# 192.168.1.151 is this node's address, where Traefik is published.
-# Reserve that address on the gateway so these names keep resolving.
+# LAN and cluster recursive DNS. Queries leave over DoH; nothing is
+# written to a query log.
+# LAN devices query the LoadBalancer at 192.168.1.151:53 (this node).
+# CoreDNS forwards other names to ClusterIP 10.43.38.254.
+# Reserve 192.168.1.151 on the gateway so LAN names keep resolving.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -8,7 +10,7 @@ metadata:
   namespace: network
 spec:
   interval: 1h
-  timeout: 5m
+  timeout: 10m
   chart:
     spec:
       chart: blocky
@@ -17,6 +19,18 @@ spec:
         kind: HelmRepository
         name: johanneskastl
         namespace: flux-system
+  # Chart omits clusterIP on LoadBalancer Services. Pin it so CoreDNS can
+  # forward here without depending on a newly allocated address.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Service
+              name: blocky
+            patch: |-
+              - op: add
+                path: /spec/clusterIP
+                value: "10.43.38.254"
   values:
     image:
       repository: ghcr.io/0xerr0r/blocky
@@ -45,20 +59,35 @@ spec:
     config: |
       upstreams:
         init:
-          strategy: fast
+          strategy: blocking
         groups:
           default:
-            - https://dns.mullvad.net/dns-query
+            - https://dns.quad9.net/dns-query
             - https://dns.digitale-gesellschaft.ch/dns-query
         strategy: parallel_best
         timeout: 2s
 
-      # Resolve the DoH names without using this server, so startup does
-      # not depend on the resolver we are replacing.
+      # IP-pinned DoH so bootstrap does not use plaintext :53 or the
+      # resolver we are replacing. Quad9 and Digitale Gesellschaft do not
+      # speak unencrypted DNS.
       bootstrapDns:
-        - 194.242.2.2
-        - 185.95.218.42
-        - 185.95.218.43
+        - upstream: https://dns.quad9.net/dns-query
+          ips:
+            - 9.9.9.9
+            - 149.112.112.112
+        - upstream: https://dns.digitale-gesellschaft.ch/dns-query
+          ips:
+            - 185.95.218.42
+            - 185.95.218.43
+
+      dnssec:
+        validate: true
+
+      filtering:
+        queryTypes:
+          - ANY
+          - AXFR
+          - IXFR
 
       customDNS:
         customTTL: 1h
@@ -84,7 +113,7 @@ spec:
         blockType: nxDomain
         blockTTL: 5m
         loading:
-          strategy: fast
+          strategy: blocking
           refreshPeriod: 24h
           downloads:
             timeout: 60s
