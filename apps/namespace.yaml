@@ -1,5 +1,9 @@
-# Namespace for this layer.
 apiVersion: v1
 kind: Namespace
 metadata:
   name: ai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: network

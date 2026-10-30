@@ -1,0 +1,108 @@
+# LAN DNS. Queries leave over DoH; nothing is written to a query log.
+# 192.168.1.151 is this node's address, where Traefik is published.
+# Reserve that address on the gateway so these names keep resolving.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: blocky
+  namespace: network
+spec:
+  interval: 1h
+  timeout: 5m
+  chart:
+    spec:
+      chart: blocky
+      version: 11.42.0
+      sourceRef:
+        kind: HelmRepository
+        name: johanneskastl
+        namespace: flux-system
+  values:
+    image:
+      repository: ghcr.io/0xerr0r/blocky
+      tag: v0.35.0
+
+    env:
+      TZ: Europe/Berlin
+
+    service:
+      dns:
+        enabled: true
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        ports:
+          dns-tcp:
+            enabled: true
+            port: 53
+            protocol: TCP
+            targetPort: 53
+          dns-udp:
+            enabled: true
+            port: 53
+            protocol: UDP
+            targetPort: 53
+
+    config: |
+      upstreams:
+        init:
+          strategy: fast
+        groups:
+          default:
+            - https://dns.mullvad.net/dns-query
+            - https://dns.digitale-gesellschaft.ch/dns-query
+        strategy: parallel_best
+        timeout: 2s
+
+      # Resolve the DoH names without using this server, so startup does
+      # not depend on the resolver we are replacing.
+      bootstrapDns:
+        - 194.242.2.2
+        - 185.95.218.42
+        - 185.95.218.43
+
+      customDNS:
+        customTTL: 1h
+        filterUnmappedTypes: true
+        mapping:
+          chat.luisbeu.de: 192.168.1.151
+
+      rebindingProtection:
+        enable: true
+        allowedDomains:
+          - chat.luisbeu.de
+
+      blocking:
+        denylists:
+          ads:
+            - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.txt
+          malware:
+            - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/tif.mini.txt
+        clientGroupsBlock:
+          default:
+            - ads
+            - malware
+        blockType: nxDomain
+        blockTTL: 5m
+        loading:
+          strategy: fast
+          refreshPeriod: 24h
+          downloads:
+            timeout: 60s
+            attempts: 5
+            cooldown: 10s
+
+      caching:
+        minTime: 5m
+        maxTime: 1h
+        prefetching: false
+
+      queryLog:
+        type: none
+
+      log:
+        level: info
+        privacy: true
+
+      ports:
+        dns:
+          - 53

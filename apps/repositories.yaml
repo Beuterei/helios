@@ -16,3 +16,12 @@ metadata:
 spec:
   interval: 24h
   url: https://helm.openwebui.com/
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: johanneskastl
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://johanneskastl.github.io/helm-charts/

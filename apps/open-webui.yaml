@@ -15,6 +15,10 @@ spec:
         name: open-webui
         namespace: flux-system
   values:
+    image:
+      repository: ghcr.io/open-webui/open-webui
+      tag: "0.12.4"
+
     # Use the in-cluster inference service; do not run a bundled copy.
     ollama:
       enabled: false
@@ -35,7 +39,7 @@ spec:
     ingress:
       enabled: true
       class: traefik
-      host: chat.helios.lan
+      host: chat.luisbeu.de
 
     persistence:
       size: 10Gi

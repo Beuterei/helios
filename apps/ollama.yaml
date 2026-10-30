@@ -18,6 +18,10 @@ spec:
   install:
     disableWait: true
   values:
+    image:
+      repository: ollama/ollama
+      tag: "0.40.12"
+
     ollama:
       models:
         pull:

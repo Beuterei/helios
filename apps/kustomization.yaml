@@ -6,3 +6,4 @@ resources:
   - repositories.yaml
   - ollama.yaml
   - open-webui.yaml
+  - blocky.yaml
