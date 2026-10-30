@@ -80,8 +80,13 @@ spec:
             - 185.95.218.42
             - 185.95.218.43
 
+      # TODO: Temp. Fix it
+      # Upstream resolvers validate DNSSEC. Blocky v0.35 does not: .io is
+      # published with two KSKs (DS 38690 and 57355) and the DNSKEY set is
+      # signed only by 57355. Blocky requires a signature from 38690 and
+      # SERVFAILs the whole TLD, including quay.io.
       dnssec:
-        validate: true
+        validate: false
 
       filtering:
         queryTypes:

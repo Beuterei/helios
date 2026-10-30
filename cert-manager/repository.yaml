@@ -6,5 +6,10 @@ metadata:
 spec:
   interval: 24h
   url: oci://quay.io/jetstack/charts/cert-manager
+  # The chart image also contains a provenance layer. Flux must copy the
+  # chart archive, not that first layer.
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
   ref:
     tag: v1.21.3

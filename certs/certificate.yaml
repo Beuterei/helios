@@ -1,12 +1,12 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: chat-luisbeu-de
+  name: luisbeu-de
   namespace: ai
 spec:
-  secretName: chat-luisbeu-de-tls
+  secretName: luisbeu-de-tls
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
   dnsNames:
-    - chat.luisbeu.de
+    - "*.luisbeu.de"

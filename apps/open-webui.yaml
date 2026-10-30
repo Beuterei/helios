@@ -41,7 +41,7 @@ spec:
       class: traefik
       host: chat.luisbeu.de
       tls: true
-      existingSecret: chat-luisbeu-de-tls
+      existingSecret: luisbeu-de-tls
 
     persistence:
       size: 10Gi
