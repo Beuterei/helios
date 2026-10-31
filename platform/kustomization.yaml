@@ -7,3 +7,4 @@ kind: Kustomization
 resources:
   - generic-cdi-plugin.yaml
   - coredns-custom.yaml
+  - reflector.yaml

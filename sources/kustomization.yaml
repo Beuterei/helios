@@ -11,3 +11,4 @@ resources:
   - johanneskastl.yaml
   - cert-manager.yaml
   - cloudflare.yaml
+  - emberstack.yaml

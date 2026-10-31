@@ -5,7 +5,8 @@ secretName: paperless
 ingress:
   className: traefik
   host: paperless.luisbeu.de
-  tlsSecret: paperless-luisbeu-de-tls
+  # Wildcard, reflected from namespace ai.
+  tlsSecret: luisbeu-de-tls
 
 storageClass: local-path
 

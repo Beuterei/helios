@@ -28,7 +28,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `clusters/helios` | Apply graph, including `flux-system` |
 | `namespaces` | `Namespace` objects |
 | `sources` | Chart repositories |
-| `platform` | CDI plugin and CoreDNS override |
+| `platform` | CDI plugin, CoreDNS override, and secret reflector |
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
 | `platform/volume-backup` | restic backup, prune, and check (own Flux layer; waits for the S3 secret) |
@@ -46,7 +46,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 
 1. **namespaces** — names exist before anything targets them
 2. **sources** — chart repos; no dependencies
-3. **platform** — CDI plugin and CoreDNS. No dependencies
+3. **platform** — CDI plugin, CoreDNS, and the secret reflector. No dependencies
 4. **cert-manager** — waits for namespaces and sources, then the operator
 5. **secrets** — waits for namespaces, then decrypts SOPS
 6. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
