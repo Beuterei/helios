@@ -19,10 +19,15 @@ backup:
 
 prune:
   cron: "0 0 6 * * *"
+  # The backup deployment creates the repository.
+  runOnStartup: "false"
+  skipInit: "true"
 
 check:
   cron: "0 0 7 * * *"
   args: "--read-data-subset=10%"
+  runOnStartup: "false"
+  skipInit: "true"
 
 secretName: backup-s3
 

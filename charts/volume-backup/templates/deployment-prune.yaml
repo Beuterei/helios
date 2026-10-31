@@ -39,9 +39,9 @@ spec:
             - name: PRUNE_CRON
               value: {{ .Values.prune.cron | quote }}
             - name: RUN_ON_STARTUP
-              value: "false"
+              value: {{ .Values.prune.runOnStartup | quote }}
             - name: SKIP_INIT
-              value: "true"
+              value: {{ .Values.prune.skipInit | quote }}
             - name: PRE_COMMANDS
               value: |-
                 export RID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "")

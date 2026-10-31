@@ -6,8 +6,6 @@ rag:
   image:
     repository: docker.io/library/python
     tag: 3.12-alpine
-  paperlessURL: http://paperless:8000
-  publicURL: https://paperless.luisbeu.de
   tokenSecret: paperless-api-token
   tokenKey: token
   resources:
@@ -31,8 +29,15 @@ paperless:
     tag: "3.4.1"
   timeZone: Europe/Berlin
   ocrLanguage: deu+eng
+  # Paperless wants "1", not a YAML boolean.
+  consumer:
+    barcodes: "1"
+    asnBarcode: "1"
+    inotifyDelay: "5"
   # Same storage layout as the compose file.
   filenameFormat: "{{ owner_username }}/{{ created_year }}/{{ created_month }}/{{ correspondent }}/{{ asn }} - {{ title }}"
+  # Drop placeholders that resolve to none, such as a missing correspondent.
+  filenameFormatRemoveNone: true
   # Native AI (3.0+). Suggestions, auto-tag workflows, and document chat.
   # Model is pulled on the Ollama release. Internal URL must stay allowed.
   ai:
@@ -84,6 +89,11 @@ gotenberg:
   image:
     repository: docker.io/gotenberg/gotenberg
     tag: 8.39.0
+  # Office and mail conversion. Chromium does not load remote content.
+  args:
+    - gotenberg
+    - --chromium-disable-javascript=true
+    - --chromium-allow-list=^file:///tmp/.*
   resources:
     requests:
       cpu: 100m

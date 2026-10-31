@@ -17,6 +17,8 @@ spec:
       labels:
         {{- include "paperless.labels" . | nindent 8 }}
         app.kubernetes.io/component: rag
+      annotations:
+        checksum/rag: {{ .Files.Get "files/rag-server.py" | sha256sum }}
     spec:
       containers:
         - name: rag
@@ -25,9 +27,9 @@ spec:
           command: ["python3", "/app/rag-server.py"]
           env:
             - name: PAPERLESS_URL
-              value: {{ .Values.rag.paperlessURL | quote }}
+              value: http://paperless:8000
             - name: PUBLIC_URL
-              value: {{ .Values.rag.publicURL | quote }}
+              value: https://{{ .Values.ingress.host }}
             - name: PAPERLESS_TOKEN
               valueFrom:
                 secretKeyRef:

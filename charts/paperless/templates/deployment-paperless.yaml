@@ -67,12 +67,14 @@ spec:
               value: http://tika:9998
             - name: PAPERLESS_FILENAME_FORMAT
               value: {{ .Values.paperless.filenameFormat | quote }}
+            - name: PAPERLESS_FILENAME_FORMAT_REMOVE_NONE
+              value: {{ .Values.paperless.filenameFormatRemoveNone | quote }}
             - name: PAPERLESS_CONSUMER_ENABLE_BARCODES
-              value: "1"
+              value: {{ .Values.paperless.consumer.barcodes | quote }}
             - name: PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE
-              value: "1"
+              value: {{ .Values.paperless.consumer.asnBarcode | quote }}
             - name: PAPERLESS_CONSUMER_INOTIFY_DELAY
-              value: "5"
+              value: {{ .Values.paperless.consumer.inotifyDelay | quote }}
             {{- if .Values.paperless.ai.enabled }}
             - name: PAPERLESS_AI_ENABLED
               value: "true"

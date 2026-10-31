@@ -74,4 +74,4 @@ spec:
       # ConfigVar may already be stored; add the same URL under Admin → Tools if missing.
       - name: TOOL_SERVER_CONNECTIONS
         value: >-
-          [{"url":"http://paperless-rag.paperless.svc.cluster.local:8080","path":"/openapi.json","auth_type":"none","config":{"enable":true},"info":{"id":"paperless","name":"Paperless","description":"Search the Paperless-ngx archive"}}]
+          [{"url":"http://paperless-rag.paperless.svc.cluster.local:8080","path":"/openapi.json","auth_type":"none","config":{"enable":true},"info":{"id":"paperless","name":"Paperless","description":"Search the Paperless-ngx archive by text, tags, correspondent, document type, or date"}}]

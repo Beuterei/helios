@@ -1,0 +1,18 @@
+name: build
+
+on:
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: go-task/setup-task@v2
+      - uses: azure/setup-helm@v5
+      - uses: imranismail/setup-kustomize@v2
+      - run: task build

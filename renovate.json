@@ -2,5 +2,61 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "timezone": "Europe/Berlin",
+  "ignorePaths": [
+    "secrets/**"
+  ],
+  "flux": {
+    "managerFilePatterns": [
+      "/(^|/)(apps|platform|sources)/.*\\.ya?ml$/",
+      "/(^|/)gotk-components\\.ya?ml$/"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Blocky is pinned to a pre-release digest until v0.36. Latest stable SERVFAILs .io.",
+      "matchFileNames": ["apps/blocky.yaml"],
+      "matchDatasources": ["docker"],
+      "enabled": false
+    },
+    {
+      "description": "Local charts install from git. A chart version makes Flux keep the first package.",
+      "matchFileNames": [
+        "apps/paperless.yaml",
+        "platform/volume-backup/helmrelease.yaml",
+        "platform/generic-cdi-plugin.yaml"
+      ],
+      "matchDepTypes": ["HelmChart"],
+      "enabled": false
+    },
+    {
+      "description": "Flux component manifest. Review the generated diff.",
+      "matchFileNames": ["clusters/helios/flux-system/gotk-components.yaml"],
+      "automerge": false,
+      "addLabels": ["flux"]
+    },
+    {
+      "description": "Image patches for stateless apps. Rollback is reverting the tag.",
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["patch", "digest"],
+      "matchPackageNames": [
+        "/ollama\\/ollama/",
+        "/open-webui\\/open-webui/",
+        "/gotenberg\\/gotenberg/",
+        "/apache\\/tika/"
+      ],
+      "minimumReleaseAge": "3 days",
+      "schedule": ["* 8-20 * * *"],
+      "automerge": true,
+      "automergeType": "pr",
+      "addLabels": ["automerge"]
+    },
+    {
+      "description": "Majors stay open for review.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major"]
+    }
   ]
 }

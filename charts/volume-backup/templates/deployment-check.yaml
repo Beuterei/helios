@@ -39,9 +39,9 @@ spec:
             - name: CHECK_CRON
               value: {{ .Values.check.cron | quote }}
             - name: RUN_ON_STARTUP
-              value: "false"
+              value: {{ .Values.check.runOnStartup | quote }}
             - name: SKIP_INIT
-              value: "true"
+              value: {{ .Values.check.skipInit | quote }}
             - name: RESTIC_CHECK_ARGS
               value: {{ .Values.check.args | quote }}
             - name: PRE_COMMANDS

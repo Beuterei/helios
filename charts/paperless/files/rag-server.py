@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Search Paperless and return passages. OpenAPI for Open WebUI tools."""
+"""Search Paperless by text and metadata. OpenAPI for Open WebUI tools."""
 
 from __future__ import annotations
 
@@ -57,29 +57,80 @@ STOP = {
     "with",
 }
 
+# Paperless advanced-search fields. A query that uses one is sent through unchanged.
+FIELD = re.compile(
+    r"\b(?:title|content|correspondent|document_type|type|storage_path|path|tag|"
+    r"original_filename|asn|created|added|modified|note|custom_field):",
+    re.IGNORECASE,
+)
+
 OPENAPI = {
     "openapi": "3.0.3",
     "info": {
         "title": "Paperless RAG",
         "version": "1.0.0",
-        "description": "Search the Paperless-ngx archive and return matching passages.",
+        "description": (
+            "Search the Paperless-ngx archive by document text and by metadata "
+            "(tags, correspondent, document type, dates) and return matching passages."
+        ),
     },
     "paths": {
         "/search": {
             "get": {
                 "operationId": "search_documents",
-                "summary": "Search Paperless documents by full text",
+                "summary": "Search Paperless documents by text or metadata",
                 "description": (
                     "Search the user's Paperless archive. Use this for any question "
-                    "about invoices, contracts, letters, or other stored documents."
+                    "about invoices, contracts, letters, or other stored documents. "
+                    "Set tag, correspondent, document_type, or created when the "
+                    "question names them. created takes a year, yesterday, "
+                    "previous year, or a range such as [2024-01 to 2024-06]."
                 ),
                 "parameters": [
                     {
                         "name": "query",
                         "in": "query",
-                        "required": True,
+                        "required": False,
                         "schema": {"type": "string"},
-                        "description": "Search keywords or a short question.",
+                        "description": (
+                            "Words to find in the document text. Also accepts "
+                            'Paperless field syntax such as tag:tax, type:invoice, '
+                            'correspondent:"city utilities", or title:contract.'
+                        ),
+                    },
+                    {
+                        "name": "tag",
+                        "in": "query",
+                        "required": False,
+                        "schema": {"type": "string"},
+                        "description": (
+                            "Tag name. Comma-separated names must all match, "
+                            "for example bills,unpaid."
+                        ),
+                    },
+                    {
+                        "name": "correspondent",
+                        "in": "query",
+                        "required": False,
+                        "schema": {"type": "string"},
+                        "description": "Correspondent name.",
+                    },
+                    {
+                        "name": "document_type",
+                        "in": "query",
+                        "required": False,
+                        "schema": {"type": "string"},
+                        "description": "Document type, such as invoice or letter.",
+                    },
+                    {
+                        "name": "created",
+                        "in": "query",
+                        "required": False,
+                        "schema": {"type": "string"},
+                        "description": (
+                            "Document date: a year, yesterday, previous year, "
+                            "or a range such as [2024-01 to 2024-06]."
+                        ),
                     },
                     {
                         "name": "limit",
@@ -100,6 +151,44 @@ def keywords(query: str) -> list[str]:
     return [w for w in words if w.lower() not in STOP]
 
 
+def field_clause(field: str, value: str) -> str:
+    value = value.strip()
+    if re.fullmatch(r"\[[^\]]+\]|[\wÄÖÜäöüß./,-]+", value):
+        return f"{field}:{value}"
+    cleaned = value.replace('"', "")
+    return f'{field}:"{cleaned}"'
+
+
+def build_query(
+    text: str,
+    tag: str = "",
+    correspondent: str = "",
+    document_type: str = "",
+    created: str = "",
+) -> tuple[str, list[str]]:
+    """Return the Paperless query and the plain words used for excerpts."""
+    clauses = []
+    if tag:
+        clauses.append(field_clause("tag", tag))
+    if correspondent:
+        clauses.append(field_clause("correspondent", correspondent))
+    if document_type:
+        clauses.append(field_clause("type", document_type))
+    if created:
+        clauses.append(field_clause("created", created))
+    text = text.strip()
+    terms = keywords(text)
+    if text and (FIELD.search(text) or any(op in f" {text} " for op in (" AND ", " OR ", " NOT "))):
+        clauses.append(text)
+        terms = []
+    elif terms:
+        clauses.append(" AND ".join(terms))
+    elif text:
+        clauses.append(text)
+        terms = [text]
+    return " AND ".join(clauses), terms
+
+
 def paperless_get(path: str, params: dict[str, str]) -> dict:
     url = f"{PAPERLESS_URL}{path}?{urllib.parse.urlencode(params)}"
     req = urllib.request.Request(
@@ -113,14 +202,64 @@ def paperless_get(path: str, params: dict[str, str]) -> dict:
         return json.load(resp)
 
 
-def search_paperless(query: str, limit: int) -> list[dict]:
-    terms = keywords(query) or [query.strip()]
-    and_q = " AND ".join(terms)
+_names: dict[str, dict[int, str]] = {}
+
+
+def names(kind: str, path: str) -> dict[int, str]:
+    cached = _names.get(kind)
+    if cached is not None:
+        return cached
+    table: dict[int, str] = {}
+    page = 1
+    while page <= 20:
+        data = paperless_get(path, {"page_size": "100", "page": str(page)})
+        for row in data.get("results", []):
+            table[row["id"]] = row.get("name") or str(row["id"])
+        if not data.get("next"):
+            break
+        page += 1
+    _names[kind] = table
+    return table
+
+
+def labels(kind: str, path: str, ids: list[int]) -> list[str]:
+    if not ids:
+        return []
+    try:
+        table = names(kind, path)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError):
+        return []
+    if any(i not in table for i in ids):
+        _names.pop(kind, None)
+        try:
+            table = names(kind, path)
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError):
+            return []
+    return [table[i] for i in ids if i in table]
+
+
+def search_paperless(
+    text: str,
+    limit: int,
+    tag: str = "",
+    correspondent: str = "",
+    document_type: str = "",
+    created: str = "",
+) -> list[dict]:
+    paperless_query, terms = build_query(
+        text,
+        tag=tag,
+        correspondent=correspondent,
+        document_type=document_type,
+        created=created,
+    )
     data = paperless_get(
         "/api/documents/",
-        {"query": and_q, "page_size": str(limit)},
+        {"query": paperless_query, "page_size": str(limit)},
     )
-    if data.get("count", 0) == 0 and len(terms) > 1:
+    # A metadata query that misses should stay empty. OR would drop the field.
+    plain = not FIELD.search(text) and not any((tag, correspondent, document_type, created))
+    if plain and data.get("count", 0) == 0 and len(terms) > 1:
         data = paperless_get(
             "/api/documents/",
             {"query": " OR ".join(terms), "page_size": str(limit)},
@@ -131,15 +270,32 @@ def search_paperless(query: str, limit: int) -> list[dict]:
         hit = doc.get("__search_hit__") or {}
         passage = hit.get("highlights") or excerpt(content, terms)
         doc_id = doc["id"]
-        out.append(
-            {
-                "id": doc_id,
-                "title": doc.get("title") or f"document {doc_id}",
-                "created": doc.get("created"),
-                "url": f"{PUBLIC_URL}/documents/{doc_id}",
-                "passage": re.sub(r"<[^>]+>", "", passage).strip(),
-            }
+        tag_ids = [t for t in doc.get("tags") or [] if isinstance(t, int)]
+        item = {
+            "id": doc_id,
+            "title": doc.get("title") or f"document {doc_id}",
+            "created": doc.get("created"),
+            "url": f"{PUBLIC_URL}/documents/{doc_id}",
+            "passage": re.sub(r"<[^>]+>", "", passage).strip(),
+        }
+        correspondent_name = labels(
+            "correspondents",
+            "/api/correspondents/",
+            [doc["correspondent"]] if isinstance(doc.get("correspondent"), int) else [],
         )
+        type_name = labels(
+            "document_types",
+            "/api/document_types/",
+            [doc["document_type"]] if isinstance(doc.get("document_type"), int) else [],
+        )
+        tag_names = labels("tags", "/api/tags/", tag_ids)
+        if correspondent_name:
+            item["correspondent"] = correspondent_name[0]
+        if type_name:
+            item["document_type"] = type_name[0]
+        if tag_names:
+            item["tags"] = tag_names
+        out.append(item)
     return out
 
 
@@ -193,12 +349,26 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, OPENAPI)
                 return
             if path == "/search":
-                query = (qs.get("query") or [""])[0].strip()
-                if not query:
-                    self._send(400, {"error": "query is required"})
+                def param(name: str) -> str:
+                    return (qs.get(name) or [""])[0].strip()
+
+                query = param("query")
+                tag = param("tag")
+                correspondent = param("correspondent")
+                document_type = param("document_type")
+                created = param("created")
+                if not any((query, tag, correspondent, document_type, created)):
+                    self._send(400, {"error": "query or a metadata filter is required"})
                     return
                 limit = int((qs.get("limit") or ["5"])[0])
-                docs = search_paperless(query, max(1, min(limit, 10)))
+                docs = search_paperless(
+                    query,
+                    max(1, min(limit, 10)),
+                    tag=tag,
+                    correspondent=correspondent,
+                    document_type=document_type,
+                    created=created,
+                )
                 self._send(200, {"count": len(docs), "documents": docs})
                 return
             self._send(404, {"error": "not found"})

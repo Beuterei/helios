@@ -1,0 +1,18 @@
+---
+description: Keep renovate.json aligned with image pins, chart sources, and automerge
+alwaysApply: true
+---
+
+# Renovate
+
+`renovate.json` is the update policy. Change it in the same edit that adds, removes, or repins a dependency.
+
+Flux manifests live in `apps/`, `platform/`, and `sources/`. A new directory of HelmRelease, OCIRepository, or GitRepository manifests needs a `flux.managerFilePatterns` entry. `charts/*/values.yaml` is already scanned. `secrets/**` stays ignored.
+
+Automerge is an image patch or digest, after a 3-day soak, between 08:00 and 20:00 Europe/Berlin. GitHub auto-merge waits for the `build` check. Add an image there only when reverting the tag rolls the app back, and the app does not migrate data, terminate TLS, resolve DNS, back up volumes, or run as a device plugin.
+
+A local chart installed from git (`reconcileStrategy: Revision`, no chart version) gets `matchDepTypes: ["HelmChart"]` and `enabled: false` on that HelmRelease file.
+
+An intentional image pin gets `matchDatasources: ["docker"]` and `enabled: false` on that file, with a `description` that says why. Blocky is pinned to a pre-release digest until v0.36.
+
+Remove a package's `matchFileNames` or `matchPackageNames` entry when that manifest goes away.
