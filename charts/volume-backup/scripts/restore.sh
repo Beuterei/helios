@@ -51,6 +51,12 @@ if [[ ${#found[@]} -ne 1 ]]; then
   exit 1
 fi
 
-find "$live" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
-cp -a "${found[0]}/." "$live/"
+live_rw="${VOLUMES_RW}/$(basename "$live")"
+if [[ ! -d "$live_rw" ]]; then
+  printf 'claim is not writable at %s\n' "$live_rw" >&2
+  exit 1
+fi
+
+find "$live_rw" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+cp -a "${found[0]}/." "$live_rw/"
 sync

@@ -104,6 +104,8 @@ spec:
             - name: volumes
               mountPath: /mnt/volumes
               readOnly: true
+            - name: volumes
+              mountPath: /mnt/volumes-rw
             - name: copy
               mountPath: /mnt/copy
             - name: cgroup

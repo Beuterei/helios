@@ -3,6 +3,7 @@
 
 KUBECTL=${KUBECTL:-/opt/bin/kubectl}
 VOLUMES=${VOLUMES:-/mnt/volumes}
+VOLUMES_RW=${VOLUMES_RW:-/mnt/volumes-rw}
 COPY_DIR=${COPY_DIR:-/mnt/copy}
 CGROUP=${CGROUP:-/sys/fs/cgroup}
 EXCLUDE_FILE=${EXCLUDE_FILE:-/scripts/exclude}
