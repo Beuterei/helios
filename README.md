@@ -10,11 +10,11 @@ One directory, one kind of object. Put new YAML in the directory that matches th
 
 | Concern | Owns | Does not own |
 | --- | --- | --- |
-| **Apply graph** | Flux `Kustomization` objects: path, `dependsOn`, decryption | HelmReleases, Namespaces, Secrets, charts |
-| **Namespaces** | `Namespace` objects | Anything that lives inside those namespaces |
+| **Apply graph** | Flux `Kustomization` objects: path, `dependsOn`, decryption | HelmReleases, Secrets, charts |
+| **Namespaces** | `Namespace` objects | Anything that lives inside them |
 | **Sources** | `HelmRepository` / `OCIRepository` | The HelmReleases that consume them |
 | **Platform** | Cluster operators, the Cloudflare Tunnel, and node plugins | User-facing apps, Certificates, Secrets |
-| **Apps** | Workload HelmReleases | Namespaces, chart sources, ClusterIssuers, kube-system config |
+| **Apps** | Workload HelmReleases | Chart sources, ClusterIssuers, cluster config |
 | **Secrets** | SOPS-encrypted `Secret` manifests (`*.enc.yaml`) | ClusterIssuers, Certificates, plaintext |
 | **Certs** | `ClusterIssuer` and `Certificate` | cert-manager itself, Ingress, apps that mount the TLS secret |
 | **Charts** | Local Helm chart source in this repo | The HelmRelease that installs the chart |
@@ -26,16 +26,15 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | Path | Concern |
 | --- | --- |
 | `clusters/helios` | Apply graph, including `flux-system` |
-| `namespaces` | `ai`, `network`, `cert-manager`, `hello` |
-| `sources` | Chart repos for ollama, open-webui, blocky, cert-manager, cloudflared |
-| `platform` | CDI plugin and CoreDNS override, both in `kube-system` |
+| `namespaces` | `Namespace` objects |
+| `sources` | Chart repositories |
+| `platform` | CDI plugin and CoreDNS override |
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
-| `apps` | HelmReleases: ollama, open-webui, blocky, hello |
+| `apps` | Workload HelmReleases |
 | `certs` | Let's Encrypt `ClusterIssuer` and `*.luisbeu.de` `Certificate` |
 | `secrets` | Cloudflare DNS-01 token and tunnel token. Matches `.sops.yaml`; commit only `*.enc.yaml` |
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
-| `charts/hello` | Chart for the hello server; the release lives in `apps` |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status` |
 
 ## Apply order
@@ -44,14 +43,14 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 
 1. **namespaces** — names exist before anything targets them
 2. **sources** — chart repos; no dependencies
-3. **platform** — CDI plugin and CoreDNS in `kube-system`. No dependencies
+3. **platform** — CDI plugin and CoreDNS. No dependencies
 4. **cert-manager** — waits for namespaces and sources, then the operator
 5. **secrets** — waits for namespaces, then decrypts SOPS
 6. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
 7. **apps** — waits for namespaces, sources, platform, and certs, then workloads
 8. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
 
-`open-webui` mounts the TLS secret that **certs** creates, so apps wait for certs.
+Apps that mount the TLS secret wait for **certs**.
 
 ## Cloudflare
 
