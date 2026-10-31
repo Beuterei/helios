@@ -1,4 +1,4 @@
-# Workload HelmReleases. Waits for GPU, chart sources, names, and TLS.
+# Workload HelmReleases. Waits for GPU, chart sources, names, TLS, and app secrets.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -10,6 +10,7 @@ spec:
     - name: sources
     - name: platform
     - name: certs
+    - name: secrets
   interval: 10m
   path: ./apps
   prune: true

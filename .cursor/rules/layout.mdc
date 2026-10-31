@@ -23,4 +23,4 @@ Put a manifest in the directory that matches its kind.
 
 Wire a new directory with a Flux Kustomization under `clusters/helios`. Leave `clusters/helios/flux-system/` untouched. Update `README.md` and `Taskfile.yml` in the same change (see the docs rule).
 
-A release that needs a namespace, chart source, or TLS secret waits via `dependsOn` on its Flux layer. Example: open-webui mounts `luisbeu-de-tls`, so the `apps` layer depends on `certs`. Do not copy the Certificate into `apps/`.
+A release that needs a namespace, chart source, TLS secret, or SOPS secret waits via `dependsOn` on its Flux layer. Example: open-webui mounts `luisbeu-de-tls` and paperless reads `Secret` `paperless`, so the `apps` layer depends on `certs` and `secrets`. Do not copy those objects into `apps/`.

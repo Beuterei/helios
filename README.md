@@ -34,7 +34,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `platform/volume-backup` | restic backup, prune, and check (own Flux layer; waits for the S3 secret) |
 | `apps` | Workload HelmReleases |
 | `certs` | Let's Encrypt `ClusterIssuer` and `*.luisbeu.de` `Certificate` |
-| `secrets` | Cloudflare tokens and the restic S3 secret. Matches `.sops.yaml`; commit only `*.enc.yaml` |
+| `secrets` | Matches `.sops.yaml`; commit only `*.enc.yaml` |
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
 | `charts/volume-backup` | Chart for restic; the release lives in `platform/volume-backup` |
 | `charts/paperless` | Chart for Paperless-ngx; the release lives in `apps` |
@@ -46,15 +46,15 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 
 1. **namespaces** — names exist before anything targets them
 2. **sources** — chart repos; no dependencies
-3. **platform** — CDI plugin, CoreDNS, and the secret reflector. No dependencies
+3. **platform** — CDI plugin, CoreDNS, and the secret reflector. Waits for sources
 4. **cert-manager** — waits for namespaces and sources, then the operator
 5. **secrets** — waits for namespaces, then decrypts SOPS
 6. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
-7. **apps** — waits for namespaces, sources, platform, and certs, then workloads
+7. **apps** — waits for namespaces, sources, platform, certs, and secrets, then workloads
 8. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
 9. **backups** — waits for namespaces and secrets, then restic
 
-Apps that mount the TLS secret wait for **certs**. Backups do not gate apps.
+Apps that mount the TLS secret wait for **certs**. Apps that read SOPS secrets wait for **secrets**. Backups do not gate apps.
 
 ## Cloudflare
 

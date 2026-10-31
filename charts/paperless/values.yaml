@@ -1,11 +1,9 @@
-# Current releases. The compose repo pins Paperless 2.19, Postgres 18.1,
-# Redis 8.0, Gotenberg 8.24, and Tika 3.2.3.0.
 secretName: paperless
 
 ingress:
   className: traefik
   host: paperless.luisbeu.de
-  # Wildcard, reflected from namespace ai.
+  # Wildcard, reflected from namespace cert-manager.
   tlsSecret: luisbeu-de-tls
 
 storageClass: local-path

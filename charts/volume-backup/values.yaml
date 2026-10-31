@@ -24,11 +24,6 @@ check:
   cron: "0 0 7 * * *"
   args: "--read-data-subset=10%"
 
-# Bound claims not listed here are copied. ollama is models that can be pulled again.
-exclude:
-  - namespace: ai
-    claim: ollama
-
 secretName: backup-s3
 
 # Not credentials. Path style is on for an S3-compatible endpoint.

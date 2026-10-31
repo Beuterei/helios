@@ -1,5 +1,5 @@
 # Local chart. Copies claim directories to the S3 repository in Secret backup-s3.
-# Claims listed under exclude are left running and are not copied.
+# Bound claims not listed under exclude are copied. ollama is models that can be pulled again.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

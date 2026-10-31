@@ -26,5 +26,5 @@ Also check:
 
 - A HelmRelease's chart repo lives in `sources/`, not beside the release.
 - A `Namespace` lives in `namespaces/`, not in the HelmRelease file.
-- `dependsOn` matches the README apply order: apps waits on certs; certs waits on cert-manager and secrets.
+- `dependsOn` matches the README apply order: apps waits on certs and secrets; certs waits on cert-manager and secrets; platform waits on sources.
 - `README.md` Layout and `Taskfile.yml` `build`/`diff` list the same paths as `clusters/helios/*.yaml` (except `flux-system/`, and except `secrets` in `diff`).

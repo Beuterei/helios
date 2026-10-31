@@ -1,0 +1,13 @@
+---
+description: Only the user creates git commits; agents never commit
+alwaysApply: true
+---
+
+# Commits
+
+The user is the only one who creates git commits. Agents never commit.
+
+- Do not run `git commit`, `git commit --amend`, or any command that creates a commit.
+- Do not stage files as part of making a commit. `git add` is only for the user.
+- If asked to commit, stop and leave the commit to the user. A suggested message is fine; running the commit is not.
+- Push, rebase, reset, and other git writes stay with the user unless they explicitly ask for that specific action. A request to commit is never that ask.
