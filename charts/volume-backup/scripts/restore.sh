@@ -60,3 +60,4 @@ fi
 find "$live_rw" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
 cp -a "${found[0]}/." "$live_rw/"
 sync
+kill_frozen

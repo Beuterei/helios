@@ -68,6 +68,19 @@ thaw_all() {
   thaw_file "$FROZEN_DISK"
 }
 
+# SIGKILL writers while their cgroup is frozen. A thawed process still has
+# the previous SQLite inode open and would keep serving the old database.
+kill_frozen() {
+  local cg pid
+  [[ -f "$FROZEN" ]] || return 0
+  while IFS= read -r cg; do
+    [[ -z "$cg" || ! -r "$cg/cgroup.procs" ]] && continue
+    while IFS= read -r pid; do
+      [[ -n "${pid:-}" ]] && kill -9 "$pid" 2>/dev/null || true
+    done < "$cg/cgroup.procs"
+  done < "$FROZEN"
+}
+
 claim_dir() {
   local ns=$1 claim=$2
   local matches=() dir

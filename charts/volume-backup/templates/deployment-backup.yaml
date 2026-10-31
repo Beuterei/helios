@@ -1,6 +1,7 @@
 # Long-running restic cron. Writers are frozen only while claim directories are copied
 # into /mnt/copy. The container is privileged so it can write cgroup.freeze
-# on this node's cgroup tree.
+# on this node's cgroup tree. hostPID lets a restore SIGKILL those writers
+# before they are thawed.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,6 +24,7 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: backup
     spec:
+      hostPID: true
       serviceAccountName: volume-backup
       terminationGracePeriodSeconds: 60
       initContainers:
