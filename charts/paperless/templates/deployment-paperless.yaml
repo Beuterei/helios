@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: paperless
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "paperless.labels" . | nindent 6 }}
+      app.kubernetes.io/component: paperless
+  template:
+    metadata:
+      labels:
+        {{- include "paperless.labels" . | nindent 8 }}
+        app.kubernetes.io/component: paperless
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: paperless
+          image: "{{ .Values.paperless.image.repository }}:{{ .Values.paperless.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: PAPERLESS_REDIS
+              value: redis://broker:6379
+            - name: PAPERLESS_DBHOST
+              value: postgres
+            - name: PAPERLESS_DBENGINE
+              value: postgresql
+            - name: PAPERLESS_DBNAME
+              value: paperless
+            - name: PAPERLESS_DBUSER
+              value: paperless
+            - name: PAPERLESS_DBPASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: POSTGRES_PASSWORD
+            - name: PAPERLESS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: PAPERLESS_SECRET_KEY
+            - name: PAPERLESS_URL
+              value: https://{{ .Values.ingress.host }}
+            - name: PAPERLESS_TIME_ZONE
+              value: {{ .Values.paperless.timeZone | quote }}
+            - name: PAPERLESS_OCR_LANGUAGE
+              value: {{ .Values.paperless.ocrLanguage | quote }}
+            - name: PAPERLESS_TIKA_ENABLED
+              value: "1"
+            - name: PAPERLESS_TIKA_GOTENBERG_ENDPOINT
+              value: http://gotenberg:3000
+            - name: PAPERLESS_TIKA_ENDPOINT
+              value: http://tika:9998
+            - name: PAPERLESS_FILENAME_FORMAT
+              value: {{ .Values.paperless.filenameFormat | quote }}
+            - name: PAPERLESS_CONSUMER_ENABLE_BARCODES
+              value: "1"
+            - name: PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE
+              value: "1"
+            - name: PAPERLESS_CONSUMER_INOTIFY_DELAY
+              value: "5"
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.paperless.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /usr/src/paperless/data
+            - name: media
+              mountPath: /usr/src/paperless/media
+            - name: consume
+              mountPath: /usr/src/paperless/consume
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: paperless-data
+        - name: media
+          persistentVolumeClaim:
+            claimName: paperless-media
+        - name: consume
+          persistentVolumeClaim:
+            claimName: paperless-consume

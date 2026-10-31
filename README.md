@@ -37,6 +37,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `secrets` | Cloudflare tokens and the restic S3 secret. Matches `.sops.yaml`; commit only `*.enc.yaml` |
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
 | `charts/volume-backup` | Chart for restic; the release lives in `platform/volume-backup` |
+| `charts/paperless` | Chart for Paperless-ngx; the release lives in `apps` |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status` |
 
 ## Apply order

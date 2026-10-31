@@ -1,0 +1,70 @@
+{{- $sc := .Values.storageClass }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-data
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: paperless
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.paperless.persistence.data }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-media
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: paperless
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.paperless.persistence.media }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-consume
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: paperless
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.paperless.persistence.consume }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-postgres
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.postgres.persistence }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-broker
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: broker
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.broker.persistence }}

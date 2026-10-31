@@ -7,5 +7,6 @@ commonAnnotations:
 resources:
   - ai.yaml
   - network.yaml
+  - paperless.yaml
   - cert-manager.yaml
   - backup.yaml

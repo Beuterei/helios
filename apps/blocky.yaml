@@ -103,11 +103,13 @@ spec:
         filterUnmappedTypes: true
         mapping:
           chat.luisbeu.de: 192.168.1.151
+          paperless.luisbeu.de: 192.168.1.151
 
       rebindingProtection:
         enable: true
         allowedDomains:
           - chat.luisbeu.de
+          - paperless.luisbeu.de
 
       blocking:
         denylists:
