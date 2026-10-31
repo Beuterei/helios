@@ -111,3 +111,17 @@ tika:
       memory: 512Mi
     limits:
       memory: 1Gi
+
+# Uploads land in the Paperless consume claim. Runs as uid 1000, same as Paperless.
+webdav:
+  image:
+    repository: ghcr.io/hacdias/webdav
+    tag: "v5.17.3"
+  host: webdav-paperless.luisbeu.de
+  secretName: paperless-webdav
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 64Mi

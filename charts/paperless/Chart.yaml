@@ -1,7 +1,7 @@
 # Local chart. Not published; Flux installs it from this repo.
 apiVersion: v2
 name: paperless
-description: Paperless-ngx with Postgres, Valkey, Gotenberg, and Tika
+description: Paperless-ngx with Postgres, Valkey, Gotenberg, Tika, and WebDAV
 type: application
 version: 0.1.0
 appVersion: "3.4.1"

@@ -104,12 +104,14 @@ spec:
         mapping:
           chat.luisbeu.de: 192.168.1.151
           paperless.luisbeu.de: 192.168.1.151
+          webdav-paperless.luisbeu.de: 192.168.1.151
 
       rebindingProtection:
         enable: true
         allowedDomains:
           - chat.luisbeu.de
           - paperless.luisbeu.de
+          - webdav-paperless.luisbeu.de
 
       blocking:
         denylists:

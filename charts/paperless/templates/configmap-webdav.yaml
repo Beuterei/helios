@@ -1,0 +1,18 @@
+# Default permissions are read-only. CRUD so a client can drop a file in.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paperless-webdav
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: webdav
+data:
+  config.yml: |
+    address: 0.0.0.0
+    port: 6065
+    directory: /data
+    permissions: CRUD
+    behindProxy: true
+    users:
+      - username: "{env}WEBDAV_USERNAME"
+        password: "{env}WEBDAV_PASSWORD"

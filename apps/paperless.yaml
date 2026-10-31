@@ -1,5 +1,5 @@
-# Document archive. Same services as github.com/Beuterei/paperless-ngx,
-# without WebDAV. Image tags are the current releases.
+# Document archive. Same services as github.com/Beuterei/paperless-ngx.
+# Image tags are the current releases.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

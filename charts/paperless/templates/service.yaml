@@ -77,6 +77,22 @@ spec:
     - name: http
       port: 9998
       targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless-webdav
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: webdav
+spec:
+  selector:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: webdav
+  ports:
+    - name: http
+      port: 6065
+      targetPort: http
 {{- if .Values.rag.enabled }}
 ---
 apiVersion: v1

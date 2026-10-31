@@ -1,0 +1,70 @@
+# Same consume claim as Paperless. uid 1000 matches the paperless user, so the
+# consumer can delete a file after it is imported.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-webdav
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: webdav
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "paperless.labels" . | nindent 6 }}
+      app.kubernetes.io/component: webdav
+  template:
+    metadata:
+      labels:
+        {{- include "paperless.labels" . | nindent 8 }}
+        app.kubernetes.io/component: webdav
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-webdav.yaml") . | sha256sum }}
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: webdav
+          image: "{{ .Values.webdav.image.repository }}:{{ .Values.webdav.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          args: ["-c", "/config/config.yml"]
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+          env:
+            - name: WEBDAV_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webdav.secretName }}
+                  key: username
+            - name: WEBDAV_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webdav.secretName }}
+                  key: password
+          ports:
+            - name: http
+              containerPort: 6065
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.webdav.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: consume
+              mountPath: /data
+      volumes:
+        - name: config
+          configMap:
+            name: paperless-webdav
+        - name: consume
+          persistentVolumeClaim:
+            claimName: paperless-consume

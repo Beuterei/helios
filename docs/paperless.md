@@ -1,6 +1,6 @@
 # paperless
 
-Document archive: Paperless-ngx, Postgres, Valkey, Gotenberg, Tika, and the RAG adapter, from `charts/paperless`. No WebDAV.
+Document archive: Paperless-ngx, Postgres, Valkey, Gotenberg, Tika, the RAG adapter, and a WebDAV inbox, from `charts/paperless`. WebDAV writes into the consume claim. Its host is `webdav.host` in `charts/paperless/values.yaml`, and that name is also a Blocky mapping in `apps/blocky.yaml`. It is not a tunnel route.
 
 Flux applies `apps/paperless.yaml` in namespace `paperless`. TLS is the reflected certificate. AI uses the models [ollama](ollama.md) pulls.
 
@@ -28,10 +28,15 @@ task sops:edit -- secrets/paperless.enc.yaml
 5. Wait until Ollama has pulled the models this chart names before using AI.
 6. After the first admin exists, create an API token and put it in `secrets/paperless-api-token.enc.yaml`. Reconcile. The RAG adapter stays unusable until that token is real.
 7. In [open-webui](open-webui.md), enable the Paperless tool.
+8. Set the WebDAV username and password:
+
+```sh
+task sops:edit -- secrets/paperless-webdav.enc.yaml
+```
 
 ## Check
 
-HelmRelease `paperless` is Ready. Its Ingress host answers. After the API token is real, the RAG adapter pod is Ready.
+HelmRelease `paperless` is Ready. Its Ingress host answers. After the API token is real, the RAG adapter pod is Ready. The WebDAV pod is Ready, and its Ingress host asks for the password.
 
 ## Restore
 
