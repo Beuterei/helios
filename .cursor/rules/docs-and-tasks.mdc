@@ -12,6 +12,7 @@ Update the README when any of these change:
 - A directory's contents or what it is allowed to own (Layout table, and the Concerns table if ownership changed)
 - `dependsOn` or apply order
 - A task name or what `task build` / `task diff` cover
+- A service is added or removed (Services table). The rebuild procedure itself is `docs/<service>.md`; see the service-docs rule.
 
 Update `Taskfile.yml` when a kustomize path is added, removed, or renamed:
 

@@ -70,3 +70,8 @@ spec:
         value: bge-m3
       - name: RAG_OLLAMA_BASE_URL
         value: http://ollama.ai.svc.cluster.local:11434
+      # Paperless archive as an Open WebUI tool. On an existing PVC this
+      # ConfigVar may already be stored; add the same URL under Admin → Tools if missing.
+      - name: TOOL_SERVER_CONNECTIONS
+        value: >-
+          [{"url":"http://paperless-rag.paperless.svc.cluster.local:8080","path":"/openapi.json","auth_type":"none","config":{"enable":true},"info":{"id":"paperless","name":"Paperless","description":"Search the Paperless-ngx archive"}}]

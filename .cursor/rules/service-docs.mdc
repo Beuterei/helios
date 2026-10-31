@@ -1,0 +1,22 @@
+---
+description: Keep docs/<service>.md current, short, and linked from the README
+alwaysApply: true
+---
+
+# Service docs
+
+`docs/<service>.md` is the rebuild procedure for that service. Update it in the same change when any of these change:
+
+- A manual step that is not in the manifests: dashboard click, host prerequisite, secret to fill, or restore command
+- What Flux applies: release, namespace, or chart path
+- What is backed up, excluded, or required before the service is usable
+
+Skip the doc when the procedure stays the same. A change to a value the manifests already set is that case.
+
+Write the procedure. Leave out a tour of the manifests.
+
+- One file per service. A helper that exists only for that service stays in that file: the CoreDNS override in `docs/blocky.md`, reflector in `docs/cert-manager.md`.
+- Sections, in order: what it is, what Flux applies, rebuild, check, restore. Drop a section that does not apply.
+- Commands and paths. Never token values.
+- Do not copy values the manifests already set: addresses, hostnames, ports, sizes, models, tags, schedules. Point at the file.
+- A new file gets a row in the README Services table. A removed service loses its file and its row.

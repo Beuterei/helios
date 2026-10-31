@@ -1,0 +1,55 @@
+{{- if .Values.rag.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-rag
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rag
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "paperless.labels" . | nindent 6 }}
+      app.kubernetes.io/component: rag
+  template:
+    metadata:
+      labels:
+        {{- include "paperless.labels" . | nindent 8 }}
+        app.kubernetes.io/component: rag
+    spec:
+      containers:
+        - name: rag
+          image: "{{ .Values.rag.image.repository }}:{{ .Values.rag.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "/app/rag-server.py"]
+          env:
+            - name: PAPERLESS_URL
+              value: {{ .Values.rag.paperlessURL | quote }}
+            - name: PUBLIC_URL
+              value: {{ .Values.rag.publicURL | quote }}
+            - name: PAPERLESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rag.tokenSecret }}
+                  key: {{ .Values.rag.tokenKey }}
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.rag.resources | nindent 12 }}
+          volumeMounts:
+            - name: app
+              mountPath: /app
+              readOnly: true
+      volumes:
+        - name: app
+          configMap:
+            name: paperless-rag
+            defaultMode: 0555
+{{- end }}

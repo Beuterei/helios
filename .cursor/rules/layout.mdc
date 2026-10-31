@@ -21,6 +21,6 @@ Put a manifest in the directory that matches its kind.
 | `secrets` | SOPS `*.enc.yaml` | Plaintext, issuers |
 | `charts/` | Local chart source | The HelmRelease that installs it |
 
-Wire a new directory with a Flux Kustomization under `clusters/helios`. Leave `clusters/helios/flux-system/` untouched. Update `README.md` and `Taskfile.yml` in the same change (see the docs rule).
+Wire a new directory with a Flux Kustomization under `clusters/helios`. Leave `clusters/helios/flux-system/` untouched. Update `README.md` and `Taskfile.yml` in the same change (see the docs rule). A new workload or platform service also gets `docs/<name>.md` and a Services table row.
 
 A release that needs a namespace, chart source, TLS secret, or SOPS secret waits via `dependsOn` on its Flux layer. Example: open-webui mounts `luisbeu-de-tls` and paperless reads `Secret` `paperless`, so the `apps` layer depends on `certs` and `secrets`. Do not copy those objects into `apps/`.

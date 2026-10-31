@@ -38,6 +38,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
 | `charts/volume-backup` | Chart for restic; the release lives in `platform/volume-backup` |
 | `charts/paperless` | Chart for Paperless-ngx; the release lives in `apps` |
+| `docs` | Rebuild procedure and docs for each service |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status` |
 
 ## Apply order
@@ -56,37 +57,28 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 
 Apps that mount the TLS secret wait for **certs**. Apps that read SOPS secrets wait for **secrets**. Backups do not gate apps.
 
-## Cloudflare
+## Services
 
-The tunnel is remotely managed. Hostnames and routes are set in the Cloudflare dashboard. This repo only runs `cloudflared`. The zone is `luisbeu.de`.
+One rebuild procedure per service, in `docs/`. Flux applies the manifests. The doc is the steps and state that are not in the YAML: tokens, dashboard routes, the host, and claim restores.
 
-1. In the [Cloudflare dashboard](https://dash.cloudflare.com/), go to **Networking** > **Tunnels** and select **Create a tunnel**.
-2. Name it `helios`.
-3. Choose **Docker**. Copy the token (`eyJ...`), not the install command.
-4. Replace the example token in `secrets/cloudflare-tunnel-token.enc.yaml` with that token: `task sops:edit -- secrets/cloudflare-tunnel-token.enc.yaml`. The key is `stringData.token`.
-5. Push and `task reconcile`. The example token does not connect.
-6. On the tunnel, open **Routes** and select **Add route** > **Published application**.
-7. Set the hostname to a name in `luisbeu.de`, for example `chat.luisbeu.de`.
-8. Set the service to an address listed in `platform/cloudflared/networkpolicy.yaml`.
-9. Open the hostname. Cloudflare terminates TLS. The connector is up when `task status` shows the `cloudflared` HelmRelease Ready.
+If the cluster is gone and this repo is not:
 
-## Backups
+1. Bring the NixOS host back: k3s, NVIDIA, the CDI spec the generic-cdi-plugin chart mounts, and this node's LAN address.
+2. Bootstrap Flux with `--path clusters/helios`.
+3. Create Secret `flux-system/sops-age` with data key `age.agekey` (the age private key). The public key is in `.sops.yaml`. Secrets in git decrypt with that key. Keep them when restoring claims.
+4. `task reconcile`, then `task status`.
+5. Follow the docs below for anything still outside git. Restore claim data after `volume-backup` is Ready and the claims are Bound.
 
-`mazzolino/restic` copies bound claim directories to S3. Three Deployments in `backup` run backup, prune, and check. Backup also runs once when its pod starts.
-
-Every bound claim is copied except the `exclude` list in `platform/volume-backup/helmrelease.yaml`. A claim added later is included on the next run. Containers that mount an included claim are frozen while those directories are copied, then unfrozen while restic uploads. The copy needs free disk about as large as the data being copied. Replica counts stay as Flux set them.
-
-The repository, keys, and healthcheck URLs are `secrets/backup-s3.enc.yaml`. Fill them before the first reconcile. The backup pod exits until restic can create the repository; the next restart reads the updated secret.
-
-```sh
-task sops:edit -- secrets/backup-s3.enc.yaml
-```
-
-Restore one claim from the latest snapshot, or pass a snapshot id as the third argument. The workload is frozen, the claim directory is replaced, then unfrozen.
-
-```sh
-task backup:restore -- <namespace> <claim>
-```
+| Service | Namespace | Doc |
+| --- | --- | --- |
+| generic-cdi-plugin | `kube-system` | [docs/generic-cdi-plugin.md](docs/generic-cdi-plugin.md) |
+| cert-manager | `cert-manager` | [docs/cert-manager.md](docs/cert-manager.md) |
+| cloudflared | `network` | [docs/cloudflared.md](docs/cloudflared.md) |
+| blocky | `network` | [docs/blocky.md](docs/blocky.md) |
+| ollama | `ai` | [docs/ollama.md](docs/ollama.md) |
+| open-webui | `ai` | [docs/open-webui.md](docs/open-webui.md) |
+| paperless | `paperless` | [docs/paperless.md](docs/paperless.md) |
+| volume-backup | `backup` | [docs/volume-backup.md](docs/volume-backup.md) |
 
 ## Operate
 

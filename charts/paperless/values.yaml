@@ -1,5 +1,22 @@
 secretName: paperless
 
+# Open WebUI searches the archive through this adapter. Token is Secret paperless-api-token.
+rag:
+  enabled: true
+  image:
+    repository: docker.io/library/python
+    tag: 3.12-alpine
+  paperlessURL: http://paperless:8000
+  publicURL: https://paperless.luisbeu.de
+  tokenSecret: paperless-api-token
+  tokenKey: token
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
 ingress:
   className: traefik
   host: paperless.luisbeu.de
