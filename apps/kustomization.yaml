@@ -6,3 +6,4 @@ resources:
   - open-webui.yaml
   - blocky.yaml
   - paperless.yaml
+  - authentik.yaml

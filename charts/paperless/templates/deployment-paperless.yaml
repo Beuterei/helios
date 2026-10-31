@@ -93,6 +93,23 @@ spec:
             - name: PAPERLESS_AI_LLM_OUTPUT_LANGUAGE
               value: {{ .Values.paperless.ai.outputLanguage | quote }}
             {{- end }}
+            {{- if .Values.oidc.enabled }}
+            - name: PAPERLESS_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.secretName }}
+                  key: {{ .Values.oidc.secretKey }}
+            - name: PAPERLESS_APPS
+              value: allauth.socialaccount.providers.openid_connect
+            - name: PAPERLESS_SOCIALACCOUNT_PROVIDERS
+              value: {{ printf "{\"openid_connect\":{\"OAUTH_PKCE_ENABLED\":true,\"APPS\":[{\"provider_id\":\"authentik\",\"name\":\"authentik\",\"client_id\":\"%s\",\"secret\":\"$(PAPERLESS_OIDC_CLIENT_SECRET)\",\"settings\":{\"server_url\":\"https://%s/application/o/%s/.well-known/openid-configuration\",\"fetch_userinfo\":true}}],\"SCOPE\":[\"openid\",\"profile\",\"email\"]}}" .Values.oidc.clientId .Values.oidc.host .Values.oidc.clientId | quote }}
+            - name: PAPERLESS_LOGOUT_REDIRECT_URL
+              value: https://{{ .Values.oidc.host }}/application/o/{{ .Values.oidc.clientId }}/end-session/
+            - name: PAPERLESS_SOCIAL_AUTO_SIGNUP
+              value: "true"
+            - name: PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS
+              value: "true"
+            {{- end }}
           startupProbe:
             httpGet:
               path: /

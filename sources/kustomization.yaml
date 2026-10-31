@@ -8,6 +8,7 @@ commonAnnotations:
 resources:
   - otwld.yaml
   - open-webui.yaml
+  - goauthentik.yaml
   - johanneskastl.yaml
   - cert-manager.yaml
   - cloudflare.yaml

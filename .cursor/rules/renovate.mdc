@@ -15,4 +15,6 @@ A local chart installed from git (`reconcileStrategy: Revision`, no chart versio
 
 An intentional image pin gets `matchDatasources: ["docker"]` and `enabled: false` on that file, with a `description` that says why. Blocky is pinned to a pre-release digest until v0.36.
 
+A chart that stores accounts or migrates them gets `automerge: false` on its HelmRelease file. Authentik is that case.
+
 Remove a package's `matchFileNames` or `matchPackageNames` entry when that manifest goes away.

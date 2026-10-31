@@ -57,6 +57,11 @@
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "addLabels": ["major"]
+    },
+    {
+      "description": "Authentik stores accounts and signs the other apps in. Review the upgrade.",
+      "matchFileNames": ["apps/authentik.yaml"],
+      "automerge": false
     }
   ]
 }

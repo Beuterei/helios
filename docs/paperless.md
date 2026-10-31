@@ -28,7 +28,8 @@ task sops:edit -- secrets/paperless.enc.yaml
 5. Wait until Ollama has pulled the models this chart names before using AI.
 6. After the first admin exists, create an API token and put it in `secrets/paperless-api-token.enc.yaml`. Reconcile. The RAG adapter stays unusable until that token is real.
 7. In [open-webui](open-webui.md), enable the Paperless tool.
-8. Set the WebDAV username and password:
+8. Sign-in can use [authentik](authentik.md). An existing Paperless user links it under the profile menu, **My profile**, **Connect new social account**. The username form stays.
+9. Set the WebDAV username and password:
 
 ```sh
 task sops:edit -- secrets/paperless-webdav.enc.yaml

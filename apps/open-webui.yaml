@@ -75,3 +75,26 @@ spec:
       - name: TOOL_SERVER_CONNECTIONS
         value: >-
           [{"url":"http://paperless-rag.paperless.svc.cluster.local:8080","path":"/openapi.json","auth_type":"none","config":{"enable":true},"info":{"id":"paperless","name":"Paperless","description":"Search the Paperless-ngx archive by text, tags, correspondent, document type, or date"}}]
+      # Authentik. The client secret is reflected into this namespace.
+      # An account with the same email is the existing user. Local login stays.
+      - name: WEBUI_URL
+        value: https://chat.luisbeu.de
+      - name: OAUTH_CLIENT_ID
+        value: open-webui
+      - name: OAUTH_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: authentik-sso
+            key: open-webui
+      - name: OAUTH_PROVIDER_NAME
+        value: Authentik
+      - name: OPENID_PROVIDER_URL
+        value: https://auth.luisbeu.de/application/o/open-webui/.well-known/openid-configuration
+      - name: OPENID_REDIRECT_URI
+        value: https://chat.luisbeu.de/oauth/oidc/callback
+      - name: OAUTH_SCOPES
+        value: openid email profile
+      - name: ENABLE_OAUTH_SIGNUP
+        value: "true"
+      - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+        value: "true"

@@ -76,6 +76,7 @@ If the cluster is gone it can be recreated with:
 | cloudflared | `network` | [docs/cloudflared.md](docs/cloudflared.md) |
 | blocky | `network` | [docs/blocky.md](docs/blocky.md) |
 | ollama | `ai` | [docs/ollama.md](docs/ollama.md) |
+| authentik | `authentik` | [docs/authentik.md](docs/authentik.md) |
 | open-webui | `ai` | [docs/open-webui.md](docs/open-webui.md) |
 | paperless | `paperless` | [docs/paperless.md](docs/paperless.md) |
 | volume-backup | `backup` | [docs/volume-backup.md](docs/volume-backup.md) |

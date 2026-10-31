@@ -6,6 +6,7 @@ commonAnnotations:
   kustomize.toolkit.fluxcd.io/prune: disabled
 resources:
   - ai.yaml
+  - authentik.yaml
   - network.yaml
   - paperless.yaml
   - cert-manager.yaml

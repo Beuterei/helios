@@ -107,6 +107,7 @@ spec:
         customTTL: 1h
         filterUnmappedTypes: true
         mapping:
+          auth.luisbeu.de: 192.168.1.151
           chat.luisbeu.de: 192.168.1.151
           paperless.luisbeu.de: 192.168.1.151
           webdav-paperless.luisbeu.de: 192.168.1.151
@@ -114,6 +115,7 @@ spec:
       rebindingProtection:
         enable: true
         allowedDomains:
+          - auth.luisbeu.de
           - chat.luisbeu.de
           - paperless.luisbeu.de
           - webdav-paperless.luisbeu.de
