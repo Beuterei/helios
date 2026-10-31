@@ -11,6 +11,8 @@ spec:
   chart:
     spec:
       chart: ./charts/volume-backup
+      # Chart version stays 0.1.0. ChartVersion would keep the first package.
+      reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository
         name: flux-system
