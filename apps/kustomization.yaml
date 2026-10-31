@@ -5,3 +5,4 @@ resources:
   - ollama.yaml
   - open-webui.yaml
   - blocky.yaml
+  - hello.yaml

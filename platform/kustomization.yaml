@@ -1,6 +1,7 @@
 # Cluster operators and node plugins. Applied by the Flux Kustomization named "platform".
-# cert-manager's HelmRelease is a sibling directory, applied by its own Flux layer
-# so CRDs are Ready before certs.
+# cert-manager and cloudflared are sibling directories, each applied by its own
+# Flux layer. cert-manager waits so CRDs are Ready before certs. cloudflared
+# waits so the tunnel token exists before the connector starts.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:

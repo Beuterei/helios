@@ -10,3 +10,4 @@ resources:
   - open-webui.yaml
   - johanneskastl.yaml
   - cert-manager.yaml
+  - cloudflare.yaml

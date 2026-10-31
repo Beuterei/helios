@@ -13,7 +13,7 @@ One directory, one kind of object. Put new YAML in the directory that matches th
 | **Apply graph** | Flux `Kustomization` objects: path, `dependsOn`, decryption | HelmReleases, Namespaces, Secrets, charts |
 | **Namespaces** | `Namespace` objects | Anything that lives inside those namespaces |
 | **Sources** | `HelmRepository` / `OCIRepository` | The HelmReleases that consume them |
-| **Platform** | Cluster operators and node plugins | User-facing apps, Certificates, Secrets |
+| **Platform** | Cluster operators, the Cloudflare Tunnel, and node plugins | User-facing apps, Certificates, Secrets |
 | **Apps** | Workload HelmReleases | Namespaces, chart sources, ClusterIssuers, kube-system config |
 | **Secrets** | SOPS-encrypted `Secret` manifests (`*.enc.yaml`) | ClusterIssuers, Certificates, plaintext |
 | **Certs** | `ClusterIssuer` and `Certificate` | cert-manager itself, Ingress, apps that mount the TLS secret |
@@ -26,14 +26,16 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | Path | Concern |
 | --- | --- |
 | `clusters/helios` | Apply graph, including `flux-system` |
-| `namespaces` | `ai`, `network`, `cert-manager` |
-| `sources` | Chart repos for ollama, open-webui, blocky, cert-manager |
+| `namespaces` | `ai`, `network`, `cert-manager`, `hello` |
+| `sources` | Chart repos for ollama, open-webui, blocky, cert-manager, cloudflared |
 | `platform` | CDI plugin and CoreDNS override, both in `kube-system` |
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
-| `apps` | HelmReleases: ollama, open-webui, blocky |
+| `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
+| `apps` | HelmReleases: ollama, open-webui, blocky, hello |
 | `certs` | Let's Encrypt `ClusterIssuer` and `*.luisbeu.de` `Certificate` |
-| `secrets` | Cloudflare DNS-01 token. Matches `.sops.yaml`; commit only `*.enc.yaml` |
+| `secrets` | Cloudflare DNS-01 token and tunnel token. Matches `.sops.yaml`; commit only `*.enc.yaml` |
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
+| `charts/hello` | Chart for the hello server; the release lives in `apps` |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status` |
 
 ## Apply order
@@ -47,8 +49,23 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 5. **secrets** — waits for namespaces, then decrypts SOPS
 6. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
 7. **apps** — waits for namespaces, sources, platform, and certs, then workloads
+8. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
 
 `open-webui` mounts the TLS secret that **certs** creates, so apps wait for certs.
+
+## Cloudflare
+
+The tunnel is remotely managed. Hostnames and routes are set in the Cloudflare dashboard. This repo only runs `cloudflared`. The zone is `luisbeu.de`.
+
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com/), go to **Networking** > **Tunnels** and select **Create a tunnel**.
+2. Name it `helios`.
+3. Choose **Docker**. Copy the token (`eyJ...`), not the install command.
+4. Replace the example token in `secrets/cloudflare-tunnel-token.enc.yaml` with that token: `task sops:edit -- secrets/cloudflare-tunnel-token.enc.yaml`. The key is `stringData.token`.
+5. Push and `task reconcile`. The example token does not connect.
+6. On the tunnel, open **Routes** and select **Add route** > **Published application**.
+7. Set the hostname to a name in `luisbeu.de`, for example `chat.luisbeu.de`.
+8. Set the service to an address listed in `platform/cloudflared/networkpolicy.yaml`.
+9. Open the hostname. Cloudflare terminates TLS. The connector is up when `task status` shows the `cloudflared` HelmRelease Ready.
 
 ## Operate
 
