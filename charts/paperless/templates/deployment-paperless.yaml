@@ -19,6 +19,9 @@ spec:
         {{- include "paperless.labels" . | nindent 8 }}
         app.kubernetes.io/component: paperless
     spec:
+      # The Service is named paperless, so Kubernetes would set
+      # PAPERLESS_PORT to tcp://<ip>:8000. Granian reads that as its bind port.
+      enableServiceLinks: false
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
