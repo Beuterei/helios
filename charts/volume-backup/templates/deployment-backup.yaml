@@ -23,6 +23,8 @@ spec:
         app.kubernetes.io/name: volume-backup
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: backup
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       serviceAccountName: volume-backup
       terminationGracePeriodSeconds: 60

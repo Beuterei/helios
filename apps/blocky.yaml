@@ -48,6 +48,11 @@ spec:
     env:
       TZ: Europe/Berlin
 
+    # The chart renders this with tpl. The hash is part of the pod template,
+    # so a config change rolls the pod. The subPath mount would not.
+    podAnnotations:
+      checksum/config: "{{ .Values.config | sha256sum }}"
+
     service:
       dns:
         enabled: true
