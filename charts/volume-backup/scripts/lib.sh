@@ -68,16 +68,20 @@ thaw_all() {
   thaw_file "$FROZEN_DISK"
 }
 
-# SIGKILL writers while their cgroup is frozen. A thawed process still has
-# the previous SQLite inode open and would keep serving the old database.
+# Kill writers while their cgroup is frozen. A thawed process still has the
+# previous SQLite inode open and would keep serving the old database.
+# cgroup.procs on the pod slice is empty; the containers are child scopes.
+# cgroup.kill covers that whole subtree.
 kill_frozen() {
-  local cg pid
+  local cg
   [[ -f "$FROZEN" ]] || return 0
   while IFS= read -r cg; do
-    [[ -z "$cg" || ! -r "$cg/cgroup.procs" ]] && continue
-    while IFS= read -r pid; do
-      [[ -n "${pid:-}" ]] && kill -9 "$pid" 2>/dev/null || true
-    done < "$cg/cgroup.procs"
+    [[ -z "$cg" ]] && continue
+    if [[ ! -w "$cg/cgroup.kill" ]]; then
+      printf 'no cgroup.kill at %s\n' "$cg" >&2
+      return 1
+    fi
+    printf '1\n' > "$cg/cgroup.kill"
   done < "$FROZEN"
 }
 
