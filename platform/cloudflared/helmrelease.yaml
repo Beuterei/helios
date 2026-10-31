@@ -24,7 +24,7 @@ spec:
       valuesKey: token
       targetPath: cloudflare.tunnel_token
   values:
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: cloudflare/cloudflared
       tag: "2026.10.7"

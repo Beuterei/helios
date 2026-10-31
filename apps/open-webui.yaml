@@ -55,6 +55,8 @@ spec:
 
     # API keys, restricted to model list and chat.
     extraEnvVars:
+      - name: CORS_ALLOW_ORIGIN
+        value: https://chat.luisbeu.de
       - name: ENABLE_API_KEYS
         value: "true"
       - name: ENABLE_API_KEYS_ENDPOINT_RESTRICTIONS
