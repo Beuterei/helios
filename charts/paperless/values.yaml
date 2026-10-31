@@ -16,6 +16,17 @@ paperless:
   ocrLanguage: deu+eng
   # Same storage layout as the compose file.
   filenameFormat: "{{ owner_username }}/{{ created_year }}/{{ created_month }}/{{ correspondent }}/{{ asn }} - {{ title }}"
+  # Native AI (3.0+). Suggestions, auto-tag workflows, and document chat.
+  # Model is pulled on the Ollama release. Internal URL must stay allowed.
+  ai:
+    enabled: true
+    backend: ollama
+    endpoint: http://ollama.ai.svc.cluster.local:11434
+    model: gemma3:12b
+    embeddingBackend: ollama
+    embeddingModel: bge-m3
+    requestTimeout: "300"
+    outputLanguage: German
   persistence:
     data: 2Gi
     media: 50Gi

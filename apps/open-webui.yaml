@@ -63,3 +63,10 @@ spec:
         value: "true"
       - name: API_KEYS_ALLOWED_ENDPOINTS
         value: /api/models,/api/chat/completions
+      # RAG uses in-cluster Ollama, not the default MiniLM in the UI pod.
+      - name: RAG_EMBEDDING_ENGINE
+        value: ollama
+      - name: RAG_EMBEDDING_MODEL
+        value: bge-m3
+      - name: RAG_OLLAMA_BASE_URL
+        value: http://ollama.ai.svc.cluster.local:11434

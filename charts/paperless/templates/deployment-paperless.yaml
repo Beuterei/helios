@@ -73,6 +73,24 @@ spec:
               value: "1"
             - name: PAPERLESS_CONSUMER_INOTIFY_DELAY
               value: "5"
+            {{- if .Values.paperless.ai.enabled }}
+            - name: PAPERLESS_AI_ENABLED
+              value: "true"
+            - name: PAPERLESS_AI_LLM_BACKEND
+              value: {{ .Values.paperless.ai.backend | quote }}
+            - name: PAPERLESS_AI_LLM_ENDPOINT
+              value: {{ .Values.paperless.ai.endpoint | quote }}
+            - name: PAPERLESS_AI_LLM_MODEL
+              value: {{ .Values.paperless.ai.model | quote }}
+            - name: PAPERLESS_AI_LLM_EMBEDDING_BACKEND
+              value: {{ .Values.paperless.ai.embeddingBackend | quote }}
+            - name: PAPERLESS_AI_LLM_EMBEDDING_MODEL
+              value: {{ .Values.paperless.ai.embeddingModel | quote }}
+            - name: PAPERLESS_AI_LLM_REQUEST_TIMEOUT
+              value: {{ .Values.paperless.ai.requestTimeout | quote }}
+            - name: PAPERLESS_AI_LLM_OUTPUT_LANGUAGE
+              value: {{ .Values.paperless.ai.outputLanguage | quote }}
+            {{- end }}
           startupProbe:
             httpGet:
               path: /

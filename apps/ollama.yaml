@@ -27,6 +27,10 @@ spec:
         pull:
           - gpt-oss:20b
           - qwen3-coder:30b
+          # Paperless tagging and document chat. Structured output, DE+EN.
+          - gemma3:12b
+          # Multilingual embeddings for Paperless RAG and Open WebUI.
+          - bge-m3
 
     extraEnv:
       - name: OLLAMA_CONTEXT_LENGTH
