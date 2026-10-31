@@ -8,7 +8,15 @@ Flux applies `platform/cert-manager/`, `sources/cert-manager.yaml`, `certs/`, an
 
 The token in git is reused when Secret `flux-system/sops-age` decrypts. Create a new token only when that one is gone:
 
-1. In the Cloudflare dashboard, create an API token that can edit DNS on the zone the Certificate requests.
+1. In the Cloudflare dashboard: My Profile → API Tokens → Create Token. Custom token, not the Global API Key.
+
+   Permissions:
+
+   - Zone → Zone → Read
+   - Zone → DNS → Edit
+
+   Zone Resources: Include → Specific zone → the zone in `certs/certificate.yaml`.
+
 2. Put it in `secrets/cloudflare-dns-01-token.enc.yaml`, at the key `certs/clusterissuer.yaml` references.
 
 ```sh

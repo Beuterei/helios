@@ -33,7 +33,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
 | `platform/volume-backup` | restic backup, prune, and check (own Flux layer; waits for the S3 secret) |
 | `apps` | Workload HelmReleases |
-| `certs` | Let's Encrypt `ClusterIssuer` and `*.luisbeu.de` `Certificate` |
+| `certs` | Let's Encrypt `ClusterIssuer` and `Certificate` |
 | `secrets` | Matches `.sops.yaml`; commit only `*.enc.yaml` |
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
 | `charts/volume-backup` | Chart for restic; the release lives in `platform/volume-backup` |
@@ -61,7 +61,7 @@ Apps that mount the TLS secret wait for **certs**. Apps that read SOPS secrets w
 
 One rebuild procedure per service, in `docs/`. Flux applies the manifests. The doc is the steps and state that are not in the YAML: tokens, dashboard routes, the host, and claim restores.
 
-If the cluster is gone and this repo is not:
+If the cluster is gone it can be recreated with:
 
 1. Bring the NixOS host back: k3s, NVIDIA, the CDI spec the generic-cdi-plugin chart mounts, and this node's LAN address.
 2. Bootstrap Flux with `--path clusters/helios`.
