@@ -8,3 +8,4 @@ resources:
   - ai.yaml
   - network.yaml
   - cert-manager.yaml
+  - backup.yaml

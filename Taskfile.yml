@@ -13,6 +13,8 @@ tasks:
       - kustomize build platform > /dev/null
       - kustomize build platform/cert-manager > /dev/null
       - kustomize build platform/cloudflared > /dev/null
+      - kustomize build platform/volume-backup > /dev/null
+      - helm template volume-backup charts/volume-backup --namespace backup > /dev/null
       - kustomize build apps > /dev/null
       - kustomize build certs > /dev/null
       - kustomize build secrets > /dev/null
@@ -26,6 +28,7 @@ tasks:
       - flux diff kustomization platform --path ./platform || [ $? -eq 1 ]
       - flux diff kustomization cert-manager --path ./platform/cert-manager || [ $? -eq 1 ]
       - flux diff kustomization cloudflared --path ./platform/cloudflared || [ $? -eq 1 ]
+      - flux diff kustomization backups --path ./platform/volume-backup || [ $? -eq 1 ]
       - flux diff kustomization apps --path ./apps || [ $? -eq 1 ]
       - flux diff kustomization certs --path ./certs || [ $? -eq 1 ]
 
@@ -60,3 +63,14 @@ tasks:
     desc: Print secrets/<name>.enc.yaml. Writes no file.
     cmds:
       - sops --decrypt {{.CLI_ARGS}}
+
+  backup:restore:
+    desc: "Freeze a claim, restore a restic snapshot over it, and unfreeze. Args: namespace claim [snapshot]"
+    cmds:
+      - |
+        set -euo pipefail
+        set -- {{.CLI_ARGS}}
+        ns=${1:?namespace}
+        claim=${2:?claim}
+        snap=${3:-latest}
+        kubectl -n backup exec deploy/restic-backup -c restic -- bash /scripts/restore.sh "$ns" "$claim" "$snap"

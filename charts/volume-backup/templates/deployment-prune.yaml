@@ -1,0 +1,54 @@
+# restic prune on its own schedule. SKIP_INIT so this does not create the repository.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restic-prune
+  labels:
+    app.kubernetes.io/name: volume-backup
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: prune
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: volume-backup
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: prune
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: volume-backup
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: prune
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: restic
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secretName }}
+          env:
+            - name: AWS_DEFAULT_REGION
+              value: {{ .Values.s3.region | quote }}
+            - name: AWS_S3_FORCE_PATH_STYLE
+              value: {{ .Values.s3.forcePathStyle | quote }}
+            - name: TZ
+              value: {{ .Values.timeZone | quote }}
+            - name: PRUNE_CRON
+              value: {{ .Values.prune.cron | quote }}
+            - name: RUN_ON_STARTUP
+              value: "false"
+            - name: SKIP_INIT
+              value: "true"
+            - name: PRE_COMMANDS
+              value: |-
+                export RID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "")
+                curl -fsS -m 10 --retry 3 -X POST "${HEALTHCHECKS_URL_PRUNE_START:-}?rid=$RID" || true
+            - name: POST_COMMANDS_SUCCESS
+              value: curl -fsS -m 10 --retry 3 -X POST "${HEALTHCHECKS_URL_PRUNE_SUCCESS:-}?rid=$RID" || true
+            - name: POST_COMMANDS_FAILURE
+              value: curl -fsS -m 10 --retry 3 -X POST "${HEALTHCHECKS_URL_PRUNE_FAIL:-}?rid=$RID" || true
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

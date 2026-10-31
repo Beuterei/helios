@@ -1,0 +1,21 @@
+# Local chart. Copies claim directories to the S3 repository in Secret backup-s3.
+# Claims listed under exclude are left running and are not copied.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: volume-backup
+  namespace: backup
+spec:
+  interval: 1h
+  timeout: 10m
+  chart:
+    spec:
+      chart: ./charts/volume-backup
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    exclude:
+      - namespace: ai
+        claim: ollama

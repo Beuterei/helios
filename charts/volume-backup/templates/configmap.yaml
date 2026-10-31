@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: volume-backup
+  labels:
+    app.kubernetes.io/name: volume-backup
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  exclude: |
+    {{- range .Values.exclude }}
+    {{ .namespace }}/{{ .claim }}
+    {{- end }}
+  lib.sh: |
+{{ .Files.Get "scripts/lib.sh" | indent 4 }}
+  quiesce.sh: |
+{{ .Files.Get "scripts/quiesce.sh" | indent 4 }}
+  thaw.sh: |
+{{ .Files.Get "scripts/thaw.sh" | indent 4 }}
+  restore.sh: |
+{{ .Files.Get "scripts/restore.sh" | indent 4 }}

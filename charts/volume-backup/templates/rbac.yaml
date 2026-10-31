@@ -1,0 +1,36 @@
+# List claims and the pods that mount them. Freezing is done on the node, not through this role.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: volume-backup
+  labels:
+    app.kubernetes.io/name: volume-backup
+    app.kubernetes.io/instance: {{ .Release.Name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: volume-backup
+  labels:
+    app.kubernetes.io/name: volume-backup
+    app.kubernetes.io/instance: {{ .Release.Name }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "persistentvolumeclaims"]
+    verbs: ["list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: volume-backup
+  labels:
+    app.kubernetes.io/name: volume-backup
+    app.kubernetes.io/instance: {{ .Release.Name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: volume-backup
+subjects:
+  - kind: ServiceAccount
+    name: volume-backup
+    namespace: {{ .Release.Namespace }}

@@ -1,0 +1,136 @@
+# Long-running restic cron. Writers are frozen only while claim directories are copied
+# into /mnt/copy. The container is privileged so it can write cgroup.freeze
+# on this node's cgroup tree.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restic-backup
+  labels:
+    app.kubernetes.io/name: volume-backup
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: backup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: volume-backup
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: backup
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: volume-backup
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: backup
+    spec:
+      serviceAccountName: volume-backup
+      terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: kubectl
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              curl -fsSL -o /opt/bin/kubectl "https://dl.k8s.io/release/{{ .Values.kubectl.version }}/bin/linux/amd64/kubectl"
+              echo "{{ .Values.kubectl.sha256 }}  /opt/bin/kubectl" | sha256sum -c -
+              chmod 755 /opt/bin/kubectl
+          volumeMounts:
+            - name: kubectl
+              mountPath: /opt/bin
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      containers:
+        - name: restic
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              bash /scripts/thaw.sh || true
+              exec /sbin/tini -- /entrypoint
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secretName }}
+          env:
+            - name: AWS_DEFAULT_REGION
+              value: {{ .Values.s3.region | quote }}
+            - name: AWS_S3_FORCE_PATH_STYLE
+              value: {{ .Values.s3.forcePathStyle | quote }}
+            - name: PATH
+              value: /opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+            - name: TZ
+              value: {{ .Values.timeZone | quote }}
+            - name: BACKUP_CRON
+              value: {{ .Values.backup.cron | quote }}
+            - name: RUN_ON_STARTUP
+              value: {{ .Values.backup.runOnStartup | quote }}
+            - name: RESTIC_BACKUP_SOURCES
+              value: /mnt/copy/data
+            - name: RESTIC_BACKUP_ARGS
+              value: {{ .Values.backup.args | quote }}
+            - name: RESTIC_FORGET_ARGS
+              value: {{ .Values.backup.forgetArgs | quote }}
+            - name: PRE_COMMANDS
+              value: |-
+                export RID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "")
+                curl -fsS -m 10 --retry 3 -X POST "${HEALTHCHECKS_URL_BACKUP_START:-}?rid=$RID" || true
+                bash /scripts/quiesce.sh || exit 1
+            - name: POST_COMMANDS_SUCCESS
+              value: curl -fsS -m 10 --retry 3 -X POST "${HEALTHCHECKS_URL_BACKUP_SUCCESS:-}?rid=$RID" || true
+            - name: POST_COMMANDS_FAILURE
+              value: curl -fsS -m 10 --retry 3 -X POST "${HEALTHCHECKS_URL_BACKUP_FAIL:-}?rid=$RID" || true
+            - name: POST_COMMANDS_INCOMPLETE
+              value: curl -fsS -m 10 --retry 3 -X POST "${HEALTHCHECKS_URL_BACKUP_INCOMPLETE:-}?rid=$RID" || true
+            - name: POST_COMMANDS_EXIT
+              value: bash /scripts/thaw.sh || true
+          lifecycle:
+            preStop:
+              exec:
+                command: ["bash", "/scripts/thaw.sh"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: kubectl
+              mountPath: /opt/bin
+              readOnly: true
+            - name: volumes
+              mountPath: /mnt/volumes
+              readOnly: true
+            - name: copy
+              mountPath: /mnt/copy
+            - name: cgroup
+              mountPath: /sys/fs/cgroup
+            - name: containerd
+              mountPath: /run/k3s/containerd/containerd.sock
+              readOnly: true
+      volumes:
+        - name: scripts
+          configMap:
+            name: volume-backup
+        - name: kubectl
+          emptyDir: {}
+        - name: volumes
+          hostPath:
+            path: {{ .Values.storageHostPath }}
+            type: Directory
+        - name: copy
+          hostPath:
+            path: {{ .Values.copyHostPath }}
+            type: DirectoryOrCreate
+        - name: cgroup
+          hostPath:
+            path: {{ .Values.cgroupHostPath }}
+            type: Directory
+        # This node's containerd. Writers are stopped through the cgroup mount.
+        - name: containerd
+          hostPath:
+            path: {{ .Values.containerdSocket }}
+            type: Socket

@@ -13,7 +13,7 @@ One directory, one kind of object. Put new YAML in the directory that matches th
 | **Apply graph** | Flux `Kustomization` objects: path, `dependsOn`, decryption | HelmReleases, Secrets, charts |
 | **Namespaces** | `Namespace` objects | Anything that lives inside them |
 | **Sources** | `HelmRepository` / `OCIRepository` | The HelmReleases that consume them |
-| **Platform** | Cluster operators, the Cloudflare Tunnel, and node plugins | User-facing apps, Certificates, Secrets |
+| **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, and volume backups | User-facing apps, Certificates, Secrets |
 | **Apps** | Workload HelmReleases | Chart sources, ClusterIssuers, cluster config |
 | **Secrets** | SOPS-encrypted `Secret` manifests (`*.enc.yaml`) | ClusterIssuers, Certificates, plaintext |
 | **Certs** | `ClusterIssuer` and `Certificate` | cert-manager itself, Ingress, apps that mount the TLS secret |
@@ -31,10 +31,12 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `platform` | CDI plugin and CoreDNS override |
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
+| `platform/volume-backup` | restic backup, prune, and check (own Flux layer; waits for the S3 secret) |
 | `apps` | Workload HelmReleases |
 | `certs` | Let's Encrypt `ClusterIssuer` and `*.luisbeu.de` `Certificate` |
-| `secrets` | Cloudflare DNS-01 token and tunnel token. Matches `.sops.yaml`; commit only `*.enc.yaml` |
+| `secrets` | Cloudflare tokens and the restic S3 secret. Matches `.sops.yaml`; commit only `*.enc.yaml` |
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
+| `charts/volume-backup` | Chart for restic; the release lives in `platform/volume-backup` |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status` |
 
 ## Apply order
@@ -49,8 +51,9 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 6. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
 7. **apps** — waits for namespaces, sources, platform, and certs, then workloads
 8. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
+9. **backups** — waits for namespaces and secrets, then restic
 
-Apps that mount the TLS secret wait for **certs**.
+Apps that mount the TLS secret wait for **certs**. Backups do not gate apps.
 
 ## Cloudflare
 
@@ -65,6 +68,24 @@ The tunnel is remotely managed. Hostnames and routes are set in the Cloudflare d
 7. Set the hostname to a name in `luisbeu.de`, for example `chat.luisbeu.de`.
 8. Set the service to an address listed in `platform/cloudflared/networkpolicy.yaml`.
 9. Open the hostname. Cloudflare terminates TLS. The connector is up when `task status` shows the `cloudflared` HelmRelease Ready.
+
+## Backups
+
+`mazzolino/restic` copies bound claim directories to S3. Three Deployments in `backup` run backup, prune, and check. Backup also runs once when its pod starts.
+
+Every bound claim is copied except the `exclude` list in `platform/volume-backup/helmrelease.yaml`. A claim added later is included on the next run. Containers that mount an included claim are frozen while those directories are copied, then unfrozen while restic uploads. The copy needs free disk about as large as the data being copied. Replica counts stay as Flux set them.
+
+The repository, keys, and healthcheck URLs are `secrets/backup-s3.enc.yaml`. Fill them before the first reconcile. The backup pod exits until restic can create the repository; the next restart reads the updated secret.
+
+```sh
+task sops:edit -- secrets/backup-s3.enc.yaml
+```
+
+Restore one claim from the latest snapshot, or pass a snapshot id as the third argument. The workload is frozen, the claim directory is replaced, then unfrozen.
+
+```sh
+task backup:restore -- <namespace> <claim>
+```
 
 ## Operate
 

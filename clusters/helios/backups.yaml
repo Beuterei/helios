@@ -1,0 +1,18 @@
+# restic backups. The S3 secret must already be decrypted.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: backups
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: namespaces
+    - name: secrets
+  interval: 10m
+  path: ./platform/volume-backup
+  prune: true
+  wait: true
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
