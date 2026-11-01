@@ -110,6 +110,11 @@ spec:
             metadata:
               name: helios-sso
             entries:
+              - model: authentik_tenants.tenant
+                identifiers:
+                  schema_name: public
+                attrs:
+                  base_url: https://auth.luisbeu.de
               - model: authentik_providers_oauth2.oauth2provider
                 id: paperless
                 identifiers:
@@ -120,6 +125,7 @@ spec:
                   client_type: confidential
                   client_id: paperless
                   client_secret: !Env PAPERLESS_OIDC_SECRET
+                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Internal JWT Certificate]]
                   grant_types:
                     - authorization_code
                   redirect_uris:
@@ -138,6 +144,20 @@ spec:
                   provider: !KeyOf paperless
                   meta_launch_url: https://paperless.luisbeu.de
                   policy_engine_mode: any
+              - model: authentik_core.group
+                id: paperless-users
+                identifiers:
+                  name: Paperless users
+              - model: authentik_policies.policybinding
+                identifiers:
+                  order: 0
+                  target: !Find [authentik_core.application, [slug, paperless]]
+                  group: !KeyOf paperless-users
+              - model: authentik_policies.policybinding
+                identifiers:
+                  order: 1
+                  target: !Find [authentik_core.application, [slug, paperless]]
+                  group: !Find [authentik_core.group, [name, authentik Admins]]
               - model: authentik_providers_oauth2.oauth2provider
                 id: open-webui
                 identifiers:
@@ -148,6 +168,7 @@ spec:
                   client_type: confidential
                   client_id: open-webui
                   client_secret: !Env OPENWEBUI_OIDC_SECRET
+                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Internal JWT Certificate]]
                   grant_types:
                     - authorization_code
                   redirect_uris:
@@ -166,3 +187,25 @@ spec:
                   provider: !KeyOf open-webui
                   meta_launch_url: https://chat.luisbeu.de
                   policy_engine_mode: any
+              - model: authentik_core.group
+                id: open-webui-users
+                identifiers:
+                  name: Open WebUI users
+              - model: authentik_policies.policybinding
+                identifiers:
+                  order: 0
+                  target: !Find [authentik_core.application, [slug, open-webui]]
+                  group: !KeyOf open-webui-users
+              - model: authentik_policies.policybinding
+                identifiers:
+                  order: 1
+                  target: !Find [authentik_core.application, [slug, open-webui]]
+                  group: !Find [authentik_core.group, [name, authentik Admins]]
+              - model: authentik_core.user
+                identifiers:
+                  username: akadmin
+                attrs:
+                  groups:
+                    - !Find [authentik_core.group, [name, authentik Admins]]
+                    - !Find [authentik_core.group, [name, Paperless users]]
+                    - !Find [authentik_core.group, [name, Open WebUI users]]

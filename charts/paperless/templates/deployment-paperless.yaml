@@ -113,6 +113,12 @@ spec:
               value: "true"
             - name: PAPERLESS_REDIRECT_LOGIN_TO_SSO
               value: "true"
+            - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_SUPERUSER_GROUP
+              value: authentik Admins
+            - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_STAFF_GROUP
+              value: authentik Admins
+            - name: PAPERLESS_SOCIAL_ACCOUNT_DEFAULT_GROUPS
+              value: paperless-users
             {{- end }}
           startupProbe:
             httpGet:

@@ -13,7 +13,7 @@ Sign-in is [authentik](authentik.md). An account with the same email is the exis
 1. The reflected TLS secret is in this namespace.
 2. Ollama is pulling the models its chart lists.
 3. Reconcile.
-4. Restore the claim before signing in. On an empty claim, the first Authentik sign-in is the admin.
+4. Restore the claim before signing in. On an empty claim, sign in as `akadmin` first. That account is the admin. Other Authentik users are normal users.
 
 ## Check
 

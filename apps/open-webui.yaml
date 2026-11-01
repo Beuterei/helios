@@ -105,3 +105,11 @@ spec:
         value: "false"
       - name: ENABLE_PASSWORD_CHANGE_FORM
         value: "false"
+      - name: ENABLE_OAUTH_ROLE_MANAGEMENT
+        value: "true"
+      - name: OAUTH_ROLES_CLAIM
+        value: groups
+      - name: OAUTH_ALLOWED_ROLES
+        value: "*"
+      - name: OAUTH_ADMIN_ROLES
+        value: authentik Admins
