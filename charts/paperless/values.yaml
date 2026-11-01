@@ -1,7 +1,6 @@
 secretName: paperless
 
-# Sign-in button. The client secret is reflected from namespace authentik.
-# Local username and password stay available.
+# Sign-in is Authentik. The client secret is reflected from namespace authentik.
 oidc:
   enabled: true
   host: auth.luisbeu.de

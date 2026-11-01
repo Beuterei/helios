@@ -24,11 +24,11 @@ task sops:edit -- secrets/paperless.enc.yaml
 ```
 
 3. Reconcile and wait until the claims are Bound.
-4. Restore the database, data, and media before creating a user. On an empty database, the first account created in the UI is the admin.
+4. Restore the database, data, and media before signing in. On an empty database, the first Authentik sign-in is the admin.
 5. Wait until Ollama has pulled the models this chart names before using AI.
 6. After the first admin exists, create an API token and put it in `secrets/paperless-api-token.enc.yaml`. Reconcile. The RAG adapter stays unusable until that token is real.
 7. In [open-webui](open-webui.md), enable the Paperless tool.
-8. Sign-in can use [authentik](authentik.md). An existing Paperless user links it under the profile menu, **My profile**, **Connect new social account**. The username form stays.
+8. Sign-in is [authentik](authentik.md). The username form is off.
 9. Set the WebDAV username and password:
 
 ```sh

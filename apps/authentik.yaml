@@ -1,5 +1,5 @@
 # Identity provider.
-# Local passwords on those apps stay available.
+# Paperless and Open WebUI sign in here. Their username forms are off.
 # The first account's email and password are secrets/authentik.enc.yaml.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -120,6 +120,8 @@ spec:
                   client_type: confidential
                   client_id: paperless
                   client_secret: !Env PAPERLESS_OIDC_SECRET
+                  grant_types:
+                    - authorization_code
                   redirect_uris:
                     - matching_mode: strict
                       url: https://paperless.luisbeu.de/accounts/oidc/authentik/login/callback/
@@ -146,6 +148,8 @@ spec:
                   client_type: confidential
                   client_id: open-webui
                   client_secret: !Env OPENWEBUI_OIDC_SECRET
+                  grant_types:
+                    - authorization_code
                   redirect_uris:
                     - matching_mode: strict
                       url: https://chat.luisbeu.de/oauth/oidc/callback
