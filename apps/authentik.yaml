@@ -28,6 +28,8 @@ spec:
           value: "false"
         - name: AUTHENTIK_LOG_LEVEL
           value: info
+        - name: AUTHENTIK_WEB__BASE_URL
+          value: https://auth.luisbeu.de
         - name: AUTHENTIK_POSTGRESQL__HOST
           value: authentik-postgresql
         - name: AUTHENTIK_POSTGRESQL__NAME
@@ -110,11 +112,6 @@ spec:
             metadata:
               name: helios-sso
             entries:
-              - model: authentik_tenants.tenant
-                identifiers:
-                  schema_name: public
-                attrs:
-                  base_url: https://auth.luisbeu.de
               - model: authentik_providers_oauth2.oauth2provider
                 id: paperless
                 identifiers:

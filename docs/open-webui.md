@@ -4,8 +4,6 @@ Chat UI in front of in-cluster Ollama. Accounts, chats, and API keys live on its
 
 Flux applies `apps/open-webui.yaml` in namespace `ai`. TLS comes from [cert-manager](cert-manager.md).
 
-Paperless search is an Open WebUI tool. The HelmRelease sets `TOOL_SERVER_CONNECTIONS` to `http://paperless-rag.paperless.svc.cluster.local:8080/openapi.json`. If this claim already existed, that env may not overwrite the stored UI config: Admin → Settings → Tools, add that URL if it is missing, and enable Paperless. In a chat, turn on the Paperless tool. The adapter token is in [paperless](paperless.md).
-
 Sign-in is [authentik](authentik.md). An account with the same email is the existing user. The username form is off.
 
 ## Rebuild

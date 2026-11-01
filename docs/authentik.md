@@ -4,7 +4,7 @@ Signs in Paperless and Open WebUI. Accounts live in its Postgres claim. [volume-
 
 Flux applies `apps/authentik.yaml` in namespace `authentik`. TLS is the reflected certificate. The host is the Ingress host in that file, and that name is also a Blocky mapping in `apps/blocky.yaml`. It is not a tunnel route. Client secrets are `secrets/authentik-sso.enc.yaml`, reflected into `paperless` and `ai`. The app secret and database password are the other two secrets in that namespace.
 
-The bootstrap email and password are in `secrets/authentik.enc.yaml`. Change them before the database exists. The system base URL is `https://auth.luisbeu.de`.
+The bootstrap email and password are in `secrets/authentik.enc.yaml`. Change them before the database exists. The system base URL is `https://auth.luisbeu.de`, set with `AUTHENTIK_WEB__BASE_URL`.
 
 A user can open an app only as a member of its group: **Paperless users** or **Open WebUI users**. Add the user to a group under **Directory → Groups**. Those groups are normal users of the app. **authentik Admins** can open both apps and is the admin in each. `akadmin` is always in that group.
 

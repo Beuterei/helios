@@ -93,21 +93,3 @@ spec:
     - name: http
       port: 6065
       targetPort: http
-{{- if .Values.rag.enabled }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: paperless-rag
-  labels:
-    {{- include "paperless.labels" . | nindent 4 }}
-    app.kubernetes.io/component: rag
-spec:
-  selector:
-    {{- include "paperless.labels" . | nindent 4 }}
-    app.kubernetes.io/component: rag
-  ports:
-    - name: http
-      port: 8080
-      targetPort: http
-{{- end }}
