@@ -6,7 +6,7 @@ Flux applies `platform/volume-backup/helmrelease.yaml` from `charts/volume-backu
 
 Every bound claim is copied except the exclude list on that HelmRelease. A claim added later is included on the next run. Containers that mount an included claim are frozen while those directories are copied, then unfrozen while restic uploads. The copy needs free disk about as large as the data being copied.
 
-Repository credentials are `secrets/backup-s3.enc.yaml`. Healthcheck URL keys in that secret may be empty. Endpoint options are chart values.
+Repository credentials and the Healthchecks ping URLs are `secrets/backup-s3.enc.yaml`. Backup, prune, and check each ping at start, on success, and on failure. An interrupted backup pings the failure URL. Endpoint options are chart values.
 
 ## Rebuild
 
