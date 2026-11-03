@@ -110,6 +110,7 @@ spec:
           auth.luisbeu.de: 192.168.1.151
           chat.luisbeu.de: 192.168.1.151
           paperless.luisbeu.de: 192.168.1.151
+          recipe.luisbeu.de: 192.168.1.151
           webdav-paperless.luisbeu.de: 192.168.1.151
 
       rebindingProtection:
@@ -118,6 +119,7 @@ spec:
           - auth.luisbeu.de
           - chat.luisbeu.de
           - paperless.luisbeu.de
+          - recipe.luisbeu.de
           - webdav-paperless.luisbeu.de
 
       blocking:

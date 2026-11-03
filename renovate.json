@@ -25,6 +25,7 @@
       "matchFileNames": [
         "apps/paperless.yaml",
         "apps/pocket-id.yaml",
+        "apps/norish.yaml",
         "platform/volume-backup/helmrelease.yaml",
         "platform/generic-cdi-plugin.yaml"
       ],
@@ -62,6 +63,11 @@
     {
       "description": "Pocket ID stores accounts and signs the other apps in. Review the upgrade.",
       "matchFileNames": ["charts/pocket-id/values.yaml"],
+      "automerge": false
+    },
+    {
+      "description": "Norish stores accounts and encrypts them with the master key. Review the upgrade.",
+      "matchFileNames": ["charts/norish/values.yaml"],
       "automerge": false
     }
   ]

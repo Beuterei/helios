@@ -1,0 +1,42 @@
+{{- $sc := .Values.storageClass }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: norish-uploads
+  labels:
+    {{- include "norish.labels" . | nindent 4 }}
+    app.kubernetes.io/component: norish
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.norish.persistence }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: norish-postgres
+  labels:
+    {{- include "norish.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.postgres.persistence }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: norish-valkey
+  labels:
+    {{- include "norish.labels" . | nindent 4 }}
+    app.kubernetes.io/component: valkey
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.valkey.persistence }}

@@ -1,0 +1,74 @@
+# Database password, master key, and Obscura token are secrets/norish.enc.yaml.
+# Change them before the claims exist. The master key decrypts stored data.
+secretName: norish
+
+# Not a Norish setting. Node uses it for local time.
+timeZone: Europe/Berlin
+
+# Sign-in is Pocket ID. The client secret is reflected from namespace pocket-id.
+# Norish sends PKCE. The admin group name is the value in the token.
+oidc:
+  name: Pocket ID
+  issuer: https://auth.luisbeu.de
+  clientId: norish
+  secretName: pocket-id-sso
+  secretKey: norish
+  adminGroup: admins
+
+ingress:
+  className: traefik
+  host: recipe.luisbeu.de
+  # Wildcard, reflected from namespace cert-manager.
+  tlsSecret: luisbeu-de-tls
+
+storageClass: local-path
+
+norish:
+  image:
+    repository: docker.io/norishapp/norish
+    tag: "v0.26.0-beta"
+  persistence: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+postgres:
+  image:
+    repository: docker.io/library/postgres
+    tag: 17.11-alpine
+  user: norish
+  database: norish
+  persistence: 10Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+valkey:
+  image:
+    repository: docker.io/valkey/valkey
+    tag: 9-alpine
+  persistence: 1Gi
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
+# Renders recipe pages for URL imports. ClusterIP only: the CDP port can drive the browser.
+obscura:
+  image:
+    repository: docker.io/norishapp/obscura
+    tag: 0.2.5-norish.1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 2Gi

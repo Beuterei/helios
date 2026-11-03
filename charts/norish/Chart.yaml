@@ -1,0 +1,7 @@
+# Local chart. Not published; Flux installs it from this repo.
+apiVersion: v2
+name: norish
+description: Norish with Postgres, Valkey, and Obscura
+type: application
+version: 0.1.0
+appVersion: "0.26.0-beta"

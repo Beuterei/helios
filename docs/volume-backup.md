@@ -17,7 +17,7 @@ task sops:edit -- secrets/backup-s3.enc.yaml
 ```
 
 2. Reconcile. Wait until HelmRelease `volume-backup` is Ready and the target claims are Bound.
-3. Restore each claim that should come back. See [open-webui](open-webui.md) and [paperless](paperless.md). Keep the Paperless secret from before the restore.
+3. Restore each claim that should come back. See [open-webui](open-webui.md), [paperless](paperless.md), and [norish](norish.md). Keep the Paperless and Norish secrets from before the restore.
 
 ## Check
 

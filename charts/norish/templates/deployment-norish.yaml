@@ -1,0 +1,113 @@
+# One writer. Uploads are on the claim.
+# The image entrypoint starts as root, gives that directory to uid 1000, and drops to that user.
+# Norish builds DATABASE_URL from DATABASE_HOST, DATABASE_USER, DATABASE, and DATABASE_PASSWORD.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norish
+  labels:
+    {{- include "norish.labels" . | nindent 4 }}
+    app.kubernetes.io/component: norish
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "norish.labels" . | nindent 6 }}
+      app.kubernetes.io/component: norish
+  template:
+    metadata:
+      labels:
+        {{- include "norish.labels" . | nindent 8 }}
+        app.kubernetes.io/component: norish
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: norish
+          image: "{{ .Values.norish.image.repository }}:{{ .Values.norish.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: AUTH_URL
+              value: https://{{ .Values.ingress.host }}
+            - name: MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: MASTER_KEY
+            - name: DATABASE_HOST
+              value: postgres
+            - name: DATABASE_USER
+              value: {{ .Values.postgres.user | quote }}
+            - name: DATABASE
+              value: {{ .Values.postgres.database | quote }}
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: POSTGRES_PASSWORD
+            - name: VALKEY_URL
+              value: valkey://valkey:6379
+            - name: UPLOADS_DIR
+              value: /app/uploads
+            - name: OBSCURA_ENDPOINT
+              value: ws://obscura:9222
+            - name: OBSCURA_CDP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: OBSCURA_CDP_TOKEN
+            - name: TZ
+              value: {{ .Values.timeZone | quote }}
+            - name: PASSWORD_AUTH_ENABLED
+              value: "false"
+            - name: OIDC_NAME
+              value: {{ .Values.oidc.name | quote }}
+            - name: OIDC_ISSUER
+              value: {{ .Values.oidc.issuer | quote }}
+            - name: OIDC_CLIENT_ID
+              value: {{ .Values.oidc.clientId | quote }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.secretName }}
+                  key: {{ .Values.oidc.secretKey }}
+            - name: OIDC_CLAIM_MAPPING_ENABLED
+              value: "true"
+            - name: OIDC_SCOPES
+              value: groups
+            - name: OIDC_GROUPS_CLAIM
+              value: groups
+            - name: OIDC_ADMIN_GROUP
+              value: {{ .Values.oidc.adminGroup | quote }}
+          startupProbe:
+            httpGet:
+              path: /api/v1/health/live
+              port: http
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health/ready
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health/live
+              port: http
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.norish.resources | nindent 12 }}
+          volumeMounts:
+            - name: uploads
+              mountPath: /app/uploads
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: norish-uploads
