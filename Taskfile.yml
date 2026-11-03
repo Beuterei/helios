@@ -15,6 +15,7 @@ tasks:
       - kustomize build platform/cloudflared > /dev/null
       - kustomize build platform/volume-backup > /dev/null
       - helm template volume-backup charts/volume-backup --namespace backup > /dev/null
+      - helm template generic-cdi-plugin charts/generic-cdi-plugin --namespace kube-system > /dev/null
       - helm template paperless charts/paperless --namespace paperless > /dev/null
       - helm template pocket-id charts/pocket-id --namespace pocket-id > /dev/null
       - helm template norish charts/norish --namespace norish > /dev/null
