@@ -34,7 +34,6 @@ task sops:edit -- secrets/pocket-id-sso.enc.yaml
 ```
 
 8. Reconcile again so Paperless and Open WebUI read those secrets.
-9. Delete namespace `authentik` once both apps sign in here. Flux no longer applies it.
 
 ## Check
 
