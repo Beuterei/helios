@@ -70,7 +70,7 @@ spec:
         value: bge-m3
       - name: RAG_OLLAMA_BASE_URL
         value: http://ollama.ai.svc.cluster.local:11434
-      # Authentik. The client secret is reflected into this namespace.
+      # Pocket ID. The client secret is reflected into this namespace.
       - name: WEBUI_URL
         value: https://chat.luisbeu.de
       - name: OAUTH_CLIENT_ID
@@ -78,16 +78,16 @@ spec:
       - name: OAUTH_CLIENT_SECRET
         valueFrom:
           secretKeyRef:
-            name: authentik-sso
+            name: pocket-id-sso
             key: open-webui
       - name: OAUTH_PROVIDER_NAME
-        value: Authentik
+        value: Pocket ID
       - name: OPENID_PROVIDER_URL
-        value: https://auth.luisbeu.de/application/o/open-webui/.well-known/openid-configuration
+        value: https://auth.luisbeu.de/.well-known/openid-configuration
       - name: OPENID_REDIRECT_URI
         value: https://chat.luisbeu.de/oauth/oidc/callback
       - name: OAUTH_SCOPES
-        value: openid email profile
+        value: openid email profile groups
       - name: ENABLE_OAUTH_SIGNUP
         value: "true"
       - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
@@ -107,4 +107,4 @@ spec:
       - name: OAUTH_ALLOWED_ROLES
         value: "*"
       - name: OAUTH_ADMIN_ROLES
-        value: authentik Admins
+        value: admins

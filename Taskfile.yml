@@ -16,6 +16,7 @@ tasks:
       - kustomize build platform/volume-backup > /dev/null
       - helm template volume-backup charts/volume-backup --namespace backup > /dev/null
       - helm template paperless charts/paperless --namespace paperless > /dev/null
+      - helm template pocket-id charts/pocket-id --namespace pocket-id > /dev/null
       - kustomize build apps > /dev/null
       - kustomize build certs > /dev/null
       - kustomize build secrets > /dev/null

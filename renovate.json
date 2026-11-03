@@ -24,6 +24,7 @@
       "description": "Local charts install from git. A chart version makes Flux keep the first package.",
       "matchFileNames": [
         "apps/paperless.yaml",
+        "apps/pocket-id.yaml",
         "platform/volume-backup/helmrelease.yaml",
         "platform/generic-cdi-plugin.yaml"
       ],
@@ -59,8 +60,8 @@
       "addLabels": ["major"]
     },
     {
-      "description": "Authentik stores accounts and signs the other apps in. Review the upgrade.",
-      "matchFileNames": ["apps/authentik.yaml"],
+      "description": "Pocket ID stores accounts and signs the other apps in. Review the upgrade.",
+      "matchFileNames": ["charts/pocket-id/values.yaml"],
       "automerge": false
     }
   ]

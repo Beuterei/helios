@@ -124,9 +124,9 @@ spec:
             - name: PAPERLESS_APPS
               value: allauth.socialaccount.providers.openid_connect
             - name: PAPERLESS_SOCIALACCOUNT_PROVIDERS
-              value: {{ printf "{\"openid_connect\":{\"OAUTH_PKCE_ENABLED\":true,\"APPS\":[{\"provider_id\":\"authentik\",\"name\":\"authentik\",\"client_id\":\"%s\",\"secret\":\"$(PAPERLESS_OIDC_CLIENT_SECRET)\",\"settings\":{\"server_url\":\"https://%s/application/o/%s/.well-known/openid-configuration\",\"fetch_userinfo\":true}}],\"SCOPE\":[\"openid\",\"profile\",\"email\"]}}" .Values.oidc.clientId .Values.oidc.host .Values.oidc.clientId | quote }}
+              value: {{ printf "{\"openid_connect\":{\"OAUTH_PKCE_ENABLED\":true,\"APPS\":[{\"provider_id\":\"%s\",\"name\":\"%s\",\"client_id\":\"%s\",\"secret\":\"$(PAPERLESS_OIDC_CLIENT_SECRET)\",\"settings\":{\"server_url\":\"https://%s/.well-known/openid-configuration\",\"fetch_userinfo\":true}}],\"SCOPE\":[\"openid\",\"profile\",\"email\",\"groups\"]}}" .Values.oidc.providerId .Values.oidc.name .Values.oidc.clientId .Values.oidc.host | quote }}
             - name: PAPERLESS_LOGOUT_REDIRECT_URL
-              value: https://{{ .Values.oidc.host }}/application/o/{{ .Values.oidc.clientId }}/end-session/
+              value: https://{{ .Values.oidc.host }}/api/oidc/end-session
             - name: PAPERLESS_SOCIAL_AUTO_SIGNUP
               value: "true"
             - name: PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS
@@ -138,9 +138,9 @@ spec:
             - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_GROUPS
               value: "true"
             - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_SUPERUSER_GROUP
-              value: authentik Admins
+              value: {{ .Values.oidc.adminGroup | quote }}
             - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_STAFF_GROUP
-              value: authentik Admins
+              value: {{ .Values.oidc.adminGroup | quote }}
             - name: PAPERLESS_SOCIAL_ACCOUNT_DEFAULT_GROUPS
               value: {{ .Values.oidc.defaultGroup | quote }}
             - name: PAPERLESS_GROUPS_TO_CREATE

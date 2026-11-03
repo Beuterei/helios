@@ -1,0 +1,28 @@
+# Encryption key is secrets/pocket-id.enc.yaml. Change it before the claim exists.
+secretName: pocket-id
+
+publicURL: https://auth.luisbeu.de
+timeZone: Europe/Berlin
+# Traefik's pod is the proxy. This is the node pod CIDR, so a direct caller
+# outside it cannot set the client IP.
+trustProxy: 10.42.0.0/24
+
+image:
+  repository: ghcr.io/pocket-id/pocket-id
+  tag: "v2.19.2"
+
+storageClass: local-path
+persistence: 1Gi
+
+ingress:
+  className: traefik
+  host: auth.luisbeu.de
+  # Wildcard, reflected from namespace cert-manager.
+  tlsSecret: luisbeu-de-tls
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 64Mi
+  limits:
+    memory: 256Mi

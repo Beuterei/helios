@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Paperless looks up groups and never creates them. This runs after migrations,
-# before the web server, grants each group's permissions, and copies Authentik
+# before the web server, grants each group's permissions, and copies Pocket ID
 # membership onto those groups.
 set -euo pipefail
 

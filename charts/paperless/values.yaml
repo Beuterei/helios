@@ -1,21 +1,25 @@
 secretName: paperless
 
-# Sign-in is Authentik. The client secret is reflected from namespace authentik.
+# Sign-in is Pocket ID. The client secret is reflected from namespace pocket-id.
 oidc:
   enabled: true
   host: auth.luisbeu.de
+  providerId: pocket-id
+  name: Pocket ID
   clientId: paperless
-  secretName: authentik-sso
+  secretName: pocket-id-sso
   secretKey: paperless
-  # Django group for a normal sign-in. Must match the Authentik group name.
-  defaultGroup: Paperless users
+  # Django group for a normal sign-in. Must match the Pocket ID group name.
+  defaultGroup: paperless
+  # Group name that becomes a superuser. Must match the Pocket ID group name.
+  adminGroup: admins
   # Created on startup. Sign-in keeps membership for these names only.
   # user: the archive (documents, tags, types, views) and read-only settings.
   # admin: every permission the Paperless UI can show.
   groups:
-    - name: Paperless users
+    - name: paperless
       role: user
-    - name: authentik Admins
+    - name: admins
       role: admin
 
 ingress:

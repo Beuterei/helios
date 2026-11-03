@@ -1,0 +1,71 @@
+# One writer. SQLite lives on the claim, so a second replica would corrupt it.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pocket-id
+  labels:
+    {{- include "pocket-id.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "pocket-id.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "pocket-id.labels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: pocket-id
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 1411
+          env:
+            - name: APP_URL
+              value: {{ .Values.publicURL | quote }}
+            - name: TRUST_PROXY
+              value: {{ .Values.trustProxy | quote }}
+            - name: ALLOW_INSECURE_CALLBACK_URLS
+              value: "false"
+            - name: ANALYTICS_DISABLED
+              value: "true"
+            - name: VERSION_CHECK_DISABLED
+              value: "true"
+            - name: TZ
+              value: {{ .Values.timeZone | quote }}
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: ENCRYPTION_KEY
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: pocket-id

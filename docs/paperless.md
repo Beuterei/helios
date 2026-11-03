@@ -18,9 +18,9 @@ task sops:edit -- secrets/paperless.enc.yaml
 ```
 
 3. Reconcile and wait until the claims are Bound.
-4. Restore the database, data, and media before signing in. On an empty database, sign in as `akadmin` first. That account is the admin. Other Authentik users are normal users.
+4. Restore the database, data, and media before signing in. On an empty database, sign in with a Pocket ID user in the `admins` group first. That account is the admin. Other users are normal users.
 5. Wait until Ollama has pulled the models this chart names before using AI.
-6. Sign-in is [authentik](authentik.md). The username form is off.
+6. Sign-in is [Pocket ID](pocket-id.md). The username form is off.
 7. Set the WebDAV username and password:
 
 ```sh

@@ -38,6 +38,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
 | `charts/volume-backup` | Chart for restic; the release lives in `platform/volume-backup` |
 | `charts/paperless` | Chart for Paperless-ngx; the release lives in `apps` |
+| `charts/pocket-id` | Chart for Pocket ID; the release lives in `apps` |
 | `docs` | Rebuild procedure and docs for each service |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status` |
 
@@ -76,7 +77,7 @@ If the cluster is gone it can be recreated with:
 | cloudflared | `network` | [docs/cloudflared.md](docs/cloudflared.md) |
 | blocky | `network` | [docs/blocky.md](docs/blocky.md) |
 | ollama | `ai` | [docs/ollama.md](docs/ollama.md) |
-| authentik | `authentik` | [docs/authentik.md](docs/authentik.md) |
+| pocket-id | `pocket-id` | [docs/pocket-id.md](docs/pocket-id.md) |
 | open-webui | `ai` | [docs/open-webui.md](docs/open-webui.md) |
 | paperless | `paperless` | [docs/paperless.md](docs/paperless.md) |
 | volume-backup | `backup` | [docs/volume-backup.md](docs/volume-backup.md) |
