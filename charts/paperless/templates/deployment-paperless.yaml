@@ -25,6 +25,28 @@ spec:
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
+      {{- if .Values.oidc.enabled }}
+      # ConfigMap mounts are world-writable here, and Paperless skips
+      # /custom-cont-init.d unless root owns it and nobody else can write it.
+      initContainers:
+        - name: custom-init
+          image: "{{ .Values.paperless.image.repository }}:{{ .Values.paperless.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["/usr/bin/bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              rm -rf /custom-cont-init.d/*
+              cp -L /custom-init-src/10-groups.sh /custom-cont-init.d/10-groups.sh
+              chown root:root /custom-cont-init.d /custom-cont-init.d/10-groups.sh
+              chmod 755 /custom-cont-init.d /custom-cont-init.d/10-groups.sh
+          volumeMounts:
+            - name: custom-init-src
+              mountPath: /custom-init-src
+              readOnly: true
+            - name: custom-init
+              mountPath: /custom-cont-init.d
+      {{- end }}
       containers:
         - name: paperless
           image: "{{ .Values.paperless.image.repository }}:{{ .Values.paperless.image.tag }}"
@@ -113,12 +135,16 @@ spec:
               value: "true"
             - name: PAPERLESS_REDIRECT_LOGIN_TO_SSO
               value: "true"
+            - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_GROUPS
+              value: "true"
             - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_SUPERUSER_GROUP
               value: authentik Admins
             - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_STAFF_GROUP
               value: authentik Admins
             - name: PAPERLESS_SOCIAL_ACCOUNT_DEFAULT_GROUPS
-              value: paperless-users
+              value: {{ .Values.oidc.defaultGroup | quote }}
+            - name: PAPERLESS_GROUPS_TO_CREATE
+              value: {{ .Values.oidc.groups | toJson | quote }}
             {{- end }}
           startupProbe:
             httpGet:
@@ -134,6 +160,11 @@ spec:
           resources:
             {{- toYaml .Values.paperless.resources | nindent 12 }}
           volumeMounts:
+            {{- if .Values.oidc.enabled }}
+            - name: custom-init
+              mountPath: /custom-cont-init.d
+              readOnly: true
+            {{- end }}
             - name: data
               mountPath: /usr/src/paperless/data
             - name: media
@@ -141,6 +172,14 @@ spec:
             - name: consume
               mountPath: /usr/src/paperless/consume
       volumes:
+        {{- if .Values.oidc.enabled }}
+        - name: custom-init-src
+          configMap:
+            name: paperless-custom-init
+            defaultMode: 0555
+        - name: custom-init
+          emptyDir: {}
+        {{- end }}
         - name: data
           persistentVolumeClaim:
             claimName: paperless-data

@@ -7,6 +7,16 @@ oidc:
   clientId: paperless
   secretName: authentik-sso
   secretKey: paperless
+  # Django group for a normal sign-in. Must match the Authentik group name.
+  defaultGroup: Paperless users
+  # Created on startup. Sign-in keeps membership for these names only.
+  # user: the archive (documents, tags, types, views) and read-only settings.
+  # admin: every permission the Paperless UI can show.
+  groups:
+    - name: Paperless users
+      role: user
+    - name: authentik Admins
+      role: admin
 
 ingress:
   className: traefik

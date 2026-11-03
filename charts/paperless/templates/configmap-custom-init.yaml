@@ -1,0 +1,13 @@
+{{- if .Values.oidc.enabled }}
+# Paperless runs every root-owned file in /custom-cont-init.d after migrations.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paperless-custom-init
+  labels:
+    {{- include "paperless.labels" . | nindent 4 }}
+    app.kubernetes.io/component: paperless
+data:
+  10-groups.sh: |
+{{ .Files.Get "files/default-groups.sh" | indent 4 }}
+{{- end }}
