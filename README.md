@@ -40,6 +40,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `charts/paperless` | Chart for Paperless-ngx; the release lives in `apps` |
 | `charts/pocket-id` | Chart for Pocket ID; the release lives in `apps` |
 | `charts/norish` | Chart for Norish; the release lives in `apps` |
+| `charts/oauth2-proxy` | Chart for the Pocket ID session gate; the releases live in `apps` |
 | `docs` | Rebuild procedure and docs for each service |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status` |
 
@@ -82,6 +83,7 @@ If the cluster is gone it can be recreated with:
 | open-webui | `ai` | [docs/open-webui.md](docs/open-webui.md) |
 | paperless | `paperless` | [docs/paperless.md](docs/paperless.md) |
 | norish | `norish` | [docs/norish.md](docs/norish.md) |
+| oauth2-proxy | `norish`, `paperless`, `ai` | [docs/oauth2-proxy.md](docs/oauth2-proxy.md) |
 | volume-backup | `backup` | [docs/volume-backup.md](docs/volume-backup.md) |
 
 ## Operate

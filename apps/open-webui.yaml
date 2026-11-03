@@ -36,12 +36,9 @@ spec:
       redis:
         enabled: false
 
+    # The session gate owns this host. See apps/oauth2-proxy-open-webui.yaml.
     ingress:
-      enabled: true
-      class: traefik
-      host: chat.luisbeu.de
-      tls: true
-      existingSecret: luisbeu-de-tls
+      enabled: false
 
     persistence:
       size: 10Gi

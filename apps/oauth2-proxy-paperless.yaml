@@ -1,0 +1,30 @@
+# Session gate for Paperless. LAN only. WebDAV keeps its own Ingress and password.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  namespace: paperless
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: ./charts/oauth2-proxy
+      # Chart version stays 0.1.0. ChartVersion would keep the first package.
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    host: paperless.luisbeu.de
+    upstream: paperless:8000
+    clientId: paperless
+    clientSecretKey: paperless
+    cookieSecretKey: paperless
+    groups:
+      - paperless
+      - admins
+    app:
+      name: paperless
+      component: paperless
+      port: 8000

@@ -1,0 +1,79 @@
+# Stateless. The cookie secret is secrets/oauth2-proxy.enc.yaml.
+# The client secret is the app's existing Pocket ID client.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+  labels:
+    {{- include "oauth2-proxy.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "oauth2-proxy.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "oauth2-proxy.labels" . | nindent 8 }}
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: oauth2-proxy
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - --provider=oidc
+            - --oidc-issuer-url={{ .Values.issuer }}
+            - --redirect-url=https://{{ .Values.host }}/oauth2/callback
+            - --upstream=http://{{ .Values.upstream }}/
+            - "--email-domain=*"
+            - --code-challenge-method=S256
+            - --oidc-groups-claim=groups
+            {{- range .Values.groups }}
+            - --allowed-group={{ . }}
+            {{- end }}
+            - --skip-provider-button=true
+            # Leaves an existing Pocket ID session in place.
+            - --approval-prompt=auto
+            - --reverse-proxy=true
+            - --trusted-proxy-ip={{ .Values.trustedProxyCIDR }}
+            - --cookie-secure=true
+            - --cookie-httponly=true
+            - --cookie-samesite=lax
+            - --pass-basic-auth=false
+            - --pass-user-headers=false
+            - --upstream-timeout=0s
+            - --silence-ping-logging=true
+            - --http-address=0.0.0.0:4180
+          env:
+            - name: OAUTH2_PROXY_CLIENT_ID
+              value: {{ .Values.clientId | quote }}
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.clientSecretName }}
+                  key: {{ .Values.clientSecretKey }}
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.cookieSecretName }}
+                  key: {{ .Values.cookieSecretKey }}
+          ports:
+            - name: http
+              containerPort: 4180
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

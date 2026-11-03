@@ -41,3 +41,26 @@ spec:
           port: 7844
         - protocol: TCP
           port: 443
+    # Pocket ID and the recipe gate. Paperless and Open WebUI stay on the LAN.
+    # Use the headless service so DNS returns the pod. A ClusterIP would
+    # not match, and the ingress controller stays closed.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: pocket-id
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pocket-id
+      ports:
+        - protocol: TCP
+          port: 1411
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: norish
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: oauth2-proxy
+      ports:
+        - protocol: TCP
+          port: 4180

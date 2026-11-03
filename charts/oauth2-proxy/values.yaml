@@ -1,0 +1,37 @@
+# Each HelmRelease sets the instance fields. These defaults only let
+# `helm template` render.
+image:
+  repository: quay.io/oauth2-proxy/oauth2-proxy
+  tag: "v7.15.5"
+
+issuer: https://auth.luisbeu.de
+# Pod network. Traefik and cloudflared are the only callers.
+trustedProxyCIDR: 10.42.0.0/16
+ingressClassName: traefik
+# Wildcard, reflected from namespace cert-manager.
+tlsSecret: luisbeu-de-tls
+clientSecretName: pocket-id-sso
+cookieSecretName: oauth2-proxy
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+# Off unless a HelmRelease sets it. Norish does.
+tunnel: false
+
+host: recipe.luisbeu.de
+upstream: norish:3000
+clientId: norish
+clientSecretKey: norish
+cookieSecretKey: norish
+groups:
+  - norish
+  - admins
+app:
+  name: norish
+  component: norish
+  port: 3000

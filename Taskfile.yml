@@ -18,6 +18,8 @@ tasks:
       - helm template paperless charts/paperless --namespace paperless > /dev/null
       - helm template pocket-id charts/pocket-id --namespace pocket-id > /dev/null
       - helm template norish charts/norish --namespace norish > /dev/null
+      - helm template oauth2-proxy charts/oauth2-proxy --namespace norish > /dev/null
+      - helm template oauth2-proxy charts/oauth2-proxy --namespace norish --set tunnel=true > /dev/null
       - kustomize build apps > /dev/null
       - kustomize build certs > /dev/null
       - kustomize build secrets > /dev/null

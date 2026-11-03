@@ -3,7 +3,7 @@ secretName: pocket-id
 
 publicURL: https://auth.luisbeu.de
 timeZone: Europe/Berlin
-# Traefik's pod is the proxy. This is the node pod CIDR, so a direct caller
+# Traefik and cloudflared run in the node pod CIDR. A direct caller
 # outside it cannot set the client IP.
 trustProxy: 10.42.0.0/24
 

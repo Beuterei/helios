@@ -21,7 +21,12 @@ task sops:edit -- secrets/cloudflare-tunnel-token.enc.yaml
 
 5. Push and `task reconcile`.
 6. On the tunnel, add a published application for each public hostname. Those names are the Ingress hosts in the app manifests.
-7. Set the service to an address the egress policy allows.
+7. Set the service to an address the egress policy allows. Use the headless service so the destination is the pod:
+
+- `auth.luisbeu.de`: `http://pocket-id-tunnel.pocket-id.svc.cluster.local:1411`
+- `recipe.luisbeu.de`: `http://oauth2-proxy-tunnel.norish.svc.cluster.local:4180`
+
+Paperless and Open WebUI are LAN only. Leave them, and WebDAV, off the tunnel. Do not use the ingress controller or the app service as the origin.
 
 ## Check
 

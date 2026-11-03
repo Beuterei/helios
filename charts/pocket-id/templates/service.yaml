@@ -11,3 +11,19 @@ spec:
     - name: http
       port: 1411
       targetPort: http
+---
+# Headless, so the tunnel resolves the pod address and the egress rule matches.
+apiVersion: v1
+kind: Service
+metadata:
+  name: pocket-id-tunnel
+  labels:
+    {{- include "pocket-id.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "pocket-id.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: 1411
+      targetPort: http

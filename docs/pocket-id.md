@@ -2,7 +2,7 @@
 
 Signs in Paperless, Open WebUI, and Norish. Accounts live on its claim. [volume-backup](volume-backup.md) copies that claim. Those apps sign in here. Their username forms are off. Sign-in is a passkey.
 
-Flux applies `apps/pocket-id.yaml` in namespace `pocket-id`. TLS is the reflected certificate. The host is the Ingress host in that file, and that name is also a Blocky mapping in `apps/blocky.yaml`. It is not a tunnel route. Client secrets are `secrets/pocket-id-sso.enc.yaml`, reflected into `paperless`, `ai`, and `norish`. The encryption key is `secrets/pocket-id.enc.yaml`.
+Flux applies `apps/pocket-id.yaml` in namespace `pocket-id`. TLS is the reflected certificate. The host is the Ingress host in that file, and that name is also a Blocky mapping in `apps/blocky.yaml`. The tunnel origin is the headless service in [cloudflared](cloudflared.md). Client secrets are `secrets/pocket-id-sso.enc.yaml`, reflected into `paperless`, `ai`, and `norish`. The encryption key is `secrets/pocket-id.enc.yaml`.
 
 Change the encryption key before the database exists. The public address is `https://auth.luisbeu.de`, set with `APP_URL`.
 
@@ -25,6 +25,12 @@ task sops:edit -- secrets/pocket-id.enc.yaml
 - Paperless: `https://paperless.luisbeu.de/accounts/oidc/pocket-id/login/callback/`
 - Open WebUI: `https://chat.luisbeu.de/oauth/oidc/callback`
 - Norish: `https://recipe.luisbeu.de/api/auth/callback/oidc`
+
+Add the session-gate callback on the same client:
+
+- Paperless: `https://paperless.luisbeu.de/oauth2/callback`
+- Open WebUI: `https://chat.luisbeu.de/oauth2/callback`
+- Norish: `https://recipe.luisbeu.de/oauth2/callback`
 
 On the Paperless client, allow `paperless` and `admins`. On the Open WebUI client, allow `open_webui` and `admins`. On the Norish client, allow `norish` and `admins`.
 

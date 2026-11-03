@@ -2,7 +2,7 @@
 
 Recipes, the meal plan, and the grocery list. Postgres holds the accounts. Uploads are recipe files. Valkey is the queue. Obscura renders pages for URL imports.
 
-Flux applies `apps/norish.yaml` in namespace `norish`, from `charts/norish`. TLS is the reflected certificate. The host is the Ingress host in that chart, and that name is also a Blocky mapping in `apps/blocky.yaml`. It is not a tunnel route.
+Flux applies `apps/norish.yaml` in namespace `norish`, from `charts/norish`. TLS is the reflected certificate. The host is `ingress.host` in that chart, and that name is also a Blocky mapping in `apps/blocky.yaml`. [oauth2-proxy](oauth2-proxy.md) publishes it.
 
 Sign-in is [Pocket ID](pocket-id.md). The username form is off. `secrets/norish.enc.yaml` is the database password, the master key, and the Obscura token. Keep that secret when restoring. New values only fit an empty database. The master key decrypts data already stored.
 

@@ -26,6 +26,9 @@
         "apps/paperless.yaml",
         "apps/pocket-id.yaml",
         "apps/norish.yaml",
+        "apps/oauth2-proxy-norish.yaml",
+        "apps/oauth2-proxy-paperless.yaml",
+        "apps/oauth2-proxy-open-webui.yaml",
         "platform/volume-backup/helmrelease.yaml",
         "platform/generic-cdi-plugin.yaml"
       ],
@@ -68,6 +71,11 @@
     {
       "description": "Norish stores accounts and encrypts them with the master key. Review the upgrade.",
       "matchFileNames": ["charts/norish/values.yaml"],
+      "automerge": false
+    },
+    {
+      "description": "oauth2-proxy is the session gate. Review the upgrade.",
+      "matchFileNames": ["charts/oauth2-proxy/values.yaml"],
       "automerge": false
     }
   ]

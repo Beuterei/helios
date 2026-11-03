@@ -1,0 +1,33 @@
+# Traefik uses this. cloudflared must not: a ClusterIP is DNATed and
+# the tunnel egress rule matches the pod, not the service address.
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2-proxy
+  labels:
+    {{- include "oauth2-proxy.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "oauth2-proxy.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: 4180
+      targetPort: http
+{{- if .Values.tunnel }}
+---
+# Headless, so the tunnel resolves the pod address and the egress rule matches.
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2-proxy-tunnel
+  labels:
+    {{- include "oauth2-proxy.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "oauth2-proxy.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: 4180
+      targetPort: http
+{{- end }}

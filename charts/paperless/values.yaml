@@ -22,6 +22,8 @@ oidc:
     - name: admins
       role: admin
 
+# Public host. The Ingress is the oauth2-proxy release, not this chart.
+# WebDAV keeps its own Ingress.
 ingress:
   className: traefik
   host: paperless.luisbeu.de

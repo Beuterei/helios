@@ -1,0 +1,30 @@
+# Session gate for Open WebUI. LAN only. The upstream chart Ingress is off.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  namespace: ai
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: ./charts/oauth2-proxy
+      # Chart version stays 0.1.0. ChartVersion would keep the first package.
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    host: chat.luisbeu.de
+    upstream: open-webui:80
+    clientId: open-webui
+    clientSecretKey: open-webui
+    cookieSecretKey: open-webui
+    groups:
+      - open_webui
+      - admins
+    app:
+      name: open-webui
+      component: open-webui
+      port: 8080

@@ -1,6 +1,6 @@
 # paperless
 
-Document archive: Paperless-ngx, Postgres, Valkey, Gotenberg, Tika, and a WebDAV inbox, from `charts/paperless`. WebDAV writes into the consume claim. Its host is `webdav.host` in `charts/paperless/values.yaml`, and that name is also a Blocky mapping in `apps/blocky.yaml`. It is not a tunnel route.
+Document archive: Paperless-ngx, Postgres, Valkey, Gotenberg, Tika, and a WebDAV inbox, from `charts/paperless`. WebDAV writes into the consume claim. Its host is `webdav.host` in `charts/paperless/values.yaml`, and that name is also a Blocky mapping in `apps/blocky.yaml`. Neither host is a tunnel route. WebDAV is not behind the [session gate](oauth2-proxy.md). The archive host is, and it is LAN only.
 
 Flux applies `apps/paperless.yaml` in namespace `paperless`. TLS is the reflected certificate. AI uses the models [ollama](ollama.md) pulls.
 

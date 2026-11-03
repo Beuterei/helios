@@ -15,6 +15,7 @@ oidc:
   secretKey: norish
   adminGroup: admins
 
+# Public host. The Ingress is the oauth2-proxy release, not this chart.
 ingress:
   className: traefik
   host: recipe.luisbeu.de
