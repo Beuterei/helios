@@ -6,13 +6,14 @@ Flux applies three HelmReleases of `charts/oauth2-proxy`, one in each app namesp
 
 An existing Pocket ID session is reused. The first visit still sets the gate cookie and the app cookie. Later visits use those cookies until one of them expires.
 
-Cookie secrets are `secrets/oauth2-proxy.enc.yaml`, reflected into `paperless` and `ai`. Client secrets stay in `secrets/pocket-id-sso.enc.yaml`.
+Cookie secrets are `secrets/oauth2-proxy.enc.yaml`, reflected into `paperless` and `ai`. Client secrets stay in `secrets/pocket-id-sso.enc.yaml`. oauth2-proxy treats each value as URL-safe base64 of 16, 24, or 32 bytes. `+` or `/` from `openssl rand -base64` is rejected.
 
 ## Rebuild
 
-1. Keep the cookie secret. A new value signs everyone out.
+1. Keep the cookie secret. A new value signs everyone out. If you must mint one:
 
 ```sh
+node -e 'console.log(require("crypto").randomBytes(32).toString("base64url"))'
 task sops:edit -- secrets/oauth2-proxy.enc.yaml
 ```
 
