@@ -27,6 +27,8 @@ spec:
             - --redirect-url=https://{{ .Values.host }}/oauth2/callback
             - --upstream=http://{{ .Values.upstream }}/
             - "--email-domain=*"
+            # Pocket ID leaves email_verified false. The passkey is the check.
+            - --insecure-oidc-allow-unverified-email=true
             - --code-challenge-method=S256
             - --oidc-groups-claim=groups
             {{- range .Values.groups }}

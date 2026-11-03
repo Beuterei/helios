@@ -16,6 +16,10 @@ spec:
         name: flux-system
         namespace: flux-system
   values:
+    app:
+      name: paperless
+      component: paperless
+      port: 8000
     host: paperless.luisbeu.de
     upstream: paperless:8000
     clientId: paperless
@@ -24,7 +28,3 @@ spec:
     groups:
       - paperless
       - admins
-    app:
-      name: paperless
-      component: paperless
-      port: 8000

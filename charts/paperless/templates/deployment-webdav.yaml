@@ -31,10 +31,6 @@ spec:
           image: "{{ .Values.webdav.image.repository }}:{{ .Values.webdav.image.tag }}"
           imagePullPolicy: IfNotPresent
           args: ["-c", "/config/config.yml"]
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            runAsNonRoot: true
           env:
             - name: WEBDAV_USERNAME
               valueFrom:
@@ -53,6 +49,10 @@ spec:
             tcpSocket:
               port: http
             periodSeconds: 10
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
           resources:
             {{- toYaml .Values.webdav.resources | nindent 12 }}
           volumeMounts:

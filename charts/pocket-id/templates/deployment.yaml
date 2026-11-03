@@ -24,9 +24,6 @@ spec:
         - name: pocket-id
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          ports:
-            - name: http
-              containerPort: 1411
           env:
             - name: APP_URL
               value: {{ .Values.publicURL | quote }}
@@ -49,6 +46,9 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secretName }}
                   key: ENCRYPTION_KEY
+          ports:
+            - name: http
+              containerPort: 1411
           startupProbe:
             httpGet:
               path: /healthz

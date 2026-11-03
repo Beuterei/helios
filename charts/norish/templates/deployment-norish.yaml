@@ -30,9 +30,6 @@ spec:
         - name: norish
           image: "{{ .Values.norish.image.repository }}:{{ .Values.norish.image.tag }}"
           imagePullPolicy: IfNotPresent
-          ports:
-            - name: http
-              containerPort: 3000
           env:
             - name: AUTH_URL
               value: https://{{ .Values.ingress.host }}
@@ -86,6 +83,9 @@ spec:
               value: groups
             - name: OIDC_ADMIN_GROUP
               value: {{ .Values.oidc.adminGroup | quote }}
+          ports:
+            - name: http
+              containerPort: 3000
           startupProbe:
             httpGet:
               path: /api/v1/health/live

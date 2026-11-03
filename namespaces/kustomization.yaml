@@ -5,10 +5,10 @@ kind: Kustomization
 commonAnnotations:
   kustomize.toolkit.fluxcd.io/prune: disabled
 resources:
-  - ai.yaml
-  - pocket-id.yaml
-  - network.yaml
-  - paperless.yaml
-  - norish.yaml
   - cert-manager.yaml
+  - network.yaml
   - backup.yaml
+  - ai.yaml
+  - paperless.yaml
+  - pocket-id.yaml
+  - norish.yaml

@@ -16,7 +16,10 @@ spec:
         name: flux-system
         namespace: flux-system
   values:
-    tunnel: true
+    app:
+      name: norish
+      component: norish
+      port: 3000
     host: recipe.luisbeu.de
     upstream: norish:3000
     clientId: norish
@@ -25,7 +28,4 @@ spec:
     groups:
       - norish
       - admins
-    app:
-      name: norish
-      component: norish
-      port: 3000
+    tunnel: true

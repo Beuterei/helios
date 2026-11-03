@@ -1,5 +1,5 @@
-# Each HelmRelease sets the instance fields. These defaults only let
-# `helm template` render.
+# Shared. Each HelmRelease sets the instance fields below.
+# These instance defaults only let `helm template` render.
 image:
   repository: quay.io/oauth2-proxy/oauth2-proxy
   tag: "v7.15.5"
@@ -20,9 +20,11 @@ resources:
   limits:
     memory: 128Mi
 
-# Off unless a HelmRelease sets it. Norish does.
-tunnel: false
-
+# Instance. HelmReleases overwrite these.
+app:
+  name: norish
+  component: norish
+  port: 3000
 host: recipe.luisbeu.de
 upstream: norish:3000
 clientId: norish
@@ -31,7 +33,5 @@ cookieSecretKey: norish
 groups:
   - norish
   - admins
-app:
-  name: norish
-  component: norish
-  port: 3000
+# Off unless a HelmRelease sets it. Norish does.
+tunnel: false

@@ -22,15 +22,15 @@ spec:
         - name: obscura
           image: "{{ .Values.obscura.image.repository }}:{{ .Values.obscura.image.tag }}"
           imagePullPolicy: IfNotPresent
-          ports:
-            - name: cdp
-              containerPort: 9222
           env:
             - name: OBSCURA_CDP_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secretName }}
                   key: OBSCURA_CDP_TOKEN
+          ports:
+            - name: cdp
+              containerPort: 9222
           startupProbe:
             tcpSocket:
               port: cdp

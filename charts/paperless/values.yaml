@@ -126,8 +126,8 @@ webdav:
   image:
     repository: ghcr.io/hacdias/webdav
     tag: "v5.17.3"
-  host: webdav-paperless.luisbeu.de
   secretName: paperless-webdav
+  host: webdav-paperless.luisbeu.de
   resources:
     requests:
       cpu: 10m

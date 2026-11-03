@@ -4,7 +4,7 @@ Session gate for Norish, Paperless, and Open WebUI. A request needs a Pocket ID 
 
 Flux applies three HelmReleases of `charts/oauth2-proxy`, one in each app namespace. Each app accepts its HTTP port only from its gate. Traefik can open every gate. cloudflared can open the Norish gate only.
 
-An existing Pocket ID session is reused. The first visit still sets the gate cookie and the app cookie. Later visits use those cookies until one of them expires.
+An existing Pocket ID session is reused. The first visit still sets the gate cookie and the app cookie. Later visits use those cookies until one of them expires. Pocket ID leaves the email unverified. The gate accepts that, because sign-in is the passkey.
 
 Cookie secrets are `secrets/oauth2-proxy.enc.yaml`, reflected into `paperless` and `ai`. Client secrets stay in `secrets/pocket-id-sso.enc.yaml`. oauth2-proxy treats each value as URL-safe base64 of 16, 24, or 32 bytes. `+` or `/` from `openssl rand -base64` is rejected.
 

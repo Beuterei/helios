@@ -6,9 +6,9 @@ kind: Kustomization
 commonAnnotations:
   kustomize.toolkit.fluxcd.io/prune: disabled
 resources:
+  - cert-manager.yaml
+  - emberstack.yaml
+  - cloudflare.yaml
+  - johanneskastl.yaml
   - otwld.yaml
   - open-webui.yaml
-  - johanneskastl.yaml
-  - cert-manager.yaml
-  - cloudflare.yaml
-  - emberstack.yaml

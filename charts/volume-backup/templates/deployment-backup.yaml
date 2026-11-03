@@ -39,18 +39,15 @@ spec:
               curl -fsSL -o /opt/bin/kubectl "https://dl.k8s.io/release/{{ .Values.kubectl.version }}/bin/linux/amd64/kubectl"
               echo "{{ .Values.kubectl.sha256 }}  /opt/bin/kubectl" | sha256sum -c -
               chmod 755 /opt/bin/kubectl
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: kubectl
               mountPath: /opt/bin
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
       containers:
         - name: restic
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          securityContext:
-            privileged: true
-            runAsUser: 0
           command: ["/bin/bash", "-c"]
           args:
             - |
@@ -95,6 +92,9 @@ spec:
             preStop:
               exec:
                 command: ["bash", "/scripts/thaw.sh"]
+          securityContext:
+            privileged: true
+            runAsUser: 0
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

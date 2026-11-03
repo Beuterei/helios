@@ -1,0 +1,37 @@
+---
+description: YAML mapping key order — identity, then spec, then data. Not alphabetical.
+globs: "**/*.{yaml,yml}"
+alwaysApply: true
+---
+
+# Key order
+
+Do not sort keys alphabetically. Skip a key that is absent. Keep a comment with the key it describes. Leave `clusters/helios/flux-system/` alone. Upstream HelmRelease `values:` follow that chart; local charts follow this file.
+
+**Document:** `apiVersion`, `kind`, `metadata`, `spec`, then `data` / `stringData` / `type`
+**metadata:** `name`, `namespace`, `labels`, `annotations`
+**labels:** `app.kubernetes.io/name`, `instance`, `component`
+**Chart.yaml:** `apiVersion`, `name`, `description`, `type`, `version`, `appVersion`
+
+**HelmRelease spec:** `interval`, `timeout`, `chart`, `chartRef`, `install`, `valuesFrom`, `postRenderers`, `values`
+**chart.spec:** `chart`, `version`, `reconcileStrategy`, `sourceRef`
+**kind/name refs** (`sourceRef`, `chartRef`, `issuerRef`): `kind`, `name`, then `namespace` or `key`
+**secretKeyRef:** `name`, `key`
+
+**Flux Kustomization spec:** `dependsOn`, `interval`, `path`, `prune`, `wait`, `timeout`, `sourceRef`, `decryption`
+
+**Local values.yaml:** `secretName`, `image`, process (`timeZone`, `publicURL`, `trustProxy`, `issuer`), `oidc`, `ingress`, `storageClass`, `persistence`, components (app, datastores, sidecars), `resources` last.
+Component: `image`, identity, config, `persistence`, `resources`.
+oauth2-proxy instance: `app`, `host`, `upstream`, `clientId`, `clientSecretKey`, `cookieSecretKey`, `groups`, `tunnel`.
+
+**Deployment spec:** `replicas`, `strategy`, `selector`, `template`
+**Pod spec:** `serviceAccountName`, `automountServiceAccountToken`, `enableServiceLinks`, `priorityClassName`, `terminationGracePeriodSeconds`, `securityContext`, `initContainers`, `containers`, `volumes`
+**Container:** `name`, `image`, `imagePullPolicy`, `command`, `args`, `envFrom`, `env`, `ports`, `startupProbe`, `readinessProbe`, `livenessProbe`, `lifecycle`, `securityContext`, `resources`, `volumeMounts`
+**Service spec:** `clusterIP`, `type`, `selector`, `ports`
+**Ingress spec:** `ingressClassName`, `tls`, `rules`
+**NetworkPolicy spec:** `podSelector`, `policyTypes`, `ingress`, `egress`
+**PVC spec:** `accessModes`, `storageClassName`, `resources`
+**image:** `repository`, `tag`, `digest`
+**resources:** `requests`, `limits` — `cpu` then `memory`
+
+Lists stay in apply or dependency order, not alphabetical.

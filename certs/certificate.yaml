@@ -6,8 +6,8 @@ metadata:
 spec:
   secretName: luisbeu-de-tls
   issuerRef:
-    name: letsencrypt
     kind: ClusterIssuer
+    name: letsencrypt
   dnsNames:
     - "*.luisbeu.de"
   # Reflector copies the secret into every namespace, which is where an Ingress can read it.

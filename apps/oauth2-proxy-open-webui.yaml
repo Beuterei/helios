@@ -16,6 +16,10 @@ spec:
         name: flux-system
         namespace: flux-system
   values:
+    app:
+      name: open-webui
+      component: open-webui
+      port: 8080
     host: chat.luisbeu.de
     upstream: open-webui:80
     clientId: open-webui
@@ -24,7 +28,3 @@ spec:
     groups:
       - open_webui
       - admins
-    app:
-      name: open-webui
-      component: open-webui
-      port: 8080

@@ -10,6 +10,13 @@ kubectl:
 
 timeZone: Europe/Berlin
 
+secretName: backup-s3
+
+# Not credentials. Path style is on for an S3-compatible endpoint.
+s3:
+  region: us-east-1
+  forcePathStyle: "true"
+
 # Six fields: seconds, then minute, hour, day, month, weekday.
 backup:
   cron: "0 0 5 * * *"
@@ -25,16 +32,9 @@ prune:
 
 check:
   cron: "0 0 7 * * *"
-  args: "--read-data-subset=10%"
   runOnStartup: "false"
   skipInit: "true"
-
-secretName: backup-s3
-
-# Not credentials. Path style is on for an S3-compatible endpoint.
-s3:
-  region: us-east-1
-  forcePathStyle: "true"
+  args: "--read-data-subset=10%"
 
 storageHostPath: /var/lib/rancher/k3s/storage
 copyHostPath: /var/lib/restic-copy
