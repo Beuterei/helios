@@ -8,10 +8,10 @@ spec:
   ingressClassName: {{ .Values.ingressClassName }}
   tls:
     - hosts:
-        - {{ .Values.host }}
+        - {{ required "host is required" .Values.host }}
       secretName: {{ .Values.tlsSecret }}
   rules:
-    - host: {{ .Values.host }}
+    - host: {{ required "host is required" .Values.host }}
       http:
         paths:
           - path: /

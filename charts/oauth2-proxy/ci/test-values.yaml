@@ -1,0 +1,13 @@
+# Instance values for helm template. The HelmReleases set the real ones.
+app:
+  name: norish
+  component: norish
+  port: 3000
+host: recipe.luisbeu.de
+upstream: norish:3000
+clientId: norish
+clientSecretKey: norish
+cookieSecretKey: norish
+groups:
+  - norish
+  - admins

@@ -35,14 +35,14 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ .Values.app.name }}-from-oauth2-proxy
+  name: {{ required "app.name is required" (dig "name" "" (.Values.app | default dict)) }}-from-oauth2-proxy
   labels:
     {{- include "oauth2-proxy.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Values.app.name }}
-      app.kubernetes.io/component: {{ .Values.app.component }}
+      app.kubernetes.io/name: {{ required "app.name is required" (dig "name" "" (.Values.app | default dict)) }}
+      app.kubernetes.io/component: {{ required "app.component is required" (dig "component" "" (.Values.app | default dict)) }}
   policyTypes:
     - Ingress
   ingress:
@@ -52,4 +52,4 @@ spec:
               app.kubernetes.io/name: oauth2-proxy
       ports:
         - protocol: TCP
-          port: {{ .Values.app.port }}
+          port: {{ required "app.port is required" (dig "port" "" (.Values.app | default dict)) }}

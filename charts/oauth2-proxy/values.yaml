@@ -1,5 +1,4 @@
-# Shared. Each HelmRelease sets the instance fields below.
-# These instance defaults only let `helm template` render.
+# Shared by every gate. Each HelmRelease sets the instance fields.
 image:
   repository: quay.io/oauth2-proxy/oauth2-proxy
   tag: "v7.15.5"
@@ -13,25 +12,15 @@ tlsSecret: luisbeu-de-tls
 clientSecretName: pocket-id-sso
 cookieSecretName: oauth2-proxy
 
+# Paths that skip the session. Empty unless a HelmRelease sets them.
+# The match is the path only, so a query string still matches.
+skipAuthRoutes: []
+# Off unless a HelmRelease sets it. Norish does.
+tunnel: false
+
 resources:
   requests:
     cpu: 10m
     memory: 32Mi
   limits:
     memory: 128Mi
-
-# Instance. HelmReleases overwrite these.
-app:
-  name: norish
-  component: norish
-  port: 3000
-host: recipe.luisbeu.de
-upstream: norish:3000
-clientId: norish
-clientSecretKey: norish
-cookieSecretKey: norish
-groups:
-  - norish
-  - admins
-# Off unless a HelmRelease sets it. Norish does.
-tunnel: false

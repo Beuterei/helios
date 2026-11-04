@@ -22,7 +22,7 @@ Do not sort keys alphabetically. Skip a key that is absent. Keep a comment with 
 
 **Local values.yaml:** `secretName`, `image`, process (`timeZone`, `publicURL`, `trustProxy`, `issuer`), `oidc`, `ingress`, `storageClass`, `persistence`, components (app, datastores, sidecars), `resources` last.
 Component: `image`, identity, config, `persistence`, `resources`.
-oauth2-proxy instance: `app`, `host`, `upstream`, `clientId`, `clientSecretKey`, `cookieSecretKey`, `groups`, `tunnel`.
+oauth2-proxy instance: `app`, `host`, `upstream`, `clientId`, `clientSecretKey`, `cookieSecretKey`, `groups`, `skipAuthRoutes`, `tunnel`.
 
 **Deployment spec:** `replicas`, `strategy`, `selector`, `template`
 **Pod spec:** `serviceAccountName`, `automountServiceAccountToken`, `enableServiceLinks`, `priorityClassName`, `terminationGracePeriodSeconds`, `securityContext`, `initContainers`, `containers`, `volumes`
