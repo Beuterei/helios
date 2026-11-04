@@ -29,7 +29,8 @@ spec:
     host: paperless.luisbeu.de
     upstream: paperless:8000
     clientId: paperless
-    clientSecretKey: paperless
+    clientSecretName: paperless-gate
+    clientSecretKey: client-secret
     cookieSecretName: paperless-gate
     cookieSecretKey: cookie-secret
     groups:
