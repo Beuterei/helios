@@ -1,13 +1,30 @@
 #!/bin/sh
 # Postgres 18 keeps its data in /var/lib/postgresql/18/docker and exits if a
 # 17 directory is still at the volume root. Dump that database, then move the
-# files aside so 18 can initdb. Once PG_VERSION is gone from the root, this
-# does nothing.
+# files aside so 18 can initdb. A later start finishes a move that was
+# interrupted, and otherwise does nothing.
 set -eu
 
 root=/var/lib/postgresql
 
+# A killed first pass can move PG_VERSION and leave the rest of the 17
+# directory at the volume root. A later start must finish that move.
+finish_move() {
+  mkdir -p "$root/.pg17-aside"
+  for entry in "$root"/* "$root"/.[!.]*; do
+    [ -e "$entry" ] || continue
+    name=${entry##*/}
+    case "$name" in
+      migrate | .pg17-aside | 18 | data) continue ;;
+    esac
+    mv "$entry" "$root/.pg17-aside/"
+  done
+}
+
 if [ ! -s "$root/PG_VERSION" ]; then
+  if [ -e "$root/postgresql.conf" ] || [ -d "$root/global" ]; then
+    finish_move
+  fi
   exit 0
 fi
 
@@ -35,12 +52,4 @@ if [ ! -s "$root/migrate/norish.dump" ]; then
   exit 1
 fi
 
-mkdir -p "$root/.pg17-aside"
-for entry in "$root"/* "$root"/.[!.]* "$root"/..?*; do
-  [ -e "$entry" ] || continue
-  name=${entry##*/}
-  case "$name" in
-    migrate | .pg17-aside) continue ;;
-  esac
-  mv "$entry" "$root/.pg17-aside/"
-done
+finish_move
