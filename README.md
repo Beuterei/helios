@@ -87,12 +87,27 @@ If the cluster is gone it can be recreated with:
 | oauth2-proxy | `norish`, `paperless`, `ai` | [docs/oauth2-proxy.md](docs/oauth2-proxy.md) |
 | volume-backup | `backup` | [docs/volume-backup.md](docs/volume-backup.md) |
 
+## Tools
+
+These are the versions `task build` was written against. They are expected on `PATH`. flux-local is also found in `~/.local/bin`.
+
+| Tool | Version |
+| --- | --- |
+| kubectl | 1.36.3 |
+| kustomize | 5.8.1 |
+| flux | 2.9.5 |
+| helm | 3.20.2 |
+| sops | 3.13.3 |
+| task | 3.48.0 |
+| shellcheck | 0.11.0 |
+| flux-local | 8.4.0 |
+
 ## Operate
 
 From this directory. Defaults to `/etc/rancher/k3s/k3s.yaml`.
 
 ```sh
-task build        # render layers, catch YAML mistakes
+task build        # render layers, HelmReleases, scripts, and SOPS files
 task diff         # working tree vs what Flux applied
 task reconcile    # fetch HEAD and apply now
 task status       # Flux kustomizations and HelmReleases

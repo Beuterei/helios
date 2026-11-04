@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Shared by the backup hooks. k3s on cgroup v2 puts each pod in a systemd slice
 # named from its UID. Freezing that slice stops every process in the pod.
 

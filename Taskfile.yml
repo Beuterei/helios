@@ -3,6 +3,8 @@ version: "3"
 
 env:
   KUBECONFIG: '{{.KUBECONFIG | default "/etc/rancher/k3s/k3s.yaml"}}'
+  # flux-local lives in the user local bin. The other tools are on the default PATH.
+  PATH: '{{env "HOME"}}/.local/bin:{{env "PATH"}}'
 
 tasks:
   build:
@@ -24,6 +26,9 @@ tasks:
       - kustomize build apps > /dev/null
       - kustomize build certs > /dev/null
       - kustomize build secrets > /dev/null
+      - shellcheck charts/paperless/files/default-groups.sh charts/volume-backup/scripts/*.sh
+      - test -z "$(grep -L '^sops:' secrets/*.enc.yaml)"
+      - flux-local test --enable-helm --path clusters/helios
 
   diff:
     desc: Compare the working tree with what Flux has applied
