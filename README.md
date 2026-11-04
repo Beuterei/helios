@@ -28,7 +28,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `clusters/helios` | Apply graph, including `flux-system` |
 | `namespaces` | `Namespace` objects |
 | `sources` | Chart repositories |
-| `platform` | CDI plugin, CoreDNS override, and secret reflector |
+| `platform` | CDI plugin, CoreDNS override, secret reflector, and secret reloader |
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
 | `platform/volume-backup` | restic backup, prune, and check (own Flux layer; waits for the S3 secret) |
@@ -50,7 +50,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 
 1. **namespaces** — names exist before anything targets them
 2. **sources** — chart repos; no dependencies
-3. **platform** — CDI plugin, CoreDNS, and the secret reflector. Waits for sources
+3. **platform** — CDI plugin, CoreDNS, the secret reflector, and the secret reloader. Waits for sources
 4. **cert-manager** — waits for namespaces and sources, then the operator
 5. **secrets** — waits for namespaces, then decrypts SOPS
 6. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
@@ -75,6 +75,7 @@ If the cluster is gone it can be recreated with:
 | Service | Namespace | Doc |
 | --- | --- | --- |
 | generic-cdi-plugin | `kube-system` | [docs/generic-cdi-plugin.md](docs/generic-cdi-plugin.md) |
+| reloader | `kube-system` | [docs/reloader.md](docs/reloader.md) |
 | cert-manager | `cert-manager` | [docs/cert-manager.md](docs/cert-manager.md) |
 | cloudflared | `network` | [docs/cloudflared.md](docs/cloudflared.md) |
 | blocky | `network` | [docs/blocky.md](docs/blocky.md) |

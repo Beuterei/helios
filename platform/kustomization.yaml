@@ -8,3 +8,4 @@ resources:
   - generic-cdi-plugin.yaml
   - coredns-custom.yaml
   - reflector.yaml
+  - reloader.yaml

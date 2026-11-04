@@ -24,7 +24,7 @@ task sops:edit -- secrets/pocket-id-sso.enc.yaml
 ```
 
 4. Reconcile and wait until the claims are Bound.
-5. Restore the database and uploads before signing in. On an empty database, sign in with a Pocket ID user in the `admins` group first. That account is the admin. Other users are normal users.
+5. Restore the database and uploads before signing in. On an empty database, sign in with a Pocket ID user in the `admins` group first. That account is the admin, and Norish turns registration off. Turn it back on under **Settings → Admin**, on the General card, **Allow new user registration**. Password sign-in stays off. A later Pocket ID user in `norish` or `admins` then gets an account. `admins` is a Norish admin. `norish` is a normal user.
 
 ## Check
 
