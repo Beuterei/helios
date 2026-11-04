@@ -17,3 +17,17 @@ HelmRelease `blocky` is Ready.
 ```sh
 kubectl -n network get svc blocky
 ```
+
+## Break-glass
+
+If Blocky is down, CoreDNS still forwards outside names to it and pods cannot resolve. Suspend the override, delete it, and restart CoreDNS so it uses the host resolver until Blocky is back. Then resume the layer.
+
+```sh
+flux suspend kustomization platform
+kubectl -n kube-system delete configmap coredns-custom
+kubectl -n kube-system rollout restart deploy/coredns
+```
+
+```sh
+flux resume kustomization platform
+```
