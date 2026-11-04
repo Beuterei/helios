@@ -1,5 +1,4 @@
-# Stateless. The cookie secret is secrets/oauth2-proxy.enc.yaml.
-# The client secret is the app's existing Pocket ID client.
+# Stateless. The client secret and the cookie secret are that namespace's gate Secret.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

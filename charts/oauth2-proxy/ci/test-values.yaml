@@ -6,8 +6,10 @@ app:
 host: recipe.luisbeu.de
 upstream: norish:3000
 clientId: norish
-clientSecretKey: norish
-cookieSecretKey: norish
+clientSecretName: norish-gate
+clientSecretKey: client-secret
+cookieSecretName: norish-gate
+cookieSecretKey: cookie-secret
 groups:
   - norish
   - admins

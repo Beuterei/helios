@@ -2,7 +2,7 @@
 
 Signs in Paperless, Open WebUI, and Norish. Accounts live on its claim. [volume-backup](volume-backup.md) copies that claim. Those apps sign in here. Their username forms are off. Sign-in is a passkey.
 
-Flux applies `apps/pocket-id.yaml` in namespace `pocket-id`. TLS is the reflected certificate. The host is `publicURL` in `charts/pocket-id/values.yaml`, and that name is also a Blocky mapping in `apps/blocky.yaml`. The tunnel origin is the headless service in [cloudflared](cloudflared.md). Client secrets are `secrets/pocket-id-sso.enc.yaml`, reflected into `paperless`, `ai`, and `norish`. The encryption key is `secrets/pocket-id.enc.yaml`.
+Flux applies `apps/pocket-id.yaml` in namespace `pocket-id`. TLS is the reflected certificate. The host is `publicURL` in `charts/pocket-id/values.yaml`, and that name is also a Blocky mapping in `apps/blocky.yaml`. The tunnel origin is the headless service in [cloudflared](cloudflared.md). Each app keeps its own client secret in its gate Secret. The encryption key is `secrets/pocket-id.enc.yaml`.
 
 Change the encryption key before the database exists. The public address is `https://auth.luisbeu.de`, set with `APP_URL`.
 
@@ -34,10 +34,12 @@ Add the session-gate callback on the same client:
 
 On the Paperless client, allow `paperless` and `admins`. On the Open WebUI client, allow `open_webui` and `admins`. On the Norish client, allow `norish` and `admins`.
 
-7. Copy each client secret into the SSO secret. Pocket ID shows the secret once.
+7. Copy each client secret into that app's gate secret. Pocket ID shows the secret once.
 
 ```sh
-task sops:edit -- secrets/pocket-id-sso.enc.yaml
+task sops:edit -- secrets/paperless-gate.enc.yaml
+task sops:edit -- secrets/open-webui-gate.enc.yaml
+task sops:edit -- secrets/norish-gate.enc.yaml
 ```
 
 8. Reconcile again so Paperless, Open WebUI, and Norish read those secrets.

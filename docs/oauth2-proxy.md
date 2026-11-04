@@ -6,7 +6,7 @@ Flux applies three HelmReleases of `charts/oauth2-proxy`, one in each app namesp
 
 An existing Pocket ID session is reused. The first visit still sets the gate cookie and the app cookie. Pocket ID issues a refresh token on that sign-in, and the gate refreshes it every hour, which checks the groups again. The gate cookie ends the session after 24 hours. Pocket ID leaves the email unverified. The gate accepts that, because sign-in is the passkey.
 
-Cookie secrets are `secrets/oauth2-proxy.enc.yaml`, reflected into `paperless` and `ai`. Client secrets stay in `secrets/pocket-id-sso.enc.yaml`. oauth2-proxy treats each value as URL-safe base64 of 16, 24, or 32 bytes. `+` or `/` from `openssl rand -base64` is rejected.
+Each namespace has its own gate secret: `secrets/paperless-gate.enc.yaml`, `secrets/open-webui-gate.enc.yaml`, and `secrets/norish-gate.enc.yaml`. The `client-secret` key is the Pocket ID client. The `cookie-secret` key signs that gate's cookie. oauth2-proxy treats the cookie value as URL-safe base64 of 16, 24, or 32 bytes. `+` or `/` from `openssl rand -base64` is rejected.
 
 ## Rebuild
 
@@ -14,7 +14,9 @@ Cookie secrets are `secrets/oauth2-proxy.enc.yaml`, reflected into `paperless` a
 
 ```sh
 node -e 'console.log(require("crypto").randomBytes(32).toString("base64url"))'
-task sops:edit -- secrets/oauth2-proxy.enc.yaml
+task sops:edit -- secrets/paperless-gate.enc.yaml
+task sops:edit -- secrets/open-webui-gate.enc.yaml
+task sops:edit -- secrets/norish-gate.enc.yaml
 ```
 
 2. On each existing Pocket ID client, add the gate callback. See [pocket-id](pocket-id.md).

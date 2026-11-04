@@ -1,6 +1,6 @@
 # Recipes for the household. Sign-in is Pocket ID.
 # The master key, database password, and Obscura token are secrets/norish.enc.yaml.
-# The client secret is secrets/pocket-id-sso.enc.yaml.
+# The client secret is secrets/norish-gate.enc.yaml.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

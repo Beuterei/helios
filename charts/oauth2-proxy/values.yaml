@@ -9,8 +9,6 @@ trustedProxyCIDR: 10.42.0.0/16
 ingressClassName: traefik
 # Wildcard, reflected from namespace cert-manager.
 tlsSecret: luisbeu-de-tls
-clientSecretName: pocket-id-sso
-cookieSecretName: oauth2-proxy
 
 # Paths that skip the session. Empty unless a HelmRelease sets them.
 # The match is the path only, so a query string still matches.
