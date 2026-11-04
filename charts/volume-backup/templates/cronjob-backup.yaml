@@ -1,0 +1,106 @@
+# One run copies every included claim, one namespace at a time.
+# Privileged so the script can write cgroup.freeze and cgroup.kill.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: restic-backup
+  labels:
+    app.kubernetes.io/name: volume-backup
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: backup
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  timeZone: {{ .Values.timeZone | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: volume-backup
+            app.kubernetes.io/instance: {{ .Release.Name }}
+            app.kubernetes.io/component: backup
+        spec:
+          restartPolicy: Never
+          serviceAccountName: volume-backup
+          terminationGracePeriodSeconds: 60
+          initContainers:
+            - name: kubectl
+              image: "{{ .Values.kubectl.repository }}:{{ .Values.kubectl.tag }}"
+              imagePullPolicy: IfNotPresent
+              command: ["sh", "-c"]
+              args:
+                - |
+                  set -eu
+                  cp "$(which kubectl)" /opt/bin/kubectl
+                  chmod 755 /opt/bin/kubectl
+              resources:
+                {{- toYaml .Values.resources | nindent 16 }}
+              volumeMounts:
+                - name: kubectl
+                  mountPath: /opt/bin
+          containers:
+            - name: restic
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: IfNotPresent
+              command: ["bash", "/scripts/backup.sh"]
+              envFrom:
+                - secretRef:
+                    name: {{ .Values.secretName }}
+              env:
+                - name: AWS_DEFAULT_REGION
+                  value: {{ .Values.s3.region | quote }}
+                - name: AWS_S3_FORCE_PATH_STYLE
+                  value: {{ .Values.s3.forcePathStyle | quote }}
+                - name: PATH
+                  value: /opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+                - name: TZ
+                  value: {{ .Values.timeZone | quote }}
+              securityContext:
+                privileged: true
+                runAsUser: 0
+              resources:
+                {{- toYaml .Values.resources | nindent 16 }}
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+                - name: kubectl
+                  mountPath: /opt/bin
+                  readOnly: true
+                - name: volumes
+                  mountPath: /mnt/volumes
+                  readOnly: true
+                - name: volumes
+                  mountPath: /mnt/volumes-rw
+                - name: copy
+                  mountPath: /mnt/copy
+                - name: cgroup
+                  mountPath: /sys/fs/cgroup
+                - name: lock
+                  mountPath: /run/lock
+          volumes:
+            - name: scripts
+              configMap:
+                name: volume-backup
+            - name: kubectl
+              emptyDir: {}
+            - name: volumes
+              hostPath:
+                path: {{ .Values.storageHostPath }}
+                type: Directory
+            - name: copy
+              hostPath:
+                path: {{ .Values.copyHostPath }}
+                type: DirectoryOrCreate
+            - name: cgroup
+              hostPath:
+                path: {{ .Values.cgroupHostPath }}
+                type: Directory
+            - name: lock
+              hostPath:
+                path: {{ .Values.lockHostPath }}
+                type: DirectoryOrCreate

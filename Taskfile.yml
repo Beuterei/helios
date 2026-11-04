@@ -79,12 +79,16 @@ tasks:
       - sops --decrypt {{.CLI_ARGS}}
 
   backup:restore:
-    desc: "Freeze a claim, restore a restic snapshot over it, and unfreeze. Args: namespace claim [snapshot]"
+    desc: "Restore one namespace from its restic snapshot. Args: namespace [snapshot]"
     cmds:
       - |
         set -euo pipefail
         set -- {{.CLI_ARGS}}
         ns=${1:?namespace}
-        claim=${2:?claim}
-        snap=${3:-latest}
-        kubectl -n backup exec deploy/restic-backup -c restic -- bash /scripts/restore.sh "$ns" "$claim" "$snap"
+        snap=${2:-latest}
+        kubectl -n backup delete job "restic-restore-${ns}" --ignore-not-found
+        helm template volume-backup charts/volume-backup --namespace backup \
+          --set "restore.app=${ns}" --set "restore.snapshot=${snap}" \
+          --show-only templates/job-restore.yaml | kubectl apply -f -
+        kubectl -n backup wait --for=condition=complete "job/restic-restore-${ns}" --timeout=60m
+        kubectl -n backup logs "job/restic-restore-${ns}"

@@ -1,5 +1,6 @@
 # Local chart. Copies claim directories to the S3 repository in Secret backup-s3.
-# Bound claims not listed under exclude are copied. ollama is models that can be pulled again.
+# Bound claims not listed under exclude are copied.
+# ollama is models that can be pulled again. norish-valkey is a cache.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -27,3 +28,5 @@ spec:
     exclude:
       - namespace: ai
         claim: ollama
+      - namespace: norish
+        claim: norish-valkey

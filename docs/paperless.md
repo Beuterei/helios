@@ -34,9 +34,7 @@ HelmRelease `paperless` is Ready. Its Ingress host answers. The WebDAV pod is Re
 ## Restore
 
 ```sh
-task backup:restore -- paperless paperless-postgres
-task backup:restore -- paperless paperless-data
-task backup:restore -- paperless paperless-media
+task backup:restore -- paperless
 ```
 
-Each claim must already be Bound. The restore replaces that directory and restarts its writers.
+The claims must already be Bound. One snapshot covers the namespace. The restore replaces the directories and restarts their writers.

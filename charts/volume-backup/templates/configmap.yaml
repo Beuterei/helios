@@ -12,8 +12,12 @@ data:
     {{- end }}
   lib.sh: |
 {{ .Files.Get "scripts/lib.sh" | indent 4 }}
-  quiesce.sh: |
-{{ .Files.Get "scripts/quiesce.sh" | indent 4 }}
+  backup.sh: |
+{{ .Files.Get "scripts/backup.sh" | indent 4 }}
+  prune.sh: |
+{{ .Files.Get "scripts/prune.sh" | indent 4 }}
+  check.sh: |
+{{ .Files.Get "scripts/check.sh" | indent 4 }}
   thaw.sh: |
 {{ .Files.Get "scripts/thaw.sh" | indent 4 }}
   restore.sh: |

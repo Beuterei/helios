@@ -1,12 +1,13 @@
-# mazzolino/restic runs cron itself. Tag matches the compose file.
+# One-shot restic. Kubernetes CronJobs own the schedule.
 image:
   repository: docker.io/mazzolino/restic
   tag: "1.8"
 
-# Static client used to list claims and pods. This node is amd64.
+# alpine/kubectl publishes 1.35.4 and has no 1.35.8 tag. The binary is copied
+# out of the image; registry.k8s.io/kubectl has no shell and no cp.
 kubectl:
-  version: v1.35.8
-  sha256: 874d5e72dbb819f43cff16bcd1e4f8bac5b7f2361fe1e55049b0a6c676fb0cbf
+  repository: docker.io/alpine/kubectl
+  tag: "1.35.4"
 
 timeZone: Europe/Berlin
 
@@ -17,28 +18,27 @@ s3:
   region: us-east-1
   forcePathStyle: "true"
 
-# Six fields: seconds, then minute, hour, day, month, weekday.
+# Five fields. The backup script tags each snapshot with its namespace.
 backup:
-  cron: "0 0 5 * * *"
-  runOnStartup: "true"
-  args: "--tag k3s-volumes --host helios --exclude *.tmp --verbose"
-  forgetArgs: "--keep-last 30 --keep-daily 7 --keep-weekly 5 --keep-monthly 12"
+  schedule: "0 5 * * *"
 
+# Once a week, after the backup hour.
 prune:
-  cron: "0 0 6 * * *"
-  # The backup deployment creates the repository.
-  runOnStartup: "false"
-  skipInit: "true"
+  schedule: "0 6 * * 0"
 
 check:
-  cron: "0 0 7 * * *"
-  runOnStartup: "false"
-  skipInit: "true"
+  schedule: "0 7 * * *"
   args: "--read-data-subset=10%"
+
+# Set by task backup:restore. Empty means Flux does not create a restore Job.
+restore:
+  app: ""
+  snapshot: latest
 
 storageHostPath: /var/lib/rancher/k3s/storage
 copyHostPath: /var/lib/restic-copy
 cgroupHostPath: /sys/fs/cgroup
+lockHostPath: /var/lib/restic-lock
 
 resources:
   requests:

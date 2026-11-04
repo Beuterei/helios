@@ -51,7 +51,7 @@ HelmRelease `pocket-id` is Ready. Its Ingress host shows the login page. Paperle
 Keep both Pocket ID secrets. The restore replaces the database directory and restarts its writer.
 
 ```sh
-task backup:restore -- pocket-id pocket-id
+task backup:restore -- pocket-id
 ```
 
 The claim must already be Bound.

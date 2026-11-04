@@ -33,8 +33,7 @@ HelmRelease `norish` is Ready. Its Ingress host shows the login page.
 ## Restore
 
 ```sh
-task backup:restore -- norish norish-postgres
-task backup:restore -- norish norish-uploads
+task backup:restore -- norish
 ```
 
-Each claim must already be Bound. The restore replaces that directory and restarts its writers.
+The claims must already be Bound. One snapshot covers the namespace. `norish-valkey` is not in it. The restore replaces the directories and restarts their writers.

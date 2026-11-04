@@ -20,7 +20,7 @@ HelmRelease `open-webui` is Ready. Its Ingress host answers.
 ## Restore
 
 ```sh
-task backup:restore -- ai open-webui
+task backup:restore -- ai
 ```
 
-The claim must already be Bound. The restore replaces the directory and restarts the writers.
+The claim must already be Bound. The snapshot is the `ai` namespace. `ollama` is not in it. The restore replaces the directory and restarts the writers.

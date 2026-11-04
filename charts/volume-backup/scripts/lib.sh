@@ -134,3 +134,46 @@ freeze_claim() {
 bound_claims() {
   "$KUBECTL" get pvc -A -o jsonpath='{range .items[?(@.status.phase=="Bound")]}{.metadata.namespace}{" "}{.metadata.name}{"\n"}{end}'
 }
+
+# Holds the fd for the life of the process. Backup and restore share the hostPath.
+lock_backup() {
+  mkdir -p /run/lock
+  exec 9>/run/lock/backup.lock
+  if ! flock -n 9; then
+    printf 'backup or restore already holds the lock\n' >&2
+    return 1
+  fi
+}
+
+ping_hc() {
+  local url=$1 rid=$2
+  curl -fsS -m 10 --retry 3 -X POST "${url:-}?rid=${rid}" || true
+}
+
+repo_ready() {
+  if ! restic cat config >/dev/null; then
+    printf 'repository is not reachable\n' >&2
+    return 1
+  fi
+}
+
+# Flush dirty pages before the freeze. A namespace without Postgres is a no-op.
+checkpoint_postgres() {
+  local ns=$1 name containers out
+  if ! out=$("$KUBECTL" get pods -n "$ns" --field-selector=status.phase=Running -o jsonpath='{range .items[*]}{.metadata.name}{" "}{range .spec.containers[*]}{.name}{","}{end}{"\n"}{end}'); then
+    printf 'listing pods in %s failed\n' "$ns" >&2
+    return 1
+  fi
+  while read -r name containers; do
+    [[ -z "${name:-}" ]] && continue
+    case ",${containers}" in
+      *,postgres,*)
+        # POSTGRES_USER and POSTGRES_DB are set inside the database container.
+        # shellcheck disable=SC2016
+        "$KUBECTL" exec -n "$ns" "$name" -c postgres -- \
+          sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "CHECKPOINT"' \
+          || return 1
+        ;;
+    esac
+  done <<<"$out"
+}

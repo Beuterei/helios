@@ -1,0 +1,101 @@
+{{- if .Values.restore.app }}
+# Created by task backup:restore. Flux leaves restore.app empty, so this is not applied.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restic-restore-{{ .Values.restore.app }}
+  labels:
+    app.kubernetes.io/name: volume-backup
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: restore
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: volume-backup
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: restore
+    spec:
+      restartPolicy: Never
+      serviceAccountName: volume-backup
+      terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: kubectl
+          image: "{{ .Values.kubectl.repository }}:{{ .Values.kubectl.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              cp "$(which kubectl)" /opt/bin/kubectl
+              chmod 755 /opt/bin/kubectl
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: kubectl
+              mountPath: /opt/bin
+      containers:
+        - name: restic
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["bash", "/scripts/restore.sh", {{ .Values.restore.app | quote }}, {{ .Values.restore.snapshot | quote }}]
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secretName }}
+          env:
+            - name: AWS_DEFAULT_REGION
+              value: {{ .Values.s3.region | quote }}
+            - name: AWS_S3_FORCE_PATH_STYLE
+              value: {{ .Values.s3.forcePathStyle | quote }}
+            - name: PATH
+              value: /opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+            - name: TZ
+              value: {{ .Values.timeZone | quote }}
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: kubectl
+              mountPath: /opt/bin
+              readOnly: true
+            - name: volumes
+              mountPath: /mnt/volumes
+              readOnly: true
+            - name: volumes
+              mountPath: /mnt/volumes-rw
+            - name: copy
+              mountPath: /mnt/copy
+            - name: cgroup
+              mountPath: /sys/fs/cgroup
+            - name: lock
+              mountPath: /run/lock
+      volumes:
+        - name: scripts
+          configMap:
+            name: volume-backup
+        - name: kubectl
+          emptyDir: {}
+        - name: volumes
+          hostPath:
+            path: {{ .Values.storageHostPath }}
+            type: Directory
+        - name: copy
+          hostPath:
+            path: {{ .Values.copyHostPath }}
+            type: DirectoryOrCreate
+        - name: cgroup
+          hostPath:
+            path: {{ .Values.cgroupHostPath }}
+            type: Directory
+        - name: lock
+          hostPath:
+            path: {{ .Values.lockHostPath }}
+            type: DirectoryOrCreate
+{{- end }}
