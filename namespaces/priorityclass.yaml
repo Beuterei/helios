@@ -1,0 +1,10 @@
+# Blocky, Pocket ID, and cloudflared. A pod that names this class is rejected
+# until this object exists, so those layers wait on namespaces.
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: edge
+value: 1000000
+globalDefault: false
+description: Stay scheduled when the node evicts BestEffort and Burstable pods.
+preemptionPolicy: PreemptLowerPriority

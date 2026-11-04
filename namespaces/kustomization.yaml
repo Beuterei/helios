@@ -5,6 +5,7 @@ kind: Kustomization
 commonAnnotations:
   kustomize.toolkit.fluxcd.io/prune: disabled
 resources:
+  - priorityclass.yaml
   - cert-manager.yaml
   - network.yaml
   - backup.yaml

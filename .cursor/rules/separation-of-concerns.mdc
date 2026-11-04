@@ -9,7 +9,7 @@ Before finishing a change that adds, moves, or deletes manifests, render every t
 
 | Path | Allowed kinds |
 | --- | --- |
-| `namespaces` | `Namespace` |
+| `namespaces` | `Namespace`, `PriorityClass` |
 | `sources` | `HelmRepository`, `OCIRepository` |
 | `platform` | `HelmRelease`, cluster `ConfigMap` |
 | `platform/cert-manager` | `HelmRelease` |

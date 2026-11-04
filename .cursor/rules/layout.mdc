@@ -12,7 +12,7 @@ Put a manifest in the directory that matches its kind.
 | Path | Put here | Leave out |
 | --- | --- | --- |
 | `clusters/helios` | Flux `Kustomization` (path, dependsOn, decryption) | Workloads, Namespaces, Secrets |
-| `namespaces` | `Namespace` | Anything inside the namespace |
+| `namespaces` | `Namespace`, `PriorityClass` | Anything inside the namespace |
 | `sources` | `HelmRepository`, `OCIRepository` | HelmReleases |
 | `platform` | Node plugins and cluster DNS | User-facing apps, Certificates, Secrets |
 | `platform/cert-manager` | cert-manager HelmRelease | Its Namespace, OCIRepository, Certificates |

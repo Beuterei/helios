@@ -11,7 +11,7 @@ One directory, one kind of object. Put new YAML in the directory that matches th
 | Concern | Owns | Does not own |
 | --- | --- | --- |
 | **Apply graph** | Flux `Kustomization` objects: path, `dependsOn`, decryption | HelmReleases, Secrets, charts |
-| **Namespaces** | `Namespace` objects | Anything that lives inside them |
+| **Namespaces** | `Namespace` objects and the `edge` PriorityClass | Anything that lives inside a namespace |
 | **Sources** | `HelmRepository` / `OCIRepository` | The HelmReleases that consume them |
 | **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, and volume backups | User-facing apps, Certificates, Secrets |
 | **Apps** | Workload HelmReleases | Chart sources, ClusterIssuers, cluster config |
