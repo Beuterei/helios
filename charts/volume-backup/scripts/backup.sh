@@ -56,8 +56,9 @@ while read -r ns; do
   restic backup "${COPY_DIR}/data" --tag "$ns" --host helios --exclude '*.tmp' --verbose
 done < <(printf '%s\n' "${!claims_of[@]}" | sort)
 
-# Each namespace is its own group, so one app's history does not evict another's.
-restic forget --group-by tags --keep-last 30 --keep-daily 7 --keep-weekly 5 --keep-monthly 12
+# This repository is shared with other hosts. --host keeps their snapshots out of
+# retention. Group by host and tags so each namespace is its own history.
+restic forget --host helios --group-by host,tags --keep-last 30 --keep-daily 7 --keep-weekly 5 --keep-monthly 12
 thaw_all
 trap - ERR
 ping_hc "${HEALTHCHECKS_URL_BACKUP_SUCCESS:-}" "$rid"
