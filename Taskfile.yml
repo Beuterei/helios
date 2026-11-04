@@ -27,7 +27,7 @@ tasks:
       - kustomize build apps > /dev/null
       - kustomize build certs > /dev/null
       - kustomize build secrets > /dev/null
-      - shellcheck charts/paperless/files/default-groups.sh charts/volume-backup/scripts/*.sh
+      - shellcheck charts/paperless/files/default-groups.sh charts/volume-backup/scripts/*.sh charts/norish/scripts/*.sh
       - test -z "$(grep -L '^sops:' secrets/*.enc.yaml)"
       - flux-local test --enable-helm --path clusters/helios
 

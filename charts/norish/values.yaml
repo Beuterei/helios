@@ -34,7 +34,7 @@ norish:
 postgres:
   image:
     repository: docker.io/library/postgres
-    tag: 17.11-alpine
+    tag: 18.6-alpine
   user: norish
   database: norish
   persistence: 10Gi

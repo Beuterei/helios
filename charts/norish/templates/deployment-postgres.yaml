@@ -24,6 +24,25 @@ spec:
       securityContext:
         seccompProfile:
           type: RuntimeDefault
+      # 17 binaries, used once to dump the old data directory. No-op after that.
+      initContainers:
+        - name: migrate
+          image: docker.io/library/postgres:17.11-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "/migrate.sh"]
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.user }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql
+            - name: migrate
+              mountPath: /migrate.sh
+              subPath: migrate.sh
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
       containers:
         - name: postgres
           image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
@@ -52,10 +71,17 @@ spec:
           resources:
             {{- toYaml .Values.postgres.resources | nindent 12 }}
           volumeMounts:
-            # Postgres 17 keeps the data directory here. Postgres 18 moved it up a level.
+            # Postgres 18 keeps the data directory under this path.
             - name: data
-              mountPath: /var/lib/postgresql/data
+              mountPath: /var/lib/postgresql
+            - name: migrate
+              mountPath: /docker-entrypoint-initdb.d/10-restore.sh
+              subPath: restore.sh
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: norish-postgres
+        - name: migrate
+          configMap:
+            name: postgres-migrate
+            defaultMode: 0555

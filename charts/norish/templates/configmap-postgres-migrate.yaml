@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-migrate
+  labels:
+    {{- include "norish.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+data:
+  migrate.sh: |
+{{ .Files.Get "scripts/migrate.sh" | indent 4 }}
+  restore.sh: |
+{{ .Files.Get "scripts/restore.sh" | indent 4 }}
