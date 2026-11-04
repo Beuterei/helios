@@ -6,6 +6,10 @@ commonAnnotations:
   kustomize.toolkit.fluxcd.io/prune: disabled
 resources:
   - priorityclass.yaml
+  - kube-system.yaml
+  - kube-public.yaml
+  - kube-node-lease.yaml
+  - default.yaml
   - cert-manager.yaml
   - network.yaml
   - backup.yaml
