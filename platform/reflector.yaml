@@ -1,4 +1,3 @@
-# Copies the wildcard TLS secret into namespaces that serve their own Ingress.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

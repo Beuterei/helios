@@ -1,5 +1,6 @@
-# One writer. Uploads are on the claim.
-# The image entrypoint starts as root, gives that directory to uid 1000, and drops to that user.
+# One writer.
+# Uploads are on the claim.
+# The image entrypoint starts as root, gives that directory to the app user, and drops to that user.
 # Norish builds DATABASE_URL from DATABASE_HOST, DATABASE_USER, DATABASE, and DATABASE_PASSWORD.
 apiVersion: apps/v1
 kind: Deployment

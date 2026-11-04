@@ -1,5 +1,5 @@
-# Traefik uses this. cloudflared must not: a ClusterIP is DNATed and
-# the tunnel egress rule matches the pod, not the service address.
+# Traefik uses this.
+# cloudflared must not, because a ClusterIP is DNATed and the tunnel egress rule matches the pod, not the service address.
 apiVersion: v1
 kind: Service
 metadata:

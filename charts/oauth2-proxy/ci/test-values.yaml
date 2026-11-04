@@ -1,4 +1,4 @@
-# Instance values for helm template. The HelmReleases set the real ones.
+# The HelmReleases set the real instance values.
 app:
   name: norish
   component: norish

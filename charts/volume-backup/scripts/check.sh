@@ -1,5 +1,5 @@
 #!/bin/bash
-# Read a subset of the repository. Arguments are passed to restic check.
+# Arguments are passed to restic check.
 set -euo pipefail
 # shellcheck disable=SC1091
 source "$(dirname "$0")/lib.sh"

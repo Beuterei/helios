@@ -1,8 +1,7 @@
-# LAN and cluster recursive DNS. Queries leave over DoH; nothing is
-# written to a query log.
-# LAN devices query the LoadBalancer at 192.168.1.151:53 (this node).
-# CoreDNS forwards other names to ClusterIP 10.43.38.254.
-# Reserve 192.168.1.151 on the gateway so LAN names keep resolving.
+# Queries leave over DoH, and nothing is written to a query log.
+# LAN devices query the LoadBalancer on this node.
+# CoreDNS forwards other names to the pinned ClusterIP.
+# The mapping answers with this node's LAN address, so the gateway reserves that address.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -27,8 +26,8 @@ spec:
   upgrade:
     remediation:
       retries: 3
-  # Chart omits clusterIP on LoadBalancer Services. Pin it so CoreDNS can
-  # forward here without depending on a newly allocated address.
+  # The chart omits clusterIP on LoadBalancer Services.
+  # The pin lets CoreDNS forward here without depending on a newly allocated address.
   postRenderers:
     - kustomize:
         patches:
@@ -39,25 +38,25 @@ spec:
               - op: add
                 path: /spec/clusterIP
                 value: "10.43.38.254"
-        # TODO: drop this digest pin when v0.36 is out.
-        # Chart has no image.digest.
+        # TODO: drop the digest pin once a release picks any published DS.
+        # The chart has no image.digest.
         images:
           - name: ghcr.io/0xerr0r/blocky
             digest: sha256:98627c3923fc720537dfce3da4b27b8f89dd57549555128f564fe26614a713a3
   values:
     image:
       repository: ghcr.io/0xerr0r/blocky
-      # TODO: pin tag to v0.36. v0.35.0 picks one DS and requires that
-      # KSK to sign DNSKEY. .io publishes DS 38690 and 57355 but signs
-      # only with 57355, so the TLD (quay.io included) SERVFAILs when
-      # 38690 is chosen first. #2293 is on main (v0.35.0-52-g501edc07).
+      # TODO: pin a release tag once a release picks any published DS.
+      # The latest release picks one DS and requires that KSK to sign DNSKEY.
+      # .io publishes two DS records but signs with only one, so the TLD SERVFAILs when the other is chosen first.
       tag: development
 
     env:
       TZ: Europe/Berlin
 
-    # The chart renders this with tpl. The hash is part of the pod template,
-    # so a config change rolls the pod. The subPath mount would not.
+    # The chart renders this with tpl.
+    # The hash is part of the pod template, so a config change rolls the pod.
+    # The subPath mount would not.
     podAnnotations:
       checksum/config: "{{ .Values.config | sha256sum }}"
 
@@ -89,9 +88,8 @@ spec:
         strategy: parallel_best
         timeout: 2s
 
-      # IP-pinned DoH so bootstrap does not use plaintext :53 or the
-      # resolver we are replacing. Quad9 and Digitale Gesellschaft do not
-      # speak unencrypted DNS.
+      # IP-pinned DoH, so bootstrap uses neither plaintext DNS nor the resolver Blocky replaces.
+      # Quad9 and Digitale Gesellschaft do not speak unencrypted DNS.
       bootstrapDns:
         - upstream: https://dns.quad9.net/dns-query
           ips:
@@ -168,7 +166,8 @@ spec:
 
     priorityClassName: edge
 
-    # Headroom for a blocklist reload. Without requests the pod is BestEffort.
+    # Headroom for a blocklist reload.
+    # Without requests the pod is BestEffort.
     resources:
       requests:
         cpu: 50m

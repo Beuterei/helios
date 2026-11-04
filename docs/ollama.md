@@ -1,8 +1,10 @@
 # ollama
 
-GPU inference for Open WebUI, Paperless, and Norish. The chart pulls the models. They are not backed up. Install does not wait on the pull, so the HelmRelease can be Ready while a download is still running. Open WebUI is in the same namespace. Paperless and Norish are the only other callers, on port 11434.
+GPU inference for Open WebUI, Paperless, and Norish. The chart pulls the models, and they are not backed up. Install does not wait on the pull, so the HelmRelease can be Ready while a download is still running. Open WebUI is in the same namespace, and Paperless and Norish are the only other callers.
 
-Flux applies `apps/ollama.yaml` in namespace `ai`. The device comes from [generic-cdi-plugin](generic-cdi-plugin.md). `volume-backup` excludes this claim.
+## Flux
+
+Flux applies `apps/ollama.yaml` in namespace `ai`. The device comes from [generic-cdi-plugin](generic-cdi-plugin.md), and `volume-backup` excludes this claim.
 
 ## Rebuild
 
@@ -15,4 +17,4 @@ Flux applies `apps/ollama.yaml` in namespace `ai`. The device comes from [generi
 kubectl -n ai exec deploy/ollama -- ollama list
 ```
 
-The models listed in `apps/ollama.yaml` are present when the pulls finish.
+The models listed in `apps/ollama.yaml` are present once the pulls finish.

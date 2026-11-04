@@ -1,4 +1,3 @@
-# Nothing reaches a pod here unless a later policy allows it.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -10,7 +9,6 @@ spec:
   policyTypes:
     - Ingress
 ---
-# Pods in this namespace can reach each other.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -25,7 +23,8 @@ spec:
     - from:
         - podSelector: {}
 ---
-# Traefik on the LAN. cloudflared for the tunnel origin.
+# Traefik on the LAN.
+# cloudflared for the tunnel origin.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

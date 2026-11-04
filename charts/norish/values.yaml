@@ -1,14 +1,17 @@
-# Database password, master key, and Obscura token are secrets/norish.enc.yaml.
-# Change them before the claims exist. The master key decrypts stored data.
+# The Norish SOPS secret holds the database password, master key, and Obscura token.
+# Change them before the claims exist.
+# The master key decrypts stored data.
 secretName: norish
 
-# Not a Norish setting. Node uses it for local time.
+# Not a Norish setting.
+# Node uses it for local time.
 timeZone: Europe/Berlin
-# Public URL. The Ingress is the oauth2-proxy release, not this chart.
 publicURL: https://recipe.luisbeu.de
 
-# Sign-in is Pocket ID. The client secret is secrets/norish-gate.enc.yaml.
-# Norish sends PKCE. The admin group name is the value in the token.
+# Sign-in is Pocket ID.
+# The Norish gate SOPS secret holds the client secret.
+# Norish sends PKCE.
+# The admin group name is the value in the token.
 oidc:
   name: Pocket ID
   issuer: https://auth.luisbeu.de
@@ -60,19 +63,22 @@ valkey:
     limits:
       memory: 256Mi
 
-# Text and photo AI. Norish copies this into its database on first boot.
-# The model is the one Ollama already pulls for structured output.
+# Text and photo AI.
+# Norish copies this into its database on first boot.
+# The model is the one Ollama pulls for structured output.
 ai:
   enabled: true
   provider: ollama
   endpoint: http://ollama.ai.svc.cluster.local:11434
   model: gemma3:12b
 
-# Video import downloads a video and transcribes it. Leave it off.
+# Video import downloads a video and transcribes it.
+# Leave it off.
 video:
   enabled: false
 
-# Renders recipe pages for URL imports. ClusterIP only: the CDP port can drive the browser.
+# Renders recipe pages for URL imports.
+# ClusterIP only, because the CDP port can drive the browser.
 obscura:
   image:
     repository: docker.io/norishapp/obscura

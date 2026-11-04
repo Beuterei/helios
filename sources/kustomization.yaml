@@ -1,5 +1,4 @@
-# Chart sources only. Applied by the Flux Kustomization named "sources".
-# prune: disabled so a layer move does not delete the live chart repository.
+# prune: disabled, so a layer move does not delete the live chart repository.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 commonAnnotations:

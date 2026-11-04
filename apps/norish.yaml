@@ -1,6 +1,6 @@
-# Recipes for the household. Sign-in is Pocket ID.
-# The master key, database password, and Obscura token are secrets/norish.enc.yaml.
-# The client secret is secrets/norish-gate.enc.yaml.
+# Sign-in is Pocket ID.
+# The Norish SOPS secret holds the master key, database password, and Obscura token.
+# The Norish gate SOPS secret holds the client secret.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -12,7 +12,6 @@ spec:
   chart:
     spec:
       chart: ./charts/norish
-      # Chart version stays 0.1.0. ChartVersion would keep the first package.
       reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository

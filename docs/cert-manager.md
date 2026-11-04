@@ -1,14 +1,20 @@
 # cert-manager
 
-Issues the wildcard certificate with Let's Encrypt DNS-01 against Cloudflare. No inbound port. Reflector copies the TLS secret into every namespace so Ingresses can mount it.
+Issues the wildcard certificate with Let's Encrypt DNS-01 against Cloudflare, so no inbound port is needed. Reflector copies the TLS secret into each namespace that serves its own Ingress.
 
-Flux applies `platform/cert-manager/`, `sources/cert-manager.yaml`, `certs/`, and `platform/reflector.yaml`. The API token is `secrets/cloudflare-dns-01-token.enc.yaml`.
+## Flux
+
+Flux applies `platform/cert-manager/`, `sources/cert-manager.yaml`, `certs/`, and `platform/reflector.yaml`.
+
+## Secrets
+
+The Cloudflare DNS-01 SOPS secret holds the API token, under the key `certs/clusterissuer.yaml` references.
 
 ## Rebuild
 
-The token in git is reused when Secret `flux-system/sops-age` decrypts. Create a new token only when that one is gone:
+The token in git is reused when Secret `flux-system/sops-age` decrypts it. Create a new token only when that one is gone:
 
-1. In the Cloudflare dashboard: My Profile → API Tokens → Create Token. Custom token, not the Global API Key.
+1. In the Cloudflare dashboard, go to My Profile → API Tokens → Create Token. Use a custom token, not the Global API Key.
 
    Permissions:
 
@@ -17,7 +23,7 @@ The token in git is reused when Secret `flux-system/sops-age` decrypts. Create a
 
    Zone Resources: Include → Specific zone → the zone in `certs/certificate.yaml`.
 
-2. Put it in `secrets/cloudflare-dns-01-token.enc.yaml`, at the key `certs/clusterissuer.yaml` references.
+2. Put the token in the secret, at the key `certs/clusterissuer.yaml` references.
 
 ```sh
 task sops:edit -- secrets/cloudflare-dns-01-token.enc.yaml
@@ -27,7 +33,7 @@ task sops:edit -- secrets/cloudflare-dns-01-token.enc.yaml
 
 ## Check
 
-HelmReleases `cert-manager` and `reflector` are Ready. The Certificate is Ready.
+HelmReleases `cert-manager` and `reflector` are Ready, and the Certificate is Ready.
 
 ```sh
 kubectl -n cert-manager get certificate

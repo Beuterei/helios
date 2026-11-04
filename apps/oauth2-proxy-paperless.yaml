@@ -1,4 +1,5 @@
-# Session gate for Paperless. LAN only. WebDAV keeps its own Ingress and password.
+# LAN only.
+# WebDAV keeps its own Ingress and password.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -9,7 +10,6 @@ spec:
   chart:
     spec:
       chart: ./charts/oauth2-proxy
-      # Chart version stays 0.1.0. ChartVersion would keep the first package.
       reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository

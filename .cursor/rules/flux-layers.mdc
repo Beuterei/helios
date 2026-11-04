@@ -19,4 +19,4 @@ Apply order: namespaces and sources (no dependencies), then dns (waits for both)
 - `backups` depends on namespaces and secrets.
 - `secrets` decrypts with `provider: sops` and `secretRef: sops-age`.
 - Keep `prune: true` on these Kustomizations. Objects in `namespaces/` and `sources/` carry `kustomize.toolkit.fluxcd.io/prune: disabled` so a layer move does not delete a live namespace or chart repo. New objects in those directories keep that annotation.
-- `force: true` is only for taking ownership during a move. Remove it once Flux owns the objects.
+- `force: true` is only for taking ownership during a move, and comes out when Flux owns the objects.

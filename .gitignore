@@ -3,7 +3,8 @@
 age.key
 *.agekey
 
-# Plaintext secrets. Commit only *.enc.yaml and the kustomization.
+# Plaintext secrets.
+# Only *.enc.yaml and the kustomization are committed.
 secrets/**
 !secrets/**/
 !secrets/**/*.enc.yaml

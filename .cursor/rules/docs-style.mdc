@@ -1,0 +1,52 @@
+---
+description: Style for docs, rules, and comments — current facts, no volatile values, no history
+alwaysApply: true
+---
+
+# Docs and comments style
+
+Docs and comments state how the code works now.
+They do not tell its history: no "was", "used to", "once", "now", "no longer", or migration stories.
+
+## Values
+
+The manifests own every value.
+Prose and comments name the thing and leave the value in the manifest.
+
+- Leave out IP addresses, hostnames, versions, durations, sizes, counts, schedules, upstream issue numbers, and commit refs.
+- Leave out secret file paths. Say "the Norish SOPS secret", not the path.
+- Use a generic noun in place of a value: "the Blocky LoadBalancer address", "the Pocket ID host", "the pinned Blocky ClusterIP".
+- Keep Kubernetes names (namespaces, releases, claims, Secrets), Pocket ID group names, and task names.
+- A comment may name a model when it explains why that model is there.
+- Repo paths belong in `README.md` and `docs/`. Comments do not carry them.
+- Runnable commands keep their real paths, e.g. `task sops:edit -- secrets/norish.enc.yaml`.
+- The README request-path diagram keeps its hostnames. The prose around it does not.
+
+## Comments
+
+Applies to YAML, Helm templates, scripts, and `Taskfile.yml`.
+
+- No comment describes what a file or object is; the path, kind, and name already say it.
+- A comment states a constraint or a reason that the code cannot show.
+- Do not restate the value beside the comment, such as a schedule, a format string, or a size.
+- One sentence per line. Short single facts, not paragraphs.
+- Impersonal statements. An imperative is fine when it guards the next edit.
+- A TODO states the fact and its exit condition, without versions or issue refs: `TODO: drop the digest pin once a release picks any published DS.`
+- Facts listed under Shared facts are not repeated in files.
+- Leave `shellcheck` directives and generated files (`clusters/helios/flux-system/`) alone.
+
+## Docs and README
+
+- Connected prose: join related facts with "because" or "so" instead of a row of one-fact sentences.
+- Impersonal facts. Rebuild steps are imperative.
+- `docs/<service>.md` opens with an unheaded intro that says what the service is, then these sections in order, dropping any that are empty: `## Flux`, `## Secrets`, `## Sign-in`, `## Rebuild`, `## Check`, `## Break-glass`, `## Restore`.
+
+## Shared facts
+
+These hold for every file they apply to, so files do not repeat them.
+
+- Local charts live in `charts/` and are not published. Flux installs them from the `flux-system` GitRepository.
+- A local-chart HelmRelease uses `reconcileStrategy: Revision`. The chart version never changes, so `ChartVersion` would keep the first packaged chart.
+- Each app namespace (`ai`, `paperless`, `pocket-id`, `norish`) has `default-deny-ingress`, so nothing reaches a pod until a later policy allows it. `allow-same-namespace` lets the pods in that namespace, including the session gate, reach each other.
+- The wildcard TLS secret is issued in namespace `cert-manager`. Reflector copies it into each namespace that serves its own Ingress.
+- A public URL in a chart's values is served by that namespace's oauth2-proxy release, not by the app chart's own Ingress.

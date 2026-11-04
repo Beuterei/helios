@@ -1,6 +1,4 @@
-# Identity provider.
-# Paperless, Open WebUI, and Norish sign in here. Their username forms are off.
-# The encryption key is secrets/pocket-id.enc.yaml.
+# The Pocket ID SOPS secret holds the encryption key.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -12,7 +10,6 @@ spec:
   chart:
     spec:
       chart: ./charts/pocket-id
-      # Chart version stays 0.1.0. ChartVersion would keep the first package.
       reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository

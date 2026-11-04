@@ -1,4 +1,5 @@
-# No Ingress. The CDP port can drive the browser; the token is the lock.
+# No Ingress, because the CDP port can drive the browser.
+# The token is the lock.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

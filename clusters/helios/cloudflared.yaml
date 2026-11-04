@@ -1,4 +1,4 @@
-# Remotely managed cloudflared. The tunnel token must already be decrypted.
+# The tunnel token must already be decrypted.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:

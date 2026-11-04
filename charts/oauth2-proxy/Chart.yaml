@@ -1,4 +1,3 @@
-# Local chart. Not published; Flux installs it from this repo.
 apiVersion: v2
 name: oauth2-proxy
 description: Pocket ID session gate in front of one app

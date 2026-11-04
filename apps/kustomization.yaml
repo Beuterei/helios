@@ -1,5 +1,3 @@
-# Workload HelmReleases, plus NetworkPolicies for the upstream charts.
-# Applied by the Flux Kustomization named "apps".
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:

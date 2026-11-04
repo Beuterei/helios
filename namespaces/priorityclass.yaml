@@ -1,5 +1,5 @@
-# Blocky, Pocket ID, and cloudflared. A pod that names this class is rejected
-# until this object exists, so those layers wait on namespaces.
+# Blocky, Pocket ID, and cloudflared use this class.
+# A pod that names it is rejected until this object exists, so those layers wait on namespaces.
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:

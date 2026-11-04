@@ -1,6 +1,5 @@
 #!/bin/bash
-# One namespace at a time: checkpoint, freeze, copy, thaw, then one restic
-# snapshot tagged with the namespace. Writers stay frozen only for that copy.
+# Writers stay frozen only for the local copy, not the upload.
 set -euo pipefail
 # shellcheck disable=SC1091
 source "$(dirname "$0")/lib.sh"
@@ -56,8 +55,9 @@ while read -r ns; do
   restic backup "${COPY_DIR}/data" --tag "$ns" --host helios --exclude '*.tmp' --verbose
 done < <(printf '%s\n' "${!claims_of[@]}" | sort)
 
-# This repository is shared with other hosts. --host keeps their snapshots out of
-# retention. Group by host and tags so each namespace is its own history.
+# This repository is shared with other hosts.
+# --host keeps their snapshots out of retention.
+# Grouping by host and tags makes each namespace its own history.
 restic forget --host helios --group-by host,tags --keep-last 30 --keep-daily 7 --keep-weekly 5 --keep-monthly 12
 thaw_all
 trap - ERR

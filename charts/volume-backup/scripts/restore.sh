@@ -1,6 +1,6 @@
 #!/bin/bash
-# Restore one namespace from its snapshot. Live files move aside and come
-# back if the copy fails. Usage: restore.sh namespace [snapshot]
+# Live files move aside and come back if the copy fails.
+# Usage: restore.sh namespace [snapshot]
 set -euo pipefail
 # shellcheck disable=SC1091
 source "$(dirname "$0")/lib.sh"

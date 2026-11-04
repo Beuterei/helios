@@ -5,11 +5,11 @@ metadata:
   labels:
     {{- include "oauth2-proxy.labels" . | nindent 4 }}
 spec:
-  ingressClassName: {{ .Values.ingressClassName }}
+  ingressClassName: {{ .Values.ingress.className }}
   tls:
     - hosts:
         - {{ required "host is required" .Values.host }}
-      secretName: {{ .Values.tlsSecret }}
+      secretName: {{ .Values.ingress.tlsSecret }}
   rules:
     - host: {{ required "host is required" .Values.host }}
       http:

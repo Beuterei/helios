@@ -1,6 +1,5 @@
-# Egress allowlist for the tunnel. A dashboard route to an unlisted
-# destination does not connect.
-# Do not allow the ingress controller: that would publish every Ingress.
+# A dashboard route to an unlisted destination does not connect.
+# Do not allow the ingress controller, because that would publish every Ingress.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -41,9 +40,10 @@ spec:
           port: 7844
         - protocol: TCP
           port: 443
-    # Pocket ID and the recipe gate. Paperless and Open WebUI stay on the LAN.
-    # Use the headless service so DNS returns the pod. A ClusterIP would
-    # not match, and the ingress controller stays closed.
+    # Pocket ID and the Norish gate.
+    # Paperless and Open WebUI stay on the LAN.
+    # The origin is the headless service, so DNS returns the pod.
+    # A ClusterIP would not match, and the ingress controller stays closed.
     - to:
         - namespaceSelector:
             matchLabels:

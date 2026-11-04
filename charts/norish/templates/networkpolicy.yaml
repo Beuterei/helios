@@ -1,4 +1,3 @@
-# Nothing reaches a pod here unless a later policy allows it.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -10,7 +9,6 @@ spec:
   policyTypes:
     - Ingress
 ---
-# Pods in this namespace can reach each other. The gate is one of them.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -26,7 +24,7 @@ spec:
         - podSelector: {}
 ---
 # Norish fetches recipe pages and calls Pocket ID and Ollama.
-# auth.luisbeu.de resolves to the LAN address, and kube-proxy DNATs that to Traefik port 8443.
+# The Pocket ID host resolves to the LAN address, and kube-proxy DNATs that to the Traefik pod port.
 # The public-internet rule excludes private ranges, so Traefik is a separate rule.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -91,7 +89,8 @@ spec:
         - protocol: TCP
           port: 443
 ---
-# Obscura fetches pages for URL import. It cannot reach private addresses.
+# Obscura fetches pages for URL import.
+# It cannot reach private addresses.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

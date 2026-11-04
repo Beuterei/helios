@@ -1,4 +1,3 @@
-# CDI plugin, CoreDNS override, secret reflector, and reloader.
 # The override forwards to Blocky, so this waits until dns is Ready.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

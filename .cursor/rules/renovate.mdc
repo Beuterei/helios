@@ -9,16 +9,16 @@ alwaysApply: true
 
 Flux manifests live in `apps/`, `dns/`, `platform/`, and `sources/`. A new directory of HelmRelease, OCIRepository, or GitRepository manifests needs a `flux.managerFilePatterns` entry. `charts/*/values.yaml` is already scanned. `secrets/**` stays ignored.
 
-Automerge is an image patch or digest, after a 3-day soak, between 08:00 and 20:00 Europe/Berlin. GitHub auto-merge waits for the `build` check. Add an image there only when reverting the tag rolls the app back, and the app does not migrate data, terminate TLS, resolve DNS, back up volumes, or run as a device plugin. That rule's description carries a TODO to review automerge when `main` has protection.
+Automerge is an image patch or digest, after the soak and inside the schedule window that `renovate.json` sets. GitHub auto-merge waits for the `build` check. Add an image there only when reverting the tag rolls the app back, and the app does not migrate data, terminate TLS, resolve DNS, back up volumes, or run as a device plugin. That rule's description carries a TODO to review automerge when `main` has protection.
 
-Everything else stays a review PR. Do not add an `automerge: false` rule for Pocket ID, Norish, or oauth2-proxy. Renovate leaves automerge off unless a rule turns it on.
+Everything else stays a review PR. A package outside the automerge rule needs no `automerge: false` rule, because Renovate leaves automerge off unless a rule turns it on.
 
-A Postgres major gets the `major` label, `prBodyNotes` that say to dump and restore, and `automerge: false`. The image will not open the previous major's files.
+A Postgres major gets the `major` label, `prBodyNotes` that say to dump and restore, and `automerge: false`, because the image does not open the previous major's files.
 
 A local chart installed from git (`reconcileStrategy: Revision`, no chart version) gets `matchDepTypes: ["HelmChart"]` and `enabled: false` on that HelmRelease file.
 
-An intentional image pin gets `matchDatasources: ["docker"]` and `enabled: false` on that file, with a `description` that says why. Blocky is pinned to a pre-release digest until v0.36. The CDI plugin stays a digest: upstream has no release tag.
+An intentional image pin gets `matchDatasources: ["docker"]` and `enabled: false` on that file, with a `description` that says why. Blocky is pinned to a pre-release digest until a release carries its DNSSEC fix. The CDI plugin stays a digest because upstream has no release tag.
 
-Image tags are exact. Do not set `pinDigests`. Local Chart.yaml files have no `appVersion`.
+Image tags are exact. Do not set `pinDigests`.
 
 Remove a package's `matchFileNames` or `matchPackageNames` entry when that manifest goes away.

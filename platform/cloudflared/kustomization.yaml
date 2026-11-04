@@ -1,5 +1,3 @@
-# cloudflared HelmRelease and the egress allowlist.
-# Applied by the Flux Kustomization named "cloudflared".
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:

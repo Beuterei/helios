@@ -1,4 +1,4 @@
-# Default permissions are read-only. CRUD so a client can drop a file in.
+# Default permissions are read-only, so CRUD lets a client drop a file in.
 apiVersion: v1
 kind: ConfigMap
 metadata:

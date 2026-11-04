@@ -1,6 +1,7 @@
 secretName: paperless
 
-# Sign-in is Pocket ID. The client secret is secrets/paperless-gate.enc.yaml.
+# Sign-in is Pocket ID.
+# The Paperless gate SOPS secret holds the client secret.
 oidc:
   enabled: true
   host: auth.luisbeu.de
@@ -9,11 +10,14 @@ oidc:
   clientId: paperless
   secretName: paperless-gate
   secretKey: client-secret
-  # Django group for a normal sign-in. Must match the Pocket ID group name.
+  # Django group for a normal sign-in.
+  # Must match the Pocket ID group name.
   defaultGroup: paperless
-  # Group name that becomes a superuser. Must match the Pocket ID group name.
+  # Group name that becomes a superuser.
+  # Must match the Pocket ID group name.
   adminGroup: admins
-  # Created on startup. Sign-in keeps membership for these names only.
+  # Created on startup.
+  # Sign-in keeps membership for these names only.
   # user: the archive (documents, tags, types, views) and read-only settings.
   # admin: every permission the Paperless UI can show.
   groups:
@@ -22,12 +26,10 @@ oidc:
     - name: admins
       role: admin
 
-# Public URL. The Ingress is the oauth2-proxy release, not this chart.
 # WebDAV keeps its own Ingress.
 publicURL: https://paperless.luisbeu.de
 ingress:
   className: traefik
-  # Wildcard, reflected from namespace cert-manager.
   tlsSecret: luisbeu-de-tls
 
 storageClass: local-path
@@ -43,12 +45,12 @@ paperless:
     barcodes: "1"
     asnBarcode: "1"
     inotifyDelay: "5"
-  # Stored path: owner, year, month, correspondent, asn, title.
   filenameFormat: "{{ owner_username }}/{{ created_year }}/{{ created_month }}/{{ correspondent }}/{{ asn }} - {{ title }}"
   # Drop placeholders that resolve to none, such as a missing correspondent.
   filenameFormatRemoveNone: true
-  # Native AI (3.0+). Suggestions, auto-tag workflows, and document chat.
-  # Model is pulled on the Ollama release. Internal URL must stay allowed.
+  # Native AI: suggestions, auto-tag workflows, and document chat.
+  # The Ollama release pulls the models.
+  # The internal URL must stay allowed.
   ai:
     enabled: true
     backend: ollama
@@ -82,7 +84,7 @@ postgres:
     limits:
       memory: 1Gi
 
-# Paperless 3.4 uses Valkey as the broker.
+# Valkey is the Paperless task broker.
 broker:
   image:
     repository: docker.io/valkey/valkey
@@ -100,7 +102,8 @@ gotenberg:
   image:
     repository: docker.io/gotenberg/gotenberg
     tag: 8.39.0
-  # Office and mail conversion. Chromium does not load remote content.
+  # Office and mail conversion.
+  # Chromium does not load remote content.
   args:
     - gotenberg
     - --chromium-disable-javascript=true
@@ -123,7 +126,8 @@ tika:
     limits:
       memory: 1Gi
 
-# Uploads land in the Paperless consume claim. Runs as uid 1000, same as Paperless.
+# Uploads land in the Paperless consume claim.
+# Runs as the same uid as Paperless.
 webdav:
   image:
     repository: ghcr.io/hacdias/webdav

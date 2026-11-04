@@ -1,4 +1,3 @@
-# One run copies every included claim, one namespace at a time.
 # Privileged so the script can write cgroup.freeze and cgroup.kill.
 apiVersion: batch/v1
 kind: CronJob
@@ -88,17 +87,17 @@ spec:
               emptyDir: {}
             - name: volumes
               hostPath:
-                path: {{ .Values.storageHostPath }}
+                path: {{ .Values.hostPath.storage }}
                 type: Directory
             - name: copy
               hostPath:
-                path: {{ .Values.copyHostPath }}
+                path: {{ .Values.hostPath.copy }}
                 type: DirectoryOrCreate
             - name: cgroup
               hostPath:
-                path: {{ .Values.cgroupHostPath }}
+                path: {{ .Values.hostPath.cgroup }}
                 type: Directory
             - name: lock
               hostPath:
-                path: {{ .Values.lockHostPath }}
+                path: {{ .Values.hostPath.lock }}
                 type: DirectoryOrCreate

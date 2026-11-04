@@ -1,12 +1,18 @@
 # paperless
 
-Document archive: Paperless-ngx, Postgres, Valkey, Gotenberg, Tika, and a WebDAV inbox, from `charts/paperless`. WebDAV writes into the consume claim. Its host is `webdav.host` in `charts/paperless/values.yaml`, and that name is also a Blocky mapping in `apps/blocky.yaml`. Neither host is a tunnel route. WebDAV is not behind the [session gate](oauth2-proxy.md). The archive host is, and it is LAN only.
+Document archive: Paperless-ngx, Postgres, Valkey, Gotenberg, Tika, and a WebDAV inbox that writes into the consume claim. AI uses the models [ollama](ollama.md) pulls.
 
-Flux applies `apps/paperless.yaml` in namespace `paperless`. TLS is the reflected certificate. AI uses the models [ollama](ollama.md) pulls.
+## Flux
 
-`secrets/paperless.enc.yaml` is the database password and app secret. Keep that secret when restoring. New values only fit an empty database. `secrets/paperless-gate.enc.yaml` is the Pocket ID client secret and the gate cookie secret for this namespace only. The client secret has to be URL-safe. A quote or a backslash breaks the provider JSON after Kubernetes substitutes it.
+Flux applies `apps/paperless.yaml` in namespace `paperless`, from `charts/paperless`. TLS is the reflected certificate. The archive host is `publicURL` in `charts/paperless/values.yaml`, and the [session gate](oauth2-proxy.md) serves it on the LAN only. The WebDAV host is `webdav.host` in the same file and is also a Blocky mapping in `dns/blocky.yaml`. WebDAV is not behind the gate, and neither host is a tunnel route.
 
-Restore the database, data, and media claims. Restore the consume claim only if the inbox had files. Skip the broker; the queue is rebuilt.
+## Secrets
+
+The Paperless SOPS secret holds the database password and the app secret. Keep it when restoring, because new values only fit an empty database. The Paperless gate SOPS secret holds the Pocket ID client secret and the gate cookie secret for this namespace only. The client secret has to be URL-safe, since a quote or a backslash breaks the provider JSON once Kubernetes substitutes it. The WebDAV SOPS secret holds the WebDAV username and password.
+
+## Sign-in
+
+Sign-in is [Pocket ID](pocket-id.md), and the username form is off.
 
 ## Rebuild
 
@@ -18,10 +24,9 @@ task sops:edit -- secrets/paperless.enc.yaml
 ```
 
 3. Reconcile and wait until the claims are Bound.
-4. Restore the database, data, and media before signing in. On an empty database, sign in with a Pocket ID user in the `admins` group first. That account is the admin. Other users are normal users.
+4. Restore the database, data, and media before signing in. On an empty database, sign in first with a Pocket ID user in the `admins` group, because that account becomes the admin. Later users are normal users.
 5. Wait until Ollama has pulled the models this chart names before using AI.
-6. Sign-in is [Pocket ID](pocket-id.md). The username form is off.
-7. Set the WebDAV username and password:
+6. Set the WebDAV username and password:
 
 ```sh
 task sops:edit -- secrets/paperless-webdav.enc.yaml
@@ -29,12 +34,14 @@ task sops:edit -- secrets/paperless-webdav.enc.yaml
 
 ## Check
 
-HelmRelease `paperless` is Ready. Its Ingress host answers. The WebDAV pod is Ready, and its Ingress host asks for the password.
+HelmRelease `paperless` is Ready, and its Ingress host answers. The WebDAV pod is Ready, and its Ingress host asks for the password.
 
 ## Restore
+
+Restore the database, data, and media claims, and the consume claim only if the inbox had files. The broker is skipped because the queue is rebuilt.
 
 ```sh
 task backup:restore -- paperless
 ```
 
-The claims must already be Bound. One snapshot covers the namespace. The restore replaces the directories and restarts their writers.
+The claims must already be Bound. One snapshot covers the namespace, and the restore replaces the directories and restarts their writers.

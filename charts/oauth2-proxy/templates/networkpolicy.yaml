@@ -1,4 +1,5 @@
-# Traefik on the LAN. cloudflared only when this gate is a tunnel origin.
+# Traefik on the LAN.
+# cloudflared only when this gate is a tunnel origin.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

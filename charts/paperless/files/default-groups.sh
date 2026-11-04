@@ -1,7 +1,8 @@
 #!/usr/bin/bash
-# Paperless looks up groups and never creates them. This runs after migrations,
-# before the web server, grants each group's permissions, and copies Pocket ID
-# membership onto those groups.
+# Paperless maps the OIDC groups claim only onto groups that already exist, and never creates them.
+# This creates each group in PAPERLESS_GROUPS_TO_CREATE and sets its permissions from its role.
+# It then sets each Pocket ID account's groups from the claim stored on that account, limited to those groups.
+# Paperless runs it from /custom-cont-init.d after migrations and before the web server.
 set -euo pipefail
 
 if [[ -z "${PAPERLESS_GROUPS_TO_CREATE:-}" ]]; then

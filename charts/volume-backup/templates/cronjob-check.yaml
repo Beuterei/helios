@@ -1,4 +1,4 @@
-# Read part of the repository. Does not create the repository.
+# Does not create the repository.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -52,5 +52,5 @@ spec:
                 name: volume-backup
             - name: lock
               hostPath:
-                path: {{ .Values.lockHostPath }}
+                path: {{ .Values.hostPath.lock }}
                 type: DirectoryOrCreate

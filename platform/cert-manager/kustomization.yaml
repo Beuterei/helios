@@ -1,4 +1,3 @@
-# cert-manager HelmRelease only. Applied by the Flux Kustomization named "cert-manager".
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:

@@ -52,7 +52,7 @@ spec:
           resources:
             {{- toYaml .Values.postgres.resources | nindent 12 }}
           volumeMounts:
-            # Postgres 18 keeps the data directory under this path.
+            # The image keeps the data directory under this path.
             - name: data
               mountPath: /var/lib/postgresql
       volumes:

@@ -1,5 +1,5 @@
-# Blocky before the CoreDNS override. cert-manager and source-controller
-# need this name to resolve, and the override does not use the host resolver.
+# Applied before the CoreDNS override, which forwards to Blocky instead of the host resolver.
+# cert-manager and source-controller need those names to resolve.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:

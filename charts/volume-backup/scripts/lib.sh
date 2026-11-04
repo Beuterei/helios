@@ -1,6 +1,6 @@
 # shellcheck shell=bash
-# Shared by the backup hooks. k3s on cgroup v2 puts each pod in a systemd slice
-# named from its UID. Freezing that slice stops every process in the pod.
+# k3s on cgroup v2 puts each pod in a systemd slice named from its UID.
+# Freezing that slice stops every process in the pod.
 
 KUBECTL=${KUBECTL:-/opt/bin/kubectl}
 VOLUMES=${VOLUMES:-/mnt/volumes}
@@ -69,9 +69,9 @@ thaw_all() {
   thaw_file "$FROZEN_DISK"
 }
 
-# Kill writers while their cgroup is frozen. A thawed process still has the
-# previous SQLite inode open and would keep serving the old database.
-# cgroup.procs on the pod slice is empty; the containers are child scopes.
+# Kills writers while their cgroup is frozen.
+# A thawed process still has the previous SQLite inode open and would keep serving the old database.
+# cgroup.procs on the pod slice is empty, because the containers are child scopes.
 # cgroup.kill covers that whole subtree.
 kill_frozen() {
   local cg
@@ -135,7 +135,8 @@ bound_claims() {
   "$KUBECTL" get pvc -A -o jsonpath='{range .items[?(@.status.phase=="Bound")]}{.metadata.namespace}{" "}{.metadata.name}{"\n"}{end}'
 }
 
-# Holds the fd for the life of the process. Backup and restore share the hostPath.
+# Holds the fd for the life of the process.
+# Backup and restore share the hostPath.
 lock_backup() {
   mkdir -p /run/lock
   exec 9>/run/lock/backup.lock
@@ -157,7 +158,8 @@ repo_ready() {
   fi
 }
 
-# Flush dirty pages before the freeze. A namespace without Postgres is a no-op.
+# Flushes dirty pages before the freeze.
+# A namespace without Postgres is a no-op.
 checkpoint_postgres() {
   local ns=$1 name containers out
   if ! out=$("$KUBECTL" get pods -n "$ns" --field-selector=status.phase=Running -o jsonpath='{range .items[*]}{.metadata.name}{" "}{range .spec.containers[*]}{.name}{","}{end}{"\n"}{end}'); then

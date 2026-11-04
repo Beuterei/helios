@@ -1,5 +1,5 @@
-# Public age key only. The private key is Secret flux-system/sops-age.
-# Matches every file under secrets/, including a plaintext file before encrypt.
+# The private key is Secret flux-system/sops-age, not this file.
+# The rule matches every YAML file in the secrets directory, including a plaintext file before encrypt.
 creation_rules:
   - path_regex: (^|/)secrets/.+\.yaml$
     encrypted_regex: ^(data|stringData)$

@@ -1,19 +1,21 @@
-# Shared by every gate. Each HelmRelease sets the instance fields.
+# Shared by every gate.
+# Each HelmRelease sets the instance fields.
 image:
   repository: quay.io/oauth2-proxy/oauth2-proxy
   tag: "v7.15.5"
 
 issuer: https://auth.luisbeu.de
-# Pod network. Traefik and cloudflared are the only callers.
+# Pod network.
+# Traefik and cloudflared are the only callers.
 trustedProxyCIDR: 10.42.0.0/16
-ingressClassName: traefik
-# Wildcard, reflected from namespace cert-manager.
-tlsSecret: luisbeu-de-tls
+ingress:
+  className: traefik
+  tlsSecret: luisbeu-de-tls
 
-# Paths that skip the session. Empty unless a HelmRelease sets them.
+# Paths that skip the session.
 # The match is the path only, so a query string still matches.
 skipAuthRoutes: []
-# Off unless a HelmRelease sets it. Norish does.
+# On for a gate that is a tunnel origin.
 tunnel: false
 
 resources:

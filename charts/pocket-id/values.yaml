@@ -1,4 +1,5 @@
-# Encryption key is secrets/pocket-id.enc.yaml. Change it before the claim exists.
+# The Pocket ID SOPS secret holds the encryption key.
+# Change it before the claim exists.
 secretName: pocket-id
 
 image:
@@ -8,13 +9,12 @@ image:
 publicURL: https://auth.luisbeu.de
 timeZone: Europe/Berlin
 priorityClassName: edge
-# Traefik and cloudflared run in the pod CIDR. A direct caller
-# outside it cannot set the client IP.
+# Traefik and cloudflared run in the pod CIDR.
+# A direct caller outside it cannot set the client IP.
 trustProxy: 10.42.0.0/16
 
 ingress:
   className: traefik
-  # Wildcard, reflected from namespace cert-manager.
   tlsSecret: luisbeu-de-tls
 
 storageClass: local-path

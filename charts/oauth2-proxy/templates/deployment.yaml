@@ -1,4 +1,5 @@
-# Stateless. The client secret and the cookie secret are that namespace's gate Secret.
+# Stateless.
+# The client secret and the cookie secret are that namespace's gate Secret.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,7 +31,8 @@ spec:
             - --redirect-url=https://{{ required "host is required" .Values.host }}/oauth2/callback
             - --upstream=http://{{ required "upstream is required" .Values.upstream }}/
             - "--email-domain=*"
-            # Pocket ID leaves email_verified false. The passkey is the check.
+            # Pocket ID leaves email_verified false.
+            # The passkey is the check.
             - --insecure-oidc-allow-unverified-email=true
             - --code-challenge-method=S256
             - --oidc-groups-claim=groups
@@ -49,7 +51,7 @@ spec:
             - --reverse-proxy=true
             - --trusted-proxy-ip={{ .Values.trustedProxyCIDR }}
             # Pocket ID issues a refresh token on sign-in and rechecks groups on refresh.
-            # Access tokens last 1h. The cookie ends the session after 24h.
+            # The refresh follows the access token lifetime, and the cookie expiry ends the session.
             - --cookie-refresh=1h
             - --cookie-expire=24h
             - --cookie-secure=true

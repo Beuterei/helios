@@ -1,5 +1,5 @@
 #!/bin/bash
-# Repack the repository. Forget runs in the backup job.
+# Forget runs in the backup job.
 set -euo pipefail
 # shellcheck disable=SC1091
 source "$(dirname "$0")/lib.sh"

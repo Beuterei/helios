@@ -1,4 +1,4 @@
-# List claims and the pods that mount them. Freezing is done on the node, not through this role.
+# Freezing is done on the node, not through this role.
 apiVersion: v1
 kind: ServiceAccount
 metadata:

@@ -1,5 +1,5 @@
-# Same consume claim as Paperless. uid 1000 matches the paperless user, so the
-# consumer can delete a file after it is imported.
+# Shares the consume claim with Paperless.
+# Its uid matches the paperless user, so the consumer can delete a file after it is imported.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

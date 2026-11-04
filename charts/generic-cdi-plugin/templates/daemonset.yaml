@@ -1,4 +1,3 @@
-# Per-node plugin: register host CDI devices with the kubelet.
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

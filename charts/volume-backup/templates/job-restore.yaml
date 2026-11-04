@@ -1,5 +1,6 @@
 {{- if .Values.restore.app }}
-# Created by task backup:restore. Flux leaves restore.app empty, so this is not applied.
+# Created by task backup:restore.
+# Flux leaves restore.app empty, so this is not applied.
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -82,18 +83,18 @@ spec:
           emptyDir: {}
         - name: volumes
           hostPath:
-            path: {{ .Values.storageHostPath }}
+            path: {{ .Values.hostPath.storage }}
             type: Directory
         - name: copy
           hostPath:
-            path: {{ .Values.copyHostPath }}
+            path: {{ .Values.hostPath.copy }}
             type: DirectoryOrCreate
         - name: cgroup
           hostPath:
-            path: {{ .Values.cgroupHostPath }}
+            path: {{ .Values.hostPath.cgroup }}
             type: Directory
         - name: lock
           hostPath:
-            path: {{ .Values.lockHostPath }}
+            path: {{ .Values.hostPath.lock }}
             type: DirectoryOrCreate
 {{- end }}

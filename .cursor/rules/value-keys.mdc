@@ -1,0 +1,18 @@
+---
+description: Local chart values nest under the thing they configure — ollama.urls, not ollamaUrls
+alwaysApply: true
+---
+
+# Value keys
+
+Prefer nesting to a key that repeats a name already in its parent or siblings.
+
+- A key that starts with a sibling map's name moves into that map. `ollamaUrls` next to `ollama:` becomes `ollama.urls`.
+- Several siblings for the same thing can share a map. `storageHostPath` and `lockHostPath` become `hostPath.storage` and `hostPath.lock`.
+- A key does not repeat its parent. Use `postgres.user`, not `postgres.postgresUser`.
+
+Keep a key that follows the env var or setting it feeds. `filenameFormat` feeds `PAPERLESS_FILENAME_FORMAT` and `clientId` feeds `OIDC_CLIENT_ID`, so they stay. Leave a compound key alone when nothing would share its map: `secretName`, `publicURL`, `storageClass`. Use judgment rather than splitting every camelCase key.
+
+This covers local charts (`charts/*/values.yaml`, templates, `ci/`) and the HelmRelease `values:` that install them. HelmReleases for upstream charts keep that chart's keys. `ollamaUrls` in `apps/open-webui.yaml` stays because the Open WebUI chart reads that name.
+
+Rename a key in one change: `values.yaml`, every `.Values` reference and `required` message, every HelmRelease and `ci/` file that sets it, and the key-order rule. `helm template` output before and after must match.

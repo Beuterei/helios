@@ -15,7 +15,7 @@
   },
   "packageRules": [
     {
-      "description": "Blocky is pinned to a pre-release digest until v0.36. Latest stable SERVFAILs .io.",
+      "description": "Blocky is pinned to a pre-release digest until a release carries the DNSSEC fix. The latest stable release SERVFAILs .io.",
       "matchFileNames": ["dns/blocky.yaml"],
       "matchDatasources": ["docker"],
       "enabled": false

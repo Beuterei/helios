@@ -1,8 +1,7 @@
-# Cluster operators and node plugins. Applied by the Flux Kustomization named "platform".
-# cert-manager, cloudflared, and volume-backup are sibling directories, each
-# applied by its own Flux layer. cert-manager waits so CRDs are Ready before
-# certs. cloudflared waits for the tunnel token. volume-backup waits for the
-# S3 secret.
+# cert-manager, cloudflared, and volume-backup are sibling directories, each applied by its own Flux layer.
+# cert-manager waits so its CRDs are Ready before certs.
+# cloudflared waits for the tunnel token.
+# volume-backup waits for the S3 secret.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:

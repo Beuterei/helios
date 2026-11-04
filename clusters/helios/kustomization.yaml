@@ -12,4 +12,4 @@ resources:
   - apps.yaml
   - cloudflared.yaml
   - backups.yaml
-  # TODO: notifications.yaml (Provider and Alert) goes here once the channel is chosen.
+  # TODO: add a notifications layer (Provider and Alert) once the channel is chosen.
