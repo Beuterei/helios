@@ -15,7 +15,7 @@ One directory, one kind of object. Put new YAML in the directory that matches th
 | **Sources** | `HelmRepository` / `OCIRepository` | The HelmReleases that consume them |
 | **DNS** | Blocky HelmRelease | The CoreDNS override, chart source, Namespace |
 | **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, the CoreDNS override, and volume backups | User-facing apps, Blocky, Certificates, Secrets |
-| **Apps** | Workload HelmReleases | Chart sources, ClusterIssuers, cluster config |
+| **Apps** | Workload HelmReleases and NetworkPolicies for upstream charts | Chart sources, ClusterIssuers, cluster config |
 | **Secrets** | SOPS-encrypted `Secret` manifests (`*.enc.yaml`) | ClusterIssuers, Certificates, plaintext |
 | **Certs** | `ClusterIssuer` and `Certificate` | cert-manager itself, Ingress, apps that mount the TLS secret |
 | **Charts** | Local Helm chart source in this repo | The HelmRelease that installs the chart |
@@ -34,7 +34,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
 | `platform/volume-backup` | restic backup, prune, and check (own Flux layer; waits for the S3 secret) |
-| `apps` | Workload HelmReleases |
+| `apps` | Workload HelmReleases and NetworkPolicies for upstream charts |
 | `certs` | Let's Encrypt `ClusterIssuer` and `Certificate` |
 | `secrets` | Matches `.sops.yaml`; commit only `*.enc.yaml` |
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |

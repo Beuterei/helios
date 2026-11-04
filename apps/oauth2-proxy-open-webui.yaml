@@ -29,8 +29,10 @@ spec:
     host: chat.luisbeu.de
     upstream: open-webui:80
     clientId: open-webui
-    clientSecretKey: open-webui
-    cookieSecretKey: open-webui
+    clientSecretName: open-webui-gate
+    clientSecretKey: client-secret
+    cookieSecretName: open-webui-gate
+    cookieSecretKey: cookie-secret
     groups:
       - open_webui
       - admins

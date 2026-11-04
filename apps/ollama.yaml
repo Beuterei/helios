@@ -28,6 +28,13 @@ spec:
       repository: ollama/ollama
       tag: "0.40.12"
 
+    serviceAccount:
+      automount: false
+
+    podSecurityContext:
+      seccompProfile:
+        type: RuntimeDefault
+
     ollama:
       models:
         pull:

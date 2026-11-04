@@ -17,7 +17,7 @@ Put a manifest in the directory that matches its kind.
 | `dns` | Blocky HelmRelease | CoreDNS override, Namespace, chart source |
 | `platform` | Node plugins and the CoreDNS override | User-facing apps, Blocky, Certificates, Secrets |
 | `platform/cert-manager` | cert-manager HelmRelease | Its Namespace, OCIRepository, Certificates |
-| `apps` | Workload HelmReleases | Namespaces, sources, ConfigMaps, Issuers |
+| `apps` | Workload HelmReleases, and NetworkPolicies for upstream charts | Namespaces, sources, ConfigMaps, Issuers |
 | `certs` | `ClusterIssuer`, `Certificate` | cert-manager, Ingress |
 | `secrets` | SOPS `*.enc.yaml` | Plaintext, issuers |
 | `charts/` | Local chart source | The HelmRelease that installs it |

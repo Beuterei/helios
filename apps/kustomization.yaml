@@ -1,10 +1,12 @@
-# Workload HelmReleases only. Applied by the Flux Kustomization named "apps".
+# Workload HelmReleases, plus NetworkPolicies for the upstream charts.
+# Applied by the Flux Kustomization named "apps".
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ollama.yaml
   - open-webui.yaml
   - oauth2-proxy-open-webui.yaml
+  - ai-networkpolicy.yaml
   - paperless.yaml
   - oauth2-proxy-paperless.yaml
   - pocket-id.yaml

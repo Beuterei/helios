@@ -1,10 +1,10 @@
 # open-webui
 
-Chat UI in front of in-cluster Ollama. Accounts, chats, and API keys live on its claim. [volume-backup](volume-backup.md) copies it.
+Chat UI in front of in-cluster Ollama. Accounts and chats live on its claim. [volume-backup](volume-backup.md) copies it.
 
 Flux applies `apps/open-webui.yaml` in namespace `ai`. TLS comes from [cert-manager](cert-manager.md). The Ingress is the [session gate](oauth2-proxy.md). It is LAN only, not a tunnel route.
 
-Sign-in is [Pocket ID](pocket-id.md). An account with the same email is the existing user. The username form is off.
+Sign-in is [Pocket ID](pocket-id.md). The username form is off. A Pocket ID group of `open_webui` or `admins` is required. Accounts are not merged by email. `secrets/open-webui-gate.enc.yaml` is the Pocket ID client secret and the gate cookie secret for this namespace only.
 
 ## Rebuild
 
