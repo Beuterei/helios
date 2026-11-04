@@ -4,7 +4,7 @@ Document archive: Paperless-ngx, Postgres, Valkey, Gotenberg, Tika, and a WebDAV
 
 Flux applies `apps/paperless.yaml` in namespace `paperless`. TLS is the reflected certificate. AI uses the models [ollama](ollama.md) pulls.
 
-`secrets/paperless.enc.yaml` is the database password and app secret. Keep that secret when restoring. New values only fit an empty database.
+`secrets/paperless.enc.yaml` is the database password and app secret. Keep that secret when restoring. New values only fit an empty database. `secrets/paperless-gate.enc.yaml` is the Pocket ID client secret and the gate cookie secret for this namespace only. The client secret has to be URL-safe. A quote or a backslash breaks the provider JSON after Kubernetes substitutes it.
 
 Restore the database, data, and media claims. Restore the consume claim only if the inbox had files. Skip the broker; the queue is rebuilt.
 

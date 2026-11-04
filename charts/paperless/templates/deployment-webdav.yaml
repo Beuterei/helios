@@ -23,7 +23,11 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-webdav.yaml") . | sha256sum }}
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
       securityContext:
+        seccompProfile:
+          type: RuntimeDefault
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
       containers:

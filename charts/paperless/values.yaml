@@ -1,14 +1,14 @@
 secretName: paperless
 
-# Sign-in is Pocket ID. The client secret is reflected from namespace pocket-id.
+# Sign-in is Pocket ID. The client secret is secrets/paperless-gate.enc.yaml.
 oidc:
   enabled: true
   host: auth.luisbeu.de
   providerId: pocket-id
   name: Pocket ID
   clientId: paperless
-  secretName: pocket-id-sso
-  secretKey: paperless
+  secretName: paperless-gate
+  secretKey: client-secret
   # Django group for a normal sign-in. Must match the Pocket ID group name.
   defaultGroup: paperless
   # Group name that becomes a superuser. Must match the Pocket ID group name.
@@ -22,11 +22,11 @@ oidc:
     - name: admins
       role: admin
 
-# Public host. The Ingress is the oauth2-proxy release, not this chart.
+# Public URL. The Ingress is the oauth2-proxy release, not this chart.
 # WebDAV keeps its own Ingress.
+publicURL: https://paperless.luisbeu.de
 ingress:
   className: traefik
-  host: paperless.luisbeu.de
   # Wildcard, reflected from namespace cert-manager.
   tlsSecret: luisbeu-de-tls
 

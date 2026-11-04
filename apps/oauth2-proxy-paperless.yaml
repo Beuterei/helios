@@ -30,7 +30,8 @@ spec:
     upstream: paperless:8000
     clientId: paperless
     clientSecretKey: paperless
-    cookieSecretKey: paperless
+    cookieSecretName: paperless-gate
+    cookieSecretKey: cookie-secret
     groups:
       - paperless
       - admins

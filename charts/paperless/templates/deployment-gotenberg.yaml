@@ -17,6 +17,11 @@ spec:
         {{- include "paperless.labels" . | nindent 8 }}
         app.kubernetes.io/component: gotenberg
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: gotenberg
           image: "{{ .Values.gotenberg.image.repository }}:{{ .Values.gotenberg.image.tag }}"

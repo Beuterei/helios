@@ -19,7 +19,11 @@ spec:
         {{- include "paperless.labels" . | nindent 8 }}
         app.kubernetes.io/component: broker
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
       securityContext:
+        seccompProfile:
+          type: RuntimeDefault
         fsGroup: 999
         fsGroupChangePolicy: OnRootMismatch
       containers:
