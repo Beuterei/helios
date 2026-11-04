@@ -39,7 +39,6 @@ check:
 storageHostPath: /var/lib/rancher/k3s/storage
 copyHostPath: /var/lib/restic-copy
 cgroupHostPath: /sys/fs/cgroup
-containerdSocket: /run/k3s/containerd/containerd.sock
 
 resources:
   requests:

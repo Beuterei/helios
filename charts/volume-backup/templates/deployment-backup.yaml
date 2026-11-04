@@ -113,9 +113,6 @@ spec:
               mountPath: /mnt/copy
             - name: cgroup
               mountPath: /sys/fs/cgroup
-            - name: containerd
-              mountPath: /run/k3s/containerd/containerd.sock
-              readOnly: true
       volumes:
         - name: scripts
           configMap:
@@ -134,8 +131,3 @@ spec:
           hostPath:
             path: {{ .Values.cgroupHostPath }}
             type: Directory
-        # This node's containerd. Writers are stopped through the cgroup mount.
-        - name: containerd
-          hostPath:
-            path: {{ .Values.containerdSocket }}
-            type: Socket
