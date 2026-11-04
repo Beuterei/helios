@@ -62,6 +62,18 @@ valkey:
     limits:
       memory: 256Mi
 
+# Text and photo AI. Norish copies this into its database on first boot.
+# The model is the one Ollama already pulls for structured output.
+ai:
+  enabled: true
+  provider: ollama
+  endpoint: http://ollama.ai.svc.cluster.local:11434
+  model: gemma3:12b
+
+# Video import downloads a video and transcribes it. Leave it off.
+video:
+  enabled: false
+
 # Renders recipe pages for URL imports. ClusterIP only: the CDP port can drive the browser.
 obscura:
   image:

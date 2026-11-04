@@ -1,6 +1,6 @@
 # ollama
 
-GPU inference for Open WebUI and Paperless. The chart pulls the models. They are not backed up. Install does not wait on the pull, so the HelmRelease can be Ready while a download is still running.
+GPU inference for Open WebUI, Paperless, and Norish. The chart pulls the models. They are not backed up. Install does not wait on the pull, so the HelmRelease can be Ready while a download is still running.
 
 Flux applies `apps/ollama.yaml` in namespace `ai`. The device comes from [generic-cdi-plugin](generic-cdi-plugin.md). `volume-backup` excludes this claim.
 
