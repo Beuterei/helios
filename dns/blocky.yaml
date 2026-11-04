@@ -163,3 +163,13 @@ spec:
       ports:
         dns:
           - 53
+
+    priorityClassName: edge
+
+    # Headroom for a blocklist reload. Without requests the pod is BestEffort.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
