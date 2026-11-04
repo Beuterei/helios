@@ -6,6 +6,8 @@ metadata:
   labels:
     {{- include "norish.labels" . | nindent 4 }}
     app.kubernetes.io/component: norish
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: {{ $sc }}
@@ -20,6 +22,8 @@ metadata:
   labels:
     {{- include "norish.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgres
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: {{ $sc }}
@@ -34,6 +38,8 @@ metadata:
   labels:
     {{- include "norish.labels" . | nindent 4 }}
     app.kubernetes.io/component: valkey
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: {{ $sc }}

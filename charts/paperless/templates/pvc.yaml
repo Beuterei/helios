@@ -6,6 +6,8 @@ metadata:
   labels:
     {{- include "paperless.labels" . | nindent 4 }}
     app.kubernetes.io/component: paperless
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: {{ $sc }}
@@ -20,6 +22,8 @@ metadata:
   labels:
     {{- include "paperless.labels" . | nindent 4 }}
     app.kubernetes.io/component: paperless
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: {{ $sc }}
@@ -34,6 +38,8 @@ metadata:
   labels:
     {{- include "paperless.labels" . | nindent 4 }}
     app.kubernetes.io/component: paperless
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: {{ $sc }}
@@ -48,6 +54,8 @@ metadata:
   labels:
     {{- include "paperless.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgres
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: {{ $sc }}
@@ -62,6 +70,8 @@ metadata:
   labels:
     {{- include "paperless.labels" . | nindent 4 }}
     app.kubernetes.io/component: broker
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: {{ $sc }}
