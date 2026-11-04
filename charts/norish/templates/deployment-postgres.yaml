@@ -19,6 +19,11 @@ spec:
         {{- include "norish.labels" . | nindent 8 }}
         app.kubernetes.io/component: postgres
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: postgres
           image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"

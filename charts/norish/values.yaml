@@ -4,23 +4,18 @@ secretName: norish
 
 # Not a Norish setting. Node uses it for local time.
 timeZone: Europe/Berlin
+# Public URL. The Ingress is the oauth2-proxy release, not this chart.
+publicURL: https://recipe.luisbeu.de
 
-# Sign-in is Pocket ID. The client secret is reflected from namespace pocket-id.
+# Sign-in is Pocket ID. The client secret is secrets/norish-gate.enc.yaml.
 # Norish sends PKCE. The admin group name is the value in the token.
 oidc:
   name: Pocket ID
   issuer: https://auth.luisbeu.de
   clientId: norish
-  secretName: pocket-id-sso
-  secretKey: norish
+  secretName: norish-gate
+  secretKey: client-secret
   adminGroup: admins
-
-# Public host. The Ingress is the oauth2-proxy release, not this chart.
-ingress:
-  className: traefik
-  host: recipe.luisbeu.de
-  # Wildcard, reflected from namespace cert-manager.
-  tlsSecret: luisbeu-de-tls
 
 storageClass: local-path
 

@@ -18,6 +18,11 @@ spec:
         {{- include "norish.labels" . | nindent 8 }}
         app.kubernetes.io/component: obscura
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: obscura
           image: "{{ .Values.obscura.image.repository }}:{{ .Values.obscura.image.tag }}"

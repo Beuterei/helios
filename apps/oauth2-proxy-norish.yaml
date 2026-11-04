@@ -1,4 +1,4 @@
-# Session gate for Norish. The app chart no longer publishes the host.
+# Session gate for Norish. The app chart does not publish the host.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -29,9 +29,14 @@ spec:
     host: recipe.luisbeu.de
     upstream: norish:3000
     clientId: norish
-    clientSecretKey: norish
-    cookieSecretKey: norish
+    clientSecretName: norish-gate
+    clientSecretKey: client-secret
+    cookieSecretName: norish-gate
+    cookieSecretKey: cookie-secret
     groups:
       - norish
       - admins
+    # The probe path only. A query string still matches.
+    skipAuthRoutes:
+      - "GET=^/api/v1/health/ready$"
     tunnel: true

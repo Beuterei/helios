@@ -22,8 +22,11 @@ spec:
         {{- include "norish.labels" . | nindent 8 }}
         app.kubernetes.io/component: norish
     spec:
+      automountServiceAccountToken: false
       enableServiceLinks: false
       securityContext:
+        seccompProfile:
+          type: RuntimeDefault
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
       containers:
@@ -32,7 +35,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: AUTH_URL
-              value: https://{{ .Values.ingress.host }}
+              value: {{ .Values.publicURL | quote }}
             - name: MASTER_KEY
               valueFrom:
                 secretKeyRef:
