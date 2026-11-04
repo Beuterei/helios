@@ -19,6 +19,12 @@ spec:
         kind: HelmRepository
         name: johanneskastl
         namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
   # Chart omits clusterIP on LoadBalancer Services. Pin it so CoreDNS can
   # forward here without depending on a newly allocated address.
   postRenderers:

@@ -18,6 +18,12 @@ spec:
         kind: HelmRepository
         name: cloudflare
         namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
   valuesFrom:
     - kind: Secret
       name: cloudflare-tunnel-token
