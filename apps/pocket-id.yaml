@@ -18,6 +18,8 @@ spec:
         kind: GitRepository
         name: flux-system
         namespace: flux-system
+  driftDetection:
+    mode: enabled
   install:
     remediation:
       retries: 3

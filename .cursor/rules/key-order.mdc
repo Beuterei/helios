@@ -13,7 +13,7 @@ Do not sort keys alphabetically. Skip a key that is absent. Keep a comment with 
 **labels:** `app.kubernetes.io/name`, `instance`, `component`
 **Chart.yaml:** `apiVersion`, `name`, `description`, `type`, `version`
 
-**HelmRelease spec:** `interval`, `timeout`, `chart`, `chartRef`, `install`, `valuesFrom`, `postRenderers`, `values`
+**HelmRelease spec:** `interval`, `timeout`, `chart`, `chartRef`, `driftDetection`, `install`, `valuesFrom`, `postRenderers`, `values`
 **chart.spec:** `chart`, `version`, `reconcileStrategy`, `sourceRef`
 **kind/name refs** (`sourceRef`, `chartRef`, `issuerRef`): `kind`, `name`, then `namespace` or `key`
 **secretKeyRef:** `name`, `key`
