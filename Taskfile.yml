@@ -89,6 +89,6 @@ tasks:
         kubectl -n backup delete job "restic-restore-${ns}" --ignore-not-found
         helm template volume-backup charts/volume-backup --namespace backup \
           --set "restore.app=${ns}" --set "restore.snapshot=${snap}" \
-          --show-only templates/job-restore.yaml | kubectl apply -f -
+          --show-only templates/job-restore.yaml | kubectl apply -n backup -f -
         kubectl -n backup wait --for=condition=complete "job/restic-restore-${ns}" --timeout=60m
         kubectl -n backup logs "job/restic-restore-${ns}"
