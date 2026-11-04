@@ -12,6 +12,7 @@ tasks:
     cmds:
       - kustomize build namespaces > /dev/null
       - kustomize build sources > /dev/null
+      - kustomize build dns > /dev/null
       - kustomize build platform > /dev/null
       - kustomize build platform/cert-manager > /dev/null
       - kustomize build platform/cloudflared > /dev/null
@@ -37,6 +38,7 @@ tasks:
       - flux diff kustomization flux-system --path ./clusters/helios || [ $? -eq 1 ]
       - flux diff kustomization namespaces --path ./namespaces || [ $? -eq 1 ]
       - flux diff kustomization sources --path ./sources || [ $? -eq 1 ]
+      - flux diff kustomization dns --path ./dns || [ $? -eq 1 ]
       - flux diff kustomization platform --path ./platform || [ $? -eq 1 ]
       - flux diff kustomization cert-manager --path ./platform/cert-manager || [ $? -eq 1 ]
       - flux diff kustomization cloudflared --path ./platform/cloudflared || [ $? -eq 1 ]

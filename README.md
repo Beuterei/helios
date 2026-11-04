@@ -13,7 +13,8 @@ One directory, one kind of object. Put new YAML in the directory that matches th
 | **Apply graph** | Flux `Kustomization` objects: path, `dependsOn`, decryption | HelmReleases, Secrets, charts |
 | **Namespaces** | `Namespace` objects and the `edge` PriorityClass | Anything that lives inside a namespace |
 | **Sources** | `HelmRepository` / `OCIRepository` | The HelmReleases that consume them |
-| **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, and volume backups | User-facing apps, Certificates, Secrets |
+| **DNS** | Blocky HelmRelease | The CoreDNS override, chart source, Namespace |
+| **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, the CoreDNS override, and volume backups | User-facing apps, Blocky, Certificates, Secrets |
 | **Apps** | Workload HelmReleases | Chart sources, ClusterIssuers, cluster config |
 | **Secrets** | SOPS-encrypted `Secret` manifests (`*.enc.yaml`) | ClusterIssuers, Certificates, plaintext |
 | **Certs** | `ClusterIssuer` and `Certificate` | cert-manager itself, Ingress, apps that mount the TLS secret |
@@ -28,6 +29,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `clusters/helios` | Apply graph, including `flux-system` |
 | `namespaces` | `Namespace` objects |
 | `sources` | Chart repositories |
+| `dns` | Blocky HelmRelease. Applied before the CoreDNS override |
 | `platform` | CDI plugin, CoreDNS override, secret reflector, and secret reloader |
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
@@ -50,13 +52,14 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 
 1. **namespaces** — names exist before anything targets them
 2. **sources** — chart repos; no dependencies
-3. **platform** — CDI plugin, CoreDNS, the secret reflector, and the secret reloader. Waits for sources
-4. **cert-manager** — waits for namespaces and sources, then the operator
-5. **secrets** — waits for namespaces, then decrypts SOPS
-6. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
-7. **apps** — waits for namespaces, sources, platform, certs, and secrets, then workloads
-8. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
-9. **backups** — waits for namespaces and secrets, then restic
+3. **dns** — Blocky. Waits for namespaces and sources
+4. **platform** — CDI plugin, CoreDNS override, the secret reflector, and the secret reloader. Waits for dns
+5. **cert-manager** — waits for namespaces and sources, then the operator
+6. **secrets** — waits for namespaces, then decrypts SOPS
+7. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
+8. **apps** — waits for namespaces, sources, platform, certs, and secrets, then workloads
+9. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
+10. **backups** — waits for namespaces and secrets, then restic
 
 Apps that mount the TLS secret wait for **certs**. Apps that read SOPS secrets wait for **secrets**. Backups do not gate apps.
 

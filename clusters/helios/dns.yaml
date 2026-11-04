@@ -1,0 +1,19 @@
+# Blocky before the CoreDNS override. cert-manager and source-controller
+# need this name to resolve, and the override does not use the host resolver.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: dns
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: namespaces
+    - name: sources
+  interval: 10m
+  path: ./dns
+  prune: true
+  wait: true
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

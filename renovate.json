@@ -9,14 +9,14 @@
   ],
   "flux": {
     "managerFilePatterns": [
-      "/(^|/)(apps|platform|sources)/.*\\.ya?ml$/",
+      "/(^|/)(apps|dns|platform|sources)/.*\\.ya?ml$/",
       "/(^|/)gotk-components\\.ya?ml$/"
     ]
   },
   "packageRules": [
     {
       "description": "Blocky is pinned to a pre-release digest until v0.36. Latest stable SERVFAILs .io.",
-      "matchFileNames": ["apps/blocky.yaml"],
+      "matchFileNames": ["dns/blocky.yaml"],
       "matchDatasources": ["docker"],
       "enabled": false
     },

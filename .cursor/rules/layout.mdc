@@ -14,7 +14,8 @@ Put a manifest in the directory that matches its kind.
 | `clusters/helios` | Flux `Kustomization` (path, dependsOn, decryption) | Workloads, Namespaces, Secrets |
 | `namespaces` | `Namespace`, `PriorityClass` | Anything inside the namespace |
 | `sources` | `HelmRepository`, `OCIRepository` | HelmReleases |
-| `platform` | Node plugins and cluster DNS | User-facing apps, Certificates, Secrets |
+| `dns` | Blocky HelmRelease | CoreDNS override, Namespace, chart source |
+| `platform` | Node plugins and the CoreDNS override | User-facing apps, Blocky, Certificates, Secrets |
 | `platform/cert-manager` | cert-manager HelmRelease | Its Namespace, OCIRepository, Certificates |
 | `apps` | Workload HelmReleases | Namespaces, sources, ConfigMaps, Issuers |
 | `certs` | `ClusterIssuer`, `Certificate` | cert-manager, Ingress |

@@ -4,6 +4,7 @@ resources:
   - flux-system
   - namespaces.yaml
   - sources.yaml
+  - dns.yaml
   - platform.yaml
   - cert-manager.yaml
   - secrets.yaml

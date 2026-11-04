@@ -1,5 +1,5 @@
-# CDI plugin, CoreDNS override, and secret reflector. Reflector needs the
-# emberstack HelmRepository, so this waits on sources.
+# CDI plugin, CoreDNS override, secret reflector, and reloader.
+# The override forwards to Blocky, so this waits until dns is Ready.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -7,7 +7,7 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
-    - name: sources
+    - name: dns
   interval: 10m
   path: ./platform
   prune: true
