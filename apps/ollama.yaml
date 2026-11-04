@@ -1,4 +1,4 @@
-# GPU inference. Model pull can exceed Helm's wait, so install does not block Flux.
+# GPU inference. Model pull can exceed Helm's wait, so install and upgrade do not block Flux.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -16,6 +16,8 @@ spec:
         name: otwld
         namespace: flux-system
   install:
+    disableWait: true
+  upgrade:
     disableWait: true
   values:
     image:
