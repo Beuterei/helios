@@ -8,9 +8,6 @@ kind: HelmRelease
 metadata:
   name: blocky
   namespace: network
-  annotations:
-    # apps must not delete this release while it moves to dns/.
-    kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   interval: 1h
   timeout: 10m
