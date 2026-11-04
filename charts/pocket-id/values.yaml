@@ -18,7 +18,8 @@ ingress:
   tlsSecret: luisbeu-de-tls
 
 storageClass: local-path
-persistence: 1Gi
+persistence:
+  size: 1Gi
 
 resources:
   requests:

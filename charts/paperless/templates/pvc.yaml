@@ -61,7 +61,7 @@ spec:
   storageClassName: {{ $sc }}
   resources:
     requests:
-      storage: {{ .Values.postgres.persistence }}
+      storage: {{ .Values.postgres.persistence.size }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -77,4 +77,4 @@ spec:
   storageClassName: {{ $sc }}
   resources:
     requests:
-      storage: {{ .Values.broker.persistence }}
+      storage: {{ .Values.broker.persistence.size }}

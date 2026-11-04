@@ -10,7 +10,7 @@ Sign-in is [Pocket ID](pocket-id.md). The username form is off. A Pocket ID grou
 
 1. The reflected TLS secret is in this namespace.
 2. Ollama is pulling the models its chart lists.
-3. Reconcile.
+3. Reconcile and wait until the claim is Bound.
 4. Restore the claim before signing in. On an empty claim, sign in with a Pocket ID user in the `admins` group first. That account is the admin. Other users are normal users.
 
 ## Check

@@ -1,5 +1,5 @@
 # Identity provider.
-# Paperless and Open WebUI sign in here. Their username forms are off.
+# Paperless, Open WebUI, and Norish sign in here. Their username forms are off.
 # The encryption key is secrets/pocket-id.enc.yaml.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease

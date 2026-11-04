@@ -14,6 +14,8 @@ Before finishing a change that adds, moves, or deletes manifests, render every t
 | `dns` | `HelmRelease` |
 | `platform` | `HelmRelease`, cluster `ConfigMap` |
 | `platform/cert-manager` | `HelmRelease` |
+| `platform/cloudflared` | `HelmRelease`, `NetworkPolicy` |
+| `platform/volume-backup` | `HelmRelease` |
 | `apps` | `HelmRelease`, `NetworkPolicy` |
 | `certs` | `ClusterIssuer`, `Certificate` |
 | `secrets` | `Secret` |
@@ -27,5 +29,5 @@ Also check:
 
 - A HelmRelease's chart repo lives in `sources/`, not beside the release.
 - A `Namespace` lives in `namespaces/`, not in the HelmRelease file.
-- `dependsOn` matches the README apply order: dns waits on namespaces and sources; platform waits on dns; apps waits on certs and secrets; certs waits on cert-manager and secrets.
+- `dependsOn` matches the README apply order: dns waits on namespaces and sources; platform waits on dns; cert-manager waits on namespaces and sources; secrets waits on namespaces; certs waits on cert-manager and secrets; apps waits on platform, certs, and secrets; cloudflared waits on secrets; backups waits on secrets.
 - `README.md` Layout and `Taskfile.yml` `build`/`diff` list the same paths as `clusters/helios/*.yaml` (except `flux-system/`, and except `secrets` in `diff`).

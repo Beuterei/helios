@@ -13,7 +13,7 @@ spec:
   storageClassName: {{ $sc }}
   resources:
     requests:
-      storage: {{ .Values.norish.persistence }}
+      storage: {{ .Values.norish.persistence.size }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -29,7 +29,7 @@ spec:
   storageClassName: {{ $sc }}
   resources:
     requests:
-      storage: {{ .Values.postgres.persistence }}
+      storage: {{ .Values.postgres.persistence.size }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -45,4 +45,4 @@ spec:
   storageClassName: {{ $sc }}
   resources:
     requests:
-      storage: {{ .Values.valkey.persistence }}
+      storage: {{ .Values.valkey.persistence.size }}

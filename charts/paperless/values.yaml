@@ -43,7 +43,7 @@ paperless:
     barcodes: "1"
     asnBarcode: "1"
     inotifyDelay: "5"
-  # Same storage layout as the compose file.
+  # Stored path: owner, year, month, correspondent, asn, title.
   filenameFormat: "{{ owner_username }}/{{ created_year }}/{{ created_month }}/{{ correspondent }}/{{ asn }} - {{ title }}"
   # Drop placeholders that resolve to none, such as a missing correspondent.
   filenameFormatRemoveNone: true
@@ -73,7 +73,8 @@ postgres:
   image:
     repository: docker.io/library/postgres
     tag: 18.6-alpine
-  persistence: 10Gi
+  persistence:
+    size: 10Gi
   resources:
     requests:
       cpu: 50m
@@ -81,12 +82,13 @@ postgres:
     limits:
       memory: 1Gi
 
-# Paperless 3.4 uses Valkey as the broker. The compose repo still says Redis.
+# Paperless 3.4 uses Valkey as the broker.
 broker:
   image:
     repository: docker.io/valkey/valkey
     tag: 9.1.3-alpine
-  persistence: 1Gi
+  persistence:
+    size: 1Gi
   resources:
     requests:
       cpu: 20m

@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   name: volume-backup
   labels:
-    app.kubernetes.io/name: volume-backup
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "volume-backup.labels" . | nindent 4 }}
 data:
   exclude: |
     {{- range .Values.exclude }}

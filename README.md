@@ -1,4 +1,4 @@
-# cluster
+# helios
 
 Flux GitOps for the Helios single-node k3s cluster. NixOS owns the host (k3s, NVIDIA, CDI); this repo owns what runs on it.
 
@@ -44,7 +44,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together. They do not contain 
 | `charts/norish` | Chart for Norish; the release lives in `apps` |
 | `charts/oauth2-proxy` | Chart for the Pocket ID session gate; the releases live in `apps` |
 | `docs` | Rebuild procedure and docs for each service |
-| `Taskfile.yml` | `build`, `diff`, `reconcile`, `status` |
+| `Taskfile.yml` | `build`, `diff`, `reconcile`, `status`, `sops:encrypt`, `sops:edit`, `sops:decrypt`, `backup:restore` |
 
 ## Apply order
 
@@ -70,7 +70,17 @@ One rebuild procedure per service, in `docs/`. Flux applies the manifests. The d
 If the cluster is gone it can be recreated with:
 
 1. Bring the NixOS host back: k3s, NVIDIA, the CDI spec the generic-cdi-plugin chart mounts, and this node's LAN address.
-2. Bootstrap Flux with `--path clusters/helios`.
+2. Bootstrap Flux:
+
+    ```sh
+    flux bootstrap github \
+      --owner=Beuterei \
+      --repository=helios \
+      --branch=main \
+      --path=clusters/helios \
+      --personal
+    ```
+
 3. Create Secret `flux-system/sops-age` with data key `age.agekey` (the age private key). The public key is in `.sops.yaml`. Secrets in git decrypt with that key. Keep them when restoring claims.
 4. `task reconcile`, then `task status`.
 5. Follow the docs below for anything still outside git. Restore claim data after `volume-backup` is Ready and the claims are Bound.
@@ -90,6 +100,20 @@ If the cluster is gone it can be recreated with:
 | oauth2-proxy | `norish`, `paperless`, `ai` | [docs/oauth2-proxy.md](docs/oauth2-proxy.md) |
 | volume-backup | `backup` | [docs/volume-backup.md](docs/volume-backup.md) |
 
+## Request path
+
+A browser on the LAN reaches Traefik, then the session gate, then the app. A browser on the tunnel reaches cloudflared, then the same gate, then the app. Pocket ID stays in front of the gate so sign-in can finish.
+
+```mermaid
+flowchart LR
+  browser[Browser]
+  browser --> lan[LAN]
+  browser --> tunnel[Cloudflare tunnel]
+  lan --> gate[oauth2-proxy]
+  tunnel --> gate
+  gate --> app[App]
+```
+
 ## Tools
 
 These are the versions `task build` was written against. They are expected on `PATH`. flux-local is also found in `~/.local/bin`.
@@ -107,7 +131,7 @@ These are the versions `task build` was written against. They are expected on `P
 
 ## Operate
 
-From this directory. Defaults to `/etc/rancher/k3s/k3s.yaml`.
+From this directory. `task` defaults to `/etc/rancher/k3s/k3s.yaml`. That file is readable only by root unless k3s was started with `write-kubeconfig-mode`. Set `KUBECONFIG` when it is not.
 
 ```sh
 task build        # render layers, HelmReleases, scripts, and SOPS files

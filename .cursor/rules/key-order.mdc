@@ -21,6 +21,7 @@ Do not sort keys alphabetically. Skip a key that is absent. Keep a comment with 
 **Flux Kustomization spec:** `dependsOn`, `interval`, `path`, `prune`, `wait`, `timeout`, `sourceRef`, `decryption`
 
 **Local values.yaml:** `secretName`, `image`, process (`timeZone`, `publicURL`, `trustProxy`, `issuer`), `oidc`, `ingress`, `storageClass`, `persistence`, components (app, datastores, sidecars), `resources` last.
+**persistence:** a map. One claim uses `size`. Several claims use one key each.
 Component: `image`, identity, config, `persistence`, `resources`.
 oauth2-proxy instance: `app`, `host`, `upstream`, `clientId`, `clientSecretKey`, `cookieSecretKey`, `groups`, `skipAuthRoutes`, `tunnel`.
 

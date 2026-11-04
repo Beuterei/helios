@@ -5,8 +5,7 @@ kind: CronJob
 metadata:
   name: restic-backup
   labels:
-    app.kubernetes.io/name: volume-backup
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "volume-backup.labels" . | nindent 4 }}
     app.kubernetes.io/component: backup
 spec:
   schedule: {{ .Values.backup.schedule | quote }}
@@ -20,8 +19,7 @@ spec:
       template:
         metadata:
           labels:
-            app.kubernetes.io/name: volume-backup
-            app.kubernetes.io/instance: {{ .Release.Name }}
+            {{- include "volume-backup.labels" . | nindent 12 }}
             app.kubernetes.io/component: backup
         spec:
           restartPolicy: Never

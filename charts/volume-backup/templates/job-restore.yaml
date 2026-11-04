@@ -5,8 +5,7 @@ kind: Job
 metadata:
   name: restic-restore-{{ .Values.restore.app }}
   labels:
-    app.kubernetes.io/name: volume-backup
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "volume-backup.labels" . | nindent 4 }}
     app.kubernetes.io/component: restore
 spec:
   backoffLimit: 0
@@ -14,8 +13,7 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: volume-backup
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "volume-backup.labels" . | nindent 8 }}
         app.kubernetes.io/component: restore
     spec:
       restartPolicy: Never

@@ -12,10 +12,13 @@ Flux applies `dns/blocky.yaml` in namespace `network`.
 
 ## Check
 
-HelmRelease `blocky` is Ready.
+HelmRelease `blocky` is Ready. The ClusterIP is pinned in `dns/blocky.yaml` so CoreDNS can forward to a stable address.
 
 ```sh
 kubectl -n network get svc blocky
+name=$(awk '/mapping:/{getline; print $1; exit}' dns/blocky.yaml | tr -d ':')
+ip=$(kubectl -n network get svc blocky -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+dig +short @"$ip" "$name"
 ```
 
 ## Break-glass
