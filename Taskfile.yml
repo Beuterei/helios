@@ -34,6 +34,7 @@ tasks:
     desc: Compare the working tree with what Flux has applied
     cmds:
       # flux diff exits 1 when there is a diff; treat that as success.
+      - flux diff kustomization flux-system --path ./clusters/helios || [ $? -eq 1 ]
       - flux diff kustomization namespaces --path ./namespaces || [ $? -eq 1 ]
       - flux diff kustomization sources --path ./sources || [ $? -eq 1 ]
       - flux diff kustomization platform --path ./platform || [ $? -eq 1 ]
