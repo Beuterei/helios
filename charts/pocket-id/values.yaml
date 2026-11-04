@@ -7,13 +7,13 @@ image:
 
 publicURL: https://auth.luisbeu.de
 timeZone: Europe/Berlin
-# Traefik and cloudflared run in the node pod CIDR. A direct caller
+priorityClassName: edge
+# Traefik and cloudflared run in the pod CIDR. A direct caller
 # outside it cannot set the client IP.
-trustProxy: 10.42.0.0/24
+trustProxy: 10.42.0.0/16
 
 ingress:
   className: traefik
-  host: auth.luisbeu.de
   # Wildcard, reflected from namespace cert-manager.
   tlsSecret: luisbeu-de-tls
 

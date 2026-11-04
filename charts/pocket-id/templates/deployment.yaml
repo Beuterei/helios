@@ -17,7 +17,12 @@ spec:
       labels:
         {{- include "pocket-id.labels" . | nindent 8 }}
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      priorityClassName: {{ .Values.priorityClassName }}
       securityContext:
+        seccompProfile:
+          type: RuntimeDefault
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
       containers:

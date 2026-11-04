@@ -2,7 +2,7 @@
 
 Signs in Paperless, Open WebUI, and Norish. Accounts live on its claim. [volume-backup](volume-backup.md) copies that claim. Those apps sign in here. Their username forms are off. Sign-in is a passkey.
 
-Flux applies `apps/pocket-id.yaml` in namespace `pocket-id`. TLS is the reflected certificate. The host is the Ingress host in that file, and that name is also a Blocky mapping in `apps/blocky.yaml`. The tunnel origin is the headless service in [cloudflared](cloudflared.md). Client secrets are `secrets/pocket-id-sso.enc.yaml`, reflected into `paperless`, `ai`, and `norish`. The encryption key is `secrets/pocket-id.enc.yaml`.
+Flux applies `apps/pocket-id.yaml` in namespace `pocket-id`. TLS is the reflected certificate. The host is `publicURL` in `charts/pocket-id/values.yaml`, and that name is also a Blocky mapping in `apps/blocky.yaml`. The tunnel origin is the headless service in [cloudflared](cloudflared.md). Client secrets are `secrets/pocket-id-sso.enc.yaml`, reflected into `paperless`, `ai`, and `norish`. The encryption key is `secrets/pocket-id.enc.yaml`.
 
 Change the encryption key before the database exists. The public address is `https://auth.luisbeu.de`, set with `APP_URL`.
 

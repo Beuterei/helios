@@ -8,10 +8,10 @@ spec:
   ingressClassName: {{ .Values.ingress.className }}
   tls:
     - hosts:
-        - {{ .Values.ingress.host }}
+        - {{ .Values.publicURL | trimPrefix "https://" }}
       secretName: {{ .Values.ingress.tlsSecret }}
   rules:
-    - host: {{ .Values.ingress.host }}
+    - host: {{ .Values.publicURL | trimPrefix "https://" }}
       http:
         paths:
           - path: /
