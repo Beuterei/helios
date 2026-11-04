@@ -4,4 +4,3 @@ name: volume-backup
 description: Copy k3s claim directories to an S3 restic repository
 type: application
 version: 0.1.0
-appVersion: "1.8"

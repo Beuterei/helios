@@ -1,6 +1,6 @@
 # norish
 
-Recipes, the meal plan, and the grocery list. Postgres 18 holds the accounts. A 17 data directory is dumped and moved aside once, then restored into an empty 18 directory. Uploads are recipe files. Valkey is the queue. Obscura renders pages for URL imports.
+Recipes, the meal plan, and the grocery list. Uploads are recipe files. Valkey is the queue. Obscura renders pages for URL imports.
 
 Flux applies `apps/norish.yaml` in namespace `norish`, from `charts/norish`. TLS is the reflected certificate. The host is `publicURL` in that chart, and that name is also a Blocky mapping in `apps/blocky.yaml`. [oauth2-proxy](oauth2-proxy.md) publishes it. The gate skips auth on `GET /api/v1/health/ready`.
 

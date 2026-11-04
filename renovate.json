@@ -42,7 +42,7 @@
       "addLabels": ["flux"]
     },
     {
-      "description": "Image patches for stateless apps. Rollback is reverting the tag.",
+      "description": "Image patches for stateless apps. Rollback is reverting the tag. TODO: review this automerge when main has protection.",
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["patch", "digest"],
       "matchPackageNames": [
@@ -64,19 +64,15 @@
       "addLabels": ["major"]
     },
     {
-      "description": "Pocket ID stores accounts and signs the other apps in. Review the upgrade.",
-      "matchFileNames": ["charts/pocket-id/values.yaml"],
-      "automerge": false
-    },
-    {
-      "description": "Norish stores accounts and encrypts them with the master key. Review the upgrade.",
-      "matchFileNames": ["charts/norish/values.yaml"],
-      "automerge": false
-    },
-    {
-      "description": "oauth2-proxy is the session gate. Review the upgrade.",
-      "matchFileNames": ["charts/oauth2-proxy/values.yaml"],
-      "automerge": false
+      "description": "Postgres majors need a dump and restore. Never automerge.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/^postgres$/", "/^library\\/postgres$/"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major"],
+      "prBodyNotes": [
+        "A Postgres major will not open the previous data files. Dump the database and restore it into an empty data directory. Do not copy the files."
+      ]
     }
   ]
 }

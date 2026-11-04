@@ -4,4 +4,3 @@ name: paperless
 description: Paperless-ngx with Postgres, Valkey, Gotenberg, Tika, and WebDAV
 type: application
 version: 0.1.0
-appVersion: "3.4.1"
