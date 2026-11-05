@@ -92,6 +92,7 @@ tasks:
         # HelmReleases stay suspended until that finishes, then they start the apps.
         flux suspend helmrelease --all -n "$ns"
         kubectl -n "$ns" delete deploy,sts --all --wait=true --timeout=10m
+        kubectl -n "$ns" wait --for=delete pod -l app.kubernetes.io/managed-by=Helm --timeout=10m
         kubectl -n velero delete restore "restore-${ns}" --ignore-not-found
         if [ -n "$backup" ]; then
           from_flag=--from-backup
@@ -100,11 +101,12 @@ tasks:
           from_flag=--from-schedule
           from_value=velero-daily
         fi
+        # Volume data is restored only when claims and volumes are included too.
         # --wait exits 0 when the restore fails, so the phase still decides.
         velero restore create "restore-${ns}" --namespace velero \
           "$from_flag" "$from_value" \
           --include-namespaces "$ns" \
-          --include-resources pods \
+          --include-resources pods,persistentvolumeclaims,persistentvolumes \
           --item-operation-timeout 8h \
           --wait
         phase=$(kubectl -n velero get restore "restore-${ns}" -o jsonpath='{.status.phase}')
