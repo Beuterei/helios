@@ -11,3 +11,4 @@ resources:
   - otwld.yaml
   - open-webui.yaml
   - stakater.yaml
+  - velero.yaml

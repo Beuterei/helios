@@ -30,7 +30,7 @@ task sops:edit -- secrets/norish-gate.enc.yaml
 ```
 
 4. Reconcile and wait until the claims are Bound.
-5. Restore the database and uploads before signing in. On an empty database, sign in first with a Pocket ID user in the `admins` group. That account becomes the admin, and Norish turns registration off. Turn it back on under **Settings → Admin**, on the General card, with **Allow new user registration**, so later Pocket ID users in `norish` or `admins` get an account.
+5. Restore the uploads claim before signing in. The database claim is not in the backup. On an empty database, sign in first with a Pocket ID user in the `admins` group. That account becomes the admin, and Norish turns registration off. Turn it back on under **Settings → Admin**, on the General card, with **Allow new user registration**, so later Pocket ID users in `norish` or `admins` get an account.
 
 ## Check
 
@@ -38,10 +38,10 @@ HelmRelease `norish` is Ready, and its Ingress host shows the login page.
 
 ## Restore
 
-Restore the database and the uploads claim. Valkey is skipped because the queue is rebuilt, so `norish-valkey` is not in the snapshot.
+Restore the uploads claim. The database claim is not in the backup, and Valkey is left out because the queue is rebuilt.
 
 ```sh
 task backup:restore -- norish
 ```
 
-The claims must already be Bound. One snapshot covers the namespace, and the restore replaces the directories and restarts their writers.
+The claims must already be Bound. See [velero](velero.md).

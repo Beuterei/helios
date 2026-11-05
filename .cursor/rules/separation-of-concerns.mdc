@@ -15,7 +15,7 @@ Before finishing a change that adds, moves, or deletes manifests, render every t
 | `platform` | `HelmRelease`, cluster `ConfigMap` |
 | `platform/cert-manager` | `HelmRelease` |
 | `platform/cloudflared` | `HelmRelease`, `NetworkPolicy` |
-| `platform/volume-backup` | `HelmRelease` |
+| `platform/velero` | `HelmRelease` |
 | `apps` | `HelmRelease`, `NetworkPolicy` |
 | `certs` | `ClusterIssuer`, `Certificate` |
 | `secrets` | `Secret` |

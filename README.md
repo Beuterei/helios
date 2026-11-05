@@ -21,7 +21,7 @@ Each service has one rebuild procedure in `docs/`. Flux applies the manifests, s
 | paperless | `paperless` | [docs/paperless.md](docs/paperless.md) |
 | norish | `norish` | [docs/norish.md](docs/norish.md) |
 | oauth2-proxy | `norish`, `paperless`, `ai` | [docs/oauth2-proxy.md](docs/oauth2-proxy.md) |
-| volume-backup | `backup` | [docs/volume-backup.md](docs/volume-backup.md) |
+| velero | `velero` | [docs/velero.md](docs/velero.md) |
 
 ## Request path
 
@@ -96,7 +96,7 @@ Each directory holds one kind of object, so new YAML goes in the directory that 
 | **Namespaces** | `Namespace` objects and the `edge` PriorityClass | Anything that lives inside a namespace |
 | **Sources** | `HelmRepository` / `OCIRepository` | The HelmReleases that consume them |
 | **DNS** | Blocky HelmRelease | The CoreDNS override, chart source, Namespace |
-| **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, the CoreDNS override, and volume backups | User-facing apps, Blocky, Certificates, Secrets |
+| **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, the CoreDNS override, and Velero | User-facing apps, Blocky, Certificates, Secrets |
 | **Apps** | Workload HelmReleases and NetworkPolicies for upstream charts | Chart sources, ClusterIssuers, cluster config |
 | **Secrets** | SOPS-encrypted `Secret` manifests (`*.enc.yaml`) | ClusterIssuers, Certificates, plaintext |
 | **Certs** | `ClusterIssuer` and `Certificate` | cert-manager itself, Ingress, apps that mount the TLS secret |
@@ -115,12 +115,11 @@ Flux layers (`clusters/helios/*.yaml`) wire these together without containing th
 | `platform` | CDI plugin, CoreDNS override, secret reflector, and secret reloader |
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
-| `platform/volume-backup` | restic backup, prune, and check (own Flux layer; waits for the S3 secret) |
+| `platform/velero` | Velero schedules and the node agent (own Flux layer; waits for the S3 secret) |
 | `apps` | Workload HelmReleases and NetworkPolicies for upstream charts |
 | `certs` | Let's Encrypt `ClusterIssuer` and `Certificate` |
 | `secrets` | Matches `.sops.yaml`; commit only `*.enc.yaml` |
 | `charts/generic-cdi-plugin` | Chart for the CDI plugin; the release lives in `platform` |
-| `charts/volume-backup` | Chart for restic; the release lives in `platform/volume-backup` |
 | `charts/paperless` | Chart for Paperless-ngx; the release lives in `apps` |
 | `charts/pocket-id` | Chart for Pocket ID; the release lives in `apps` |
 | `charts/norish` | Chart for Norish; the release lives in `apps` |
@@ -141,7 +140,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together without containing th
 7. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
 8. **apps** — waits for namespaces, sources, platform, certs, and secrets, then workloads
 9. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
-10. **backups** — waits for namespaces and secrets, then restic
+10. **backups** — waits for namespaces and secrets, then Velero
 
 Apps that mount the TLS secret wait for **certs**, and apps that read SOPS secrets wait for **secrets**. Backups do not gate apps.
 
@@ -163,4 +162,4 @@ A lost cluster is rebuilt in this order:
 
 3. Create Secret `flux-system/sops-age` with data key `age.agekey` (the age private key). The public key is in `.sops.yaml`, and the secrets in git decrypt with that key, so keep them when restoring claims.
 4. `task reconcile`, then `task status`.
-5. Follow the service docs in [Services](#services) for anything still outside git. Restore claim data once `volume-backup` is Ready and the claims are Bound.
+5. Follow the service docs in [Services](#services) for anything still outside git. Restore claim data once `velero` is Ready and the claims are Bound.

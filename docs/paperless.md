@@ -24,7 +24,7 @@ task sops:edit -- secrets/paperless.enc.yaml
 ```
 
 3. Reconcile and wait until the claims are Bound.
-4. Restore the database, data, and media before signing in. On an empty database, sign in first with a Pocket ID user in the `admins` group, because that account becomes the admin. Later users are normal users.
+4. Restore the data, media, and consume claims before signing in. The database claim is not in the backup. On an empty database, sign in first with a Pocket ID user in the `admins` group, because that account becomes the admin. Later users are normal users.
 5. Wait until Ollama has pulled the models this chart names before using AI.
 6. Set the WebDAV username and password:
 
@@ -38,10 +38,10 @@ HelmRelease `paperless` is Ready, and its Ingress host answers. The WebDAV pod i
 
 ## Restore
 
-Restore the database, data, and media claims, and the consume claim only if the inbox had files. The broker is skipped because the queue is rebuilt.
+Restore the data, media, and consume claims. The database claim is not in the backup, and the broker is left out because the queue is rebuilt.
 
 ```sh
 task backup:restore -- paperless
 ```
 
-The claims must already be Bound. One snapshot covers the namespace, and the restore replaces the directories and restarts their writers.
+The claims must already be Bound. See [velero](velero.md).

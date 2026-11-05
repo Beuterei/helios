@@ -1,0 +1,276 @@
+# A mounted claim is copied, except claims labeled skip.
+# Postgres is left for CloudNativePG.
+# The paperless broker, the norish cache, and Ollama models are rebuilt or pulled.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: velero
+  namespace: velero
+spec:
+  interval: 1h
+  timeout: 10m
+  chart:
+    spec:
+      chart: velero
+      version: 12.2.3
+      sourceRef:
+        kind: HelmRepository
+        name: vmware-tanzu
+        namespace: flux-system
+  driftDetection:
+    mode: enabled
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+    # The plugin release has to match the chart app version.
+    initContainers:
+      - name: velero-plugin-for-aws
+        image: docker.io/velero/velero-plugin-for-aws:v1.14.4
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: plugins
+            mountPath: /target
+    # A missing ping is the alert, so a failed or unfinished daily backup sends nothing.
+    # The ConfigMap that remembers the backup name is written by the job, so a reconcile does not ping again.
+    extraObjects:
+      - apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: velero-healthchecks
+          namespace: velero
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: Role
+        metadata:
+          name: velero-healthchecks
+          namespace: velero
+        rules:
+          - apiGroups: ["velero.io"]
+            resources: ["backups"]
+            verbs: ["get", "list"]
+          - apiGroups: [""]
+            resources: ["configmaps"]
+            resourceNames: ["velero-healthchecks"]
+            verbs: ["get", "update", "patch"]
+          - apiGroups: [""]
+            resources: ["configmaps"]
+            verbs: ["create"]
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        metadata:
+          name: velero-healthchecks
+          namespace: velero
+        subjects:
+          - kind: ServiceAccount
+            name: velero-healthchecks
+            namespace: velero
+        roleRef:
+          kind: Role
+          name: velero-healthchecks
+          apiGroup: rbac.authorization.k8s.io
+      - apiVersion: batch/v1
+        kind: CronJob
+        metadata:
+          name: velero-healthchecks
+          namespace: velero
+        spec:
+          schedule: "*/10 * * * *"
+          timeZone: Europe/Berlin
+          concurrencyPolicy: Forbid
+          successfulJobsHistoryLimit: 2
+          failedJobsHistoryLimit: 3
+          jobTemplate:
+            spec:
+              backoffLimit: 2
+              template:
+                spec:
+                  restartPolicy: Never
+                  serviceAccountName: velero-healthchecks
+                  automountServiceAccountToken: true
+                  containers:
+                    - name: ping
+                      image: docker.io/alpine/kubectl:1.35.4
+                      imagePullPolicy: IfNotPresent
+                      env:
+                        - name: HOME
+                          value: /tmp
+                        - name: HEALTHCHECKS_URL
+                          valueFrom:
+                            secretKeyRef:
+                              name: velero-healthchecks
+                              key: url
+                      command: ["sh", "-c"]
+                      args:
+                        - |
+                          set -eu
+                          set -o pipefail
+                          lines=$(kubectl -n velero get backups.velero.io -l velero.io/schedule-name=velero-daily --sort-by=.metadata.creationTimestamp -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.phase}{"\n"}{end}')
+                          line=$(printf '%s\n' "$lines" | tail -n 1)
+                          name=${line%% *}
+                          phase=${line#* }
+                          if [ -z "${name}" ] || [ "${phase}" != Completed ]; then
+                            printf 'no completed daily backup\n'
+                            exit 0
+                          fi
+                          last=$(kubectl -n velero get configmap velero-healthchecks -o jsonpath='{.data.backup}' 2>/dev/null || true)
+                          if [ "${last}" = "${name}" ]; then
+                            exit 0
+                          fi
+                          wget -qO- --post-data="" "${HEALTHCHECKS_URL}" >/dev/null
+                          kubectl -n velero create configmap velero-healthchecks --from-literal=backup="${name}" --dry-run=client -o yaml | kubectl apply -f -
+                          printf 'pinged %s\n' "${name}"
+                      volumeMounts:
+                        - name: tmp
+                          mountPath: /tmp
+                      securityContext:
+                        runAsNonRoot: true
+                        runAsUser: 65534
+                        runAsGroup: 65534
+                        allowPrivilegeEscalation: false
+                        readOnlyRootFilesystem: true
+                        capabilities:
+                          drop: ["ALL"]
+                        seccompProfile:
+                          type: RuntimeDefault
+                      resources:
+                        requests:
+                          cpu: 10m
+                          memory: 32Mi
+                        limits:
+                          memory: 64Mi
+                  volumes:
+                    - name: tmp
+                      emptyDir: {}
+    # Flux applies the chart CRDs.
+    upgradeCRDs: false
+    configuration:
+      backupStorageLocation:
+        - name: default
+          provider: aws
+          bucket: backup-lb
+          prefix: velero
+          default: true
+          accessMode: ReadWrite
+          credential:
+            name: velero-s3
+            key: cloud
+          config:
+            # The endpoint ignores the region, and the signer still requires one.
+            region: us-east-1
+            s3ForcePathStyle: "true"
+            s3Url: https://nbg1.your-objectstorage.com
+            # Hetzner Object Storage rejects the AWS SDK checksum trailers.
+            checksumAlgorithm: ""
+      uploaderType: kopia
+      # A claim that holds large files can outlast the default.
+      fsBackupTimeout: 8h
+      defaultItemOperationTimeout: 8h
+      # Schedules use the pod clock.
+      extraEnvVars:
+        - name: TZ
+          value: Europe/Berlin
+      defaultVolumesToFsBackup: true
+    credentials:
+      existingSecret: velero-s3
+    # local-path has no snapshotter.
+    snapshotsEnabled: false
+    deployNodeAgent: true
+    nodeAgent:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 2Gi
+      # The cache has to outlive the pod, or the next run reads every file again.
+      useScratchEmptyDir: false
+      extraVolumes:
+        - name: scratch
+          hostPath:
+            path: /var/lib/velero
+            type: DirectoryOrCreate
+      extraVolumeMounts:
+        - name: scratch
+          mountPath: /scratch
+      # Reads other pods' volume mounts on the node.
+      containerSecurityContext:
+        privileged: true
+    schedules:
+      daily:
+        schedule: "0 5 * * *"
+        template:
+          ttl: 720h
+          storageLocation: default
+          # Every other namespace is included.
+          excludedNamespaces:
+            - kube-system
+            - kube-public
+            - kube-node-lease
+            - default
+            - flux-system
+            - cert-manager
+            - network
+            - velero
+          # Secrets are in git. The bucket must not hold them.
+          excludedNamespaceScopedResources:
+            - secrets
+          snapshotVolumes: false
+          defaultVolumesToFsBackup: true
+          itemOperationTimeout: 8h
+          resourcePolicy:
+            kind: ConfigMap
+            name: velero-volume-policy
+      monthly:
+        # The daily schedule already takes the first backup.
+        skipImmediately: true
+        schedule: "0 5 1 * *"
+        template:
+          ttl: 8760h
+          storageLocation: default
+          # Every other namespace is included.
+          excludedNamespaces:
+            - kube-system
+            - kube-public
+            - kube-node-lease
+            - default
+            - flux-system
+            - cert-manager
+            - network
+            - velero
+          excludedNamespaceScopedResources:
+            - secrets
+          snapshotVolumes: false
+          defaultVolumesToFsBackup: true
+          itemOperationTimeout: 8h
+          resourcePolicy:
+            kind: ConfigMap
+            name: velero-volume-policy
+    configMaps:
+      volume-policy:
+        data:
+          policy: |
+            version: v1
+            volumePolicies:
+              - conditions:
+                  pvcLabels:
+                    helios.luisbeu.de/backup: skip
+                action:
+                  type: skip
+              - conditions:
+                  volumeTypes:
+                    - emptyDir
+                    - downwardAPI
+                    - configmap
+                action:
+                  type: skip

@@ -18,7 +18,7 @@ Put a manifest in the directory that matches its kind.
 | `platform` | Node plugins, the CoreDNS override, the secret reflector, and the secret reloader | User-facing apps, Blocky, Certificates, Secrets |
 | `platform/cert-manager` | cert-manager HelmRelease | Its Namespace, OCIRepository, Certificates |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress NetworkPolicy | The tunnel token, the app Ingress |
-| `platform/volume-backup` | restic HelmRelease | The S3 secret, the claims it copies |
+| `platform/velero` | Velero HelmRelease | The S3 secret, the claims it copies |
 | `apps` | Workload HelmReleases, and NetworkPolicies for upstream charts | Namespaces, sources, ConfigMaps, Issuers |
 | `certs` | `ClusterIssuer`, `Certificate` | cert-manager, Ingress |
 | `secrets` | SOPS `*.enc.yaml` | Plaintext, issuers |

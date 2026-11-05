@@ -11,7 +11,7 @@ resources:
   - default.yaml
   - cert-manager.yaml
   - network.yaml
-  - backup.yaml
+  - velero.yaml
   - ai.yaml
   - paperless.yaml
   - pocket-id.yaml

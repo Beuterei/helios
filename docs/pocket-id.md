@@ -1,6 +1,6 @@
 # pocket-id
 
-Identity provider for Paperless, Open WebUI, and Norish. Their username forms are off, and sign-in is a passkey. Accounts live on its claim, which [volume-backup](volume-backup.md) copies.
+Identity provider for Paperless, Open WebUI, and Norish. Their username forms are off, and sign-in is a passkey. Accounts live on its claim, which [velero](velero.md) copies.
 
 ## Flux
 
@@ -52,10 +52,10 @@ HelmRelease `pocket-id` is Ready, and its Ingress host shows the login page. Pap
 
 ## Restore
 
-Keep both Pocket ID secrets. The restore replaces the database directory and restarts its writer.
+Keep both Pocket ID secrets. The restore rewrites the claim and restarts the writer.
 
 ```sh
 task backup:restore -- pocket-id
 ```
 
-The claim must already be Bound.
+The claim must already be Bound. See [velero](velero.md).

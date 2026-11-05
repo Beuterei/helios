@@ -29,7 +29,6 @@
         "apps/oauth2-proxy-norish.yaml",
         "apps/oauth2-proxy-paperless.yaml",
         "apps/oauth2-proxy-open-webui.yaml",
-        "platform/volume-backup/helmrelease.yaml",
         "platform/generic-cdi-plugin.yaml"
       ],
       "matchDepTypes": ["HelmChart"],

@@ -25,6 +25,20 @@ spec:
     disableWait: true
     remediation:
       retries: 3
+  # Models can be pulled again, so the claim is left out of Velero.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: PersistentVolumeClaim
+              name: ollama
+            patch: |
+              apiVersion: v1
+              kind: PersistentVolumeClaim
+              metadata:
+                name: ollama
+                labels:
+                  helios.luisbeu.de/backup: skip
   values:
     image:
       repository: ollama/ollama

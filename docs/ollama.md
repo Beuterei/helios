@@ -4,7 +4,7 @@ GPU inference for Open WebUI, Paperless, and Norish. The chart pulls the models,
 
 ## Flux
 
-Flux applies `apps/ollama.yaml` in namespace `ai`. The device comes from [generic-cdi-plugin](generic-cdi-plugin.md), and `volume-backup` excludes this claim.
+Flux applies `apps/ollama.yaml` in namespace `ai`. The device comes from [generic-cdi-plugin](generic-cdi-plugin.md), and [velero](velero.md) leaves this claim out.
 
 ## Rebuild
 

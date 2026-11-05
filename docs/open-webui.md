@@ -1,6 +1,6 @@
 # open-webui
 
-Chat UI in front of in-cluster Ollama. Accounts and chats live on its claim, which [volume-backup](volume-backup.md) copies.
+Chat UI in front of in-cluster Ollama. Accounts and chats live on its claim, which [velero](velero.md) copies.
 
 ## Flux
 
@@ -31,4 +31,4 @@ HelmRelease `open-webui` is Ready, and its Ingress host answers.
 task backup:restore -- ai
 ```
 
-The claim must already be Bound. The snapshot covers the `ai` namespace without `ollama`. The restore replaces the directory and restarts the writers.
+The claim must already be Bound. The Ollama claim is left in place, and the task restarts Ollama because both apps share the namespace. See [velero](velero.md).

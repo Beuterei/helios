@@ -17,8 +17,7 @@ tasks:
       - kustomize build platform > /dev/null
       - kustomize build platform/cert-manager > /dev/null
       - kustomize build platform/cloudflared > /dev/null
-      - kustomize build platform/volume-backup > /dev/null
-      - helm template volume-backup charts/volume-backup --namespace backup > /dev/null
+      - kustomize build platform/velero > /dev/null
       - helm template generic-cdi-plugin charts/generic-cdi-plugin --namespace kube-system > /dev/null
       - helm template paperless charts/paperless --namespace paperless > /dev/null
       - helm template pocket-id charts/pocket-id --namespace pocket-id > /dev/null
@@ -28,7 +27,7 @@ tasks:
       - kustomize build apps > /dev/null
       - kustomize build certs > /dev/null
       - kustomize build secrets > /dev/null
-      - shellcheck charts/paperless/files/default-groups.sh charts/volume-backup/scripts/*.sh
+      - shellcheck charts/paperless/files/default-groups.sh
       - test -z "$(grep -L '^sops:' secrets/*.enc.yaml)"
       - flux-local test --enable-helm --path clusters/helios
 
@@ -43,7 +42,7 @@ tasks:
       - flux diff kustomization platform --path ./platform || [ $? -eq 1 ]
       - flux diff kustomization cert-manager --path ./platform/cert-manager || [ $? -eq 1 ]
       - flux diff kustomization cloudflared --path ./platform/cloudflared || [ $? -eq 1 ]
-      - flux diff kustomization backups --path ./platform/volume-backup || [ $? -eq 1 ]
+      - flux diff kustomization backups --path ./platform/velero || [ $? -eq 1 ]
       - flux diff kustomization apps --path ./apps || [ $? -eq 1 ]
       - flux diff kustomization certs --path ./certs || [ $? -eq 1 ]
 
@@ -80,16 +79,52 @@ tasks:
       - sops --decrypt {{.CLI_ARGS}}
 
   backup:restore:
-    desc: "Restore one namespace from its restic snapshot. Args: namespace [snapshot]"
+    desc: "Restore one namespace from Velero. Args: namespace [backup name]"
     cmds:
       - |
         set -euo pipefail
         set -- {{.CLI_ARGS}}
         ns=${1:?namespace}
-        snap=${2:-latest}
-        kubectl -n backup delete job "restic-restore-${ns}" --ignore-not-found
-        helm template volume-backup charts/volume-backup --namespace backup \
-          --set "restore.app=${ns}" --set "restore.snapshot=${snap}" \
-          --show-only templates/job-restore.yaml | kubectl apply -n backup -f -
-        kubectl -n backup wait --for=condition=complete "job/restic-restore-${ns}" --timeout=60m
-        kubectl -n backup logs "job/restic-restore-${ns}"
+        backup=${2:-}
+        # Restored pods write the backed-up files into the claims they mount.
+        # HelmReleases stay suspended until that finishes, then they start the apps.
+        flux suspend helmrelease --all -n "$ns"
+        kubectl -n "$ns" delete deploy,sts --all --wait=true --timeout=10m
+        kubectl -n velero delete restore "restore-${ns}" --ignore-not-found
+        if [ -n "$backup" ]; then
+          from="backupName: ${backup}"
+        else
+          from="scheduleName: velero-daily"
+        fi
+        kubectl apply -f - <<EOF
+        apiVersion: velero.io/v1
+        kind: Restore
+        metadata:
+          name: restore-${ns}
+          namespace: velero
+        spec:
+          ${from}
+          includedNamespaces:
+            - ${ns}
+          includedResources:
+            - pods
+          itemOperationTimeout: 8h
+        EOF
+        deadline=$((SECONDS + 180 * 60))
+        while true; do
+          phase=$(kubectl -n velero get restore "restore-${ns}" -o jsonpath='{.status.phase}' 2>/dev/null || true)
+          case "$phase" in
+            Completed) break ;;
+            Failed|FailedValidation|PartiallyFailed)
+              printf 'restore %s is %s; HelmReleases in %s stay suspended\n' "restore-${ns}" "$phase" "$ns" >&2
+              exit 1
+              ;;
+          esac
+          if (( SECONDS > deadline )); then
+            printf 'restore %s is %s; HelmReleases in %s stay suspended\n' "restore-${ns}" "${phase:-unknown}" "$ns" >&2
+            exit 1
+          fi
+          sleep 10
+        done
+        kubectl -n "$ns" delete pod --all --wait=true --timeout=10m
+        flux resume helmrelease --all -n "$ns"

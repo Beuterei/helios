@@ -9,7 +9,7 @@ spec:
     - name: namespaces
     - name: secrets
   interval: 10m
-  path: ./platform/volume-backup
+  path: ./platform/velero
   prune: true
   wait: true
   timeout: 10m
