@@ -10,7 +10,7 @@ A namespace is included unless the schedule excludes it. A claim in an included 
 
 ## Secrets
 
-The Velero SOPS secret holds the object storage key. The bucket and the prefix are in the HelmRelease. Backup objects sit under that prefix. The bucket root holds the restic repository. The Healthchecks SOPS secret holds the success URL. A completed daily backup pings it once. Healthchecks alerts when that ping does not arrive, so a failed backup and a dead pinger raise the same alarm. The Healthchecks grace has to cover the backup.
+The Velero SOPS secret holds the object storage key. The bucket and the prefix are in the HelmRelease. Backup objects sit under that prefix. The bucket root holds the restic repository.
 
 ## Rebuild
 
@@ -25,7 +25,7 @@ task sops:edit -- secrets/velero.enc.yaml
 
 ## Check
 
-HelmRelease `velero` is Ready, BackupStorageLocation `default` is Available, and the latest Backup from Schedule `velero-daily` is Completed. CronJob `velero-healthchecks` has not failed, and Healthchecks shows that success.
+HelmRelease `velero` is Ready, BackupStorageLocation `default` is Available, and the latest Backup from Schedule `velero-daily` is Completed.
 
 ## Restore
 
