@@ -1,5 +1,4 @@
-# One writer.
-# SQLite lives on the claim, so a second replica would corrupt it.
+# Uploads are files on the claim, so a second replica would split them.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -52,6 +51,14 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secretName }}
                   key: ENCRYPTION_KEY
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: POSTGRES_PASSWORD
+            # The server has no TLS. The password is substituted from the env var above.
+            - name: DB_CONNECTION_STRING
+              value: "postgres://{{ .Values.postgres.user }}:$(POSTGRES_PASSWORD)@postgres:5432/{{ .Values.postgres.database }}?sslmode=disable"
           ports:
             - name: http
               containerPort: 1411

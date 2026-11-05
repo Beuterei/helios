@@ -92,39 +92,23 @@ tasks:
         kubectl -n "$ns" delete deploy,sts --all --wait=true --timeout=10m
         kubectl -n velero delete restore "restore-${ns}" --ignore-not-found
         if [ -n "$backup" ]; then
-          from="backupName: ${backup}"
+          from_flag=--from-backup
+          from_value=$backup
         else
-          from="scheduleName: velero-daily"
+          from_flag=--from-schedule
+          from_value=velero-daily
         fi
-        kubectl apply -f - <<EOF
-        apiVersion: velero.io/v1
-        kind: Restore
-        metadata:
-          name: restore-${ns}
-          namespace: velero
-        spec:
-          ${from}
-          includedNamespaces:
-            - ${ns}
-          includedResources:
-            - pods
-          itemOperationTimeout: 8h
-        EOF
-        deadline=$((SECONDS + 180 * 60))
-        while true; do
-          phase=$(kubectl -n velero get restore "restore-${ns}" -o jsonpath='{.status.phase}' 2>/dev/null || true)
-          case "$phase" in
-            Completed) break ;;
-            Failed|FailedValidation|PartiallyFailed)
-              printf 'restore %s is %s; HelmReleases in %s stay suspended\n' "restore-${ns}" "$phase" "$ns" >&2
-              exit 1
-              ;;
-          esac
-          if (( SECONDS > deadline )); then
-            printf 'restore %s is %s; HelmReleases in %s stay suspended\n' "restore-${ns}" "${phase:-unknown}" "$ns" >&2
-            exit 1
-          fi
-          sleep 10
-        done
+        # --wait exits 0 when the restore fails, so the phase still decides.
+        velero restore create "restore-${ns}" --namespace velero \
+          "$from_flag" "$from_value" \
+          --include-namespaces "$ns" \
+          --include-resources pods \
+          --item-operation-timeout 8h \
+          --wait
+        phase=$(kubectl -n velero get restore "restore-${ns}" -o jsonpath='{.status.phase}')
+        if [ "$phase" != Completed ]; then
+          printf 'restore %s is %s; HelmReleases in %s stay suspended\n' "restore-${ns}" "${phase:-unknown}" "$ns" >&2
+          exit 1
+        fi
         kubectl -n "$ns" delete pod --all --wait=true --timeout=10m
         flux resume helmrelease --all -n "$ns"

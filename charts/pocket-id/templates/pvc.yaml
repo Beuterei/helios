@@ -12,3 +12,21 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
+---
+# Left out of Velero. Database backup is CloudNativePG.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pocket-id-postgres
+  labels:
+    {{- include "pocket-id.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+    helios.luisbeu.de/backup: skip
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ .Values.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.postgres.persistence.size }}

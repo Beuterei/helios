@@ -1,6 +1,6 @@
 # pocket-id
 
-Identity provider for Paperless, Open WebUI, and Norish. Their username forms are off, and sign-in is a passkey. Accounts live on its claim, which [velero](velero.md) copies.
+Identity provider for Paperless, Open WebUI, and Norish. Their username forms are off, and sign-in is a passkey. Accounts are in Postgres, which [velero](velero.md) leaves out. The claim holds uploads, which Velero copies.
 
 ## Flux
 
@@ -8,7 +8,7 @@ Flux applies `apps/pocket-id.yaml` in namespace `pocket-id`. TLS is the reflecte
 
 ## Secrets
 
-The Pocket ID SOPS secret holds the encryption key, which has to be set before the database exists. Each app keeps its own client secret in its gate Secret.
+The Pocket ID SOPS secret holds the encryption key and the database password. The encryption key has to be set before the database exists, and the password only fits this database. Each app keeps its own client secret in its gate Secret.
 
 ## Sign-in
 
@@ -23,8 +23,8 @@ A user can open an app only as a member of a group allowed on that client. The t
 task sops:edit -- secrets/pocket-id.enc.yaml
 ```
 
-3. Reconcile and wait until the claim is Bound.
-4. When bringing a database back, restore the claim before signing in. On an empty database, open the Ingress host and create the admin passkey.
+3. Reconcile and wait until the claims are Bound.
+4. On an empty database, open the Ingress host and create the admin passkey.
 5. Create the groups `admins`, `paperless`, `open_webui`, and `norish`, keeping the name the form fills in. Put the admin in all of them.
 6. Create a confidential client for each app. Choose **Set custom client ID** and use `paperless`, `open-webui`, and `norish`. Turn PKCE on. Each host is the app's gate `host` in `apps/oauth2-proxy-<app>.yaml`. Callback URLs:
 
@@ -52,7 +52,7 @@ HelmRelease `pocket-id` is Ready, and its Ingress host shows the login page. Pap
 
 ## Restore
 
-Keep both Pocket ID secrets. The restore rewrites the claim and restarts the writer.
+Keep the Pocket ID SOPS secret. The restore rewrites the uploads on the claim. The database is not in the backup.
 
 ```sh
 task backup:restore -- pocket-id
