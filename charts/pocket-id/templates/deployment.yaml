@@ -50,7 +50,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secretName }}
-                  key: ENCRYPTION_KEY
+                  key: encryption-key
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:

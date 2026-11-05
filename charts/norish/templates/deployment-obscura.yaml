@@ -33,7 +33,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secretName }}
-                  key: OBSCURA_CDP_TOKEN
+                  key: cdp-token
           ports:
             - name: cdp
               containerPort: 9222

@@ -74,7 +74,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secretName }}
-                  key: PAPERLESS_SECRET_KEY
+                  key: secret-key
             - name: PAPERLESS_URL
               value: {{ .Values.publicURL | quote }}
             - name: PAPERLESS_TIME_ZONE
