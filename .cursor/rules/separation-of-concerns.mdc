@@ -16,6 +16,7 @@ Before finishing a change that adds, moves, or deletes manifests, render every t
 | `platform/cert-manager` | `HelmRelease` |
 | `platform/cloudflared` | `HelmRelease`, `NetworkPolicy` |
 | `platform/velero` | `HelmRelease` |
+| `platform/cloudnative-pg` | `HelmRelease` |
 | `apps` | `HelmRelease`, `NetworkPolicy` |
 | `certs` | `ClusterIssuer`, `Certificate` |
 | `secrets` | `Secret` |

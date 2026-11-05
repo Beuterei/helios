@@ -109,7 +109,7 @@ spec:
                           valueFrom:
                             secretKeyRef:
                               name: velero-healthchecks
-                              key: url
+                              key: ping-url
                       command: ["sh", "-c"]
                       args:
                         - |
@@ -164,6 +164,7 @@ spec:
           accessMode: ReadWrite
           credential:
             name: velero-s3
+            # The chart mounts this key as the credentials file.
             key: cloud
           config:
             # The endpoint ignores the region, and the signer still requires one.
@@ -222,6 +223,7 @@ spec:
             - cert-manager
             - network
             - velero
+            - cnpg-system
           # Secrets are in git. The bucket must not hold them.
           excludedNamespaceScopedResources:
             - secrets
@@ -248,6 +250,7 @@ spec:
             - cert-manager
             - network
             - velero
+            - cnpg-system
           excludedNamespaceScopedResources:
             - secrets
           snapshotVolumes: false

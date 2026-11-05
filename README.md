@@ -22,6 +22,7 @@ Each service has one rebuild procedure in `docs/`. Flux applies the manifests, s
 | norish | `norish` | [docs/norish.md](docs/norish.md) |
 | oauth2-proxy | `norish`, `paperless`, `ai` | [docs/oauth2-proxy.md](docs/oauth2-proxy.md) |
 | velero | `velero` | [docs/velero.md](docs/velero.md) |
+| cloudnative-pg | `cnpg-system` | [docs/cloudnative-pg.md](docs/cloudnative-pg.md) |
 
 ## Request path
 
@@ -96,7 +97,7 @@ Each directory holds one kind of object, so new YAML goes in the directory that 
 | **Namespaces** | `Namespace` objects and the `edge` PriorityClass | Anything that lives inside a namespace |
 | **Sources** | `HelmRepository` / `OCIRepository` | The HelmReleases that consume them |
 | **DNS** | Blocky HelmRelease | The CoreDNS override, chart source, Namespace |
-| **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, the CoreDNS override, and Velero | User-facing apps, Blocky, Certificates, Secrets |
+| **Platform** | Cluster operators, the Cloudflare Tunnel, node plugins, the CoreDNS override, Velero, and CloudNativePG | User-facing apps, Blocky, Certificates, Secrets |
 | **Apps** | Workload HelmReleases and NetworkPolicies for upstream charts | Chart sources, ClusterIssuers, cluster config |
 | **Secrets** | SOPS-encrypted `Secret` manifests (`*.enc.yaml`) | ClusterIssuers, Certificates, plaintext |
 | **Certs** | `ClusterIssuer` and `Certificate` | cert-manager itself, Ingress, apps that mount the TLS secret |
@@ -116,6 +117,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together without containing th
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
 | `platform/velero` | Velero schedules and the node agent (own Flux layer; waits for the S3 secret) |
+| `platform/cloudnative-pg` | CloudNativePG and the Barman Cloud plugin (own Flux layer; waits for cert-manager) |
 | `apps` | Workload HelmReleases and NetworkPolicies for upstream charts |
 | `certs` | Let's Encrypt `ClusterIssuer` and `Certificate` |
 | `secrets` | Matches `.sops.yaml`; commit only `*.enc.yaml` |
@@ -136,11 +138,12 @@ Flux layers (`clusters/helios/*.yaml`) wire these together without containing th
 3. **dns** — Blocky. Waits for namespaces and sources
 4. **platform** — CDI plugin, CoreDNS override, the secret reflector, and the secret reloader. Waits for dns
 5. **cert-manager** — waits for namespaces and sources, then the operator
-6. **secrets** — waits for namespaces, then decrypts SOPS
-7. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
-8. **apps** — waits for namespaces, sources, platform, certs, and secrets, then workloads
-9. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
-10. **backups** — waits for namespaces and secrets, then Velero
+6. **cloudnative-pg** — waits for namespaces, sources, and cert-manager, then the operator and the Barman Cloud plugin
+7. **secrets** — waits for namespaces, then decrypts SOPS
+8. **certs** — waits for namespaces, cert-manager, and secrets, then requests certificates
+9. **apps** — waits for namespaces, sources, platform, certs, secrets, and cloudnative-pg, then workloads
+10. **cloudflared** — waits for namespaces, sources, and secrets, then the remotely managed tunnel
+11. **backups** — waits for namespaces and secrets, then Velero
 
 Apps that mount the TLS secret wait for **certs**, and apps that read SOPS secrets wait for **secrets**. Backups do not gate apps.
 

@@ -43,7 +43,7 @@ spec:
                   name: {{ .Values.secretName }}
                   key: MASTER_KEY
             - name: DATABASE_HOST
-              value: postgres
+              value: postgres-rw
             - name: DATABASE_USER
               value: {{ .Values.postgres.user | quote }}
             - name: DATABASE
@@ -51,8 +51,8 @@ spec:
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secretName }}
-                  key: POSTGRES_PASSWORD
+                  name: {{ .Values.postgres.secretName }}
+                  key: password
             - name: VALKEY_URL
               value: valkey://valkey:6379
             - name: UPLOADS_DIR

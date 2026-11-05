@@ -12,6 +12,7 @@ resources:
   - cert-manager.yaml
   - network.yaml
   - velero.yaml
+  - cnpg-system.yaml
   - ai.yaml
   - paperless.yaml
   - pocket-id.yaml

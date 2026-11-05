@@ -58,18 +58,18 @@ spec:
             - name: PAPERLESS_REDIS
               value: redis://broker:6379
             - name: PAPERLESS_DBHOST
-              value: postgres
+              value: postgres-rw
             - name: PAPERLESS_DBENGINE
               value: postgresql
             - name: PAPERLESS_DBNAME
-              value: paperless
+              value: {{ .Values.postgres.database | quote }}
             - name: PAPERLESS_DBUSER
-              value: paperless
+              value: {{ .Values.postgres.user | quote }}
             - name: PAPERLESS_DBPASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secretName }}
-                  key: POSTGRES_PASSWORD
+                  name: {{ .Values.postgres.secretName }}
+                  key: password
             - name: PAPERLESS_SECRET_KEY
               valueFrom:
                 secretKeyRef:

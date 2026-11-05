@@ -1,6 +1,6 @@
 # velero
 
-Copies mounted claim files to object storage. Cron schedules in the HelmRelease run a daily backup and a monthly backup. Kopia stores the file data. Postgres claims are left out for CloudNativePG. The paperless broker, the norish cache, and the Ollama claim are left out because those files can be rebuilt or pulled. A claim is copied only while a pod has it mounted. The copy reads the live files, so a file can be mid-write. Open WebUI keeps its accounts in SQLite on the claim. Pocket ID accounts are in Postgres, and that claim is left out.
+Copies mounted claim files to object storage. Cron schedules in the HelmRelease run a daily backup and a monthly backup. Kopia stores the file data. Postgres volumes are left out; [cloudnative-pg](cloudnative-pg.md) stores those databases. The paperless broker, the norish cache, and the Ollama claim are left out because those files can be rebuilt or pulled. A claim is copied only while a pod has it mounted. The copy reads the live files, so a file can be mid-write. Open WebUI keeps its accounts in SQLite on the claim. Pocket ID accounts are in Postgres, and that claim is left out.
 
 ## Flux
 

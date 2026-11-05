@@ -8,7 +8,7 @@ Flux applies `apps/paperless.yaml` in namespace `paperless`, from `charts/paperl
 
 ## Secrets
 
-The Paperless SOPS secret holds the database password and the app secret. Keep it when restoring, because new values only fit an empty database. The Paperless gate SOPS secret holds the Pocket ID client secret and the gate cookie secret for this namespace only. The client secret has to be URL-safe, since a quote or a backslash breaks the provider JSON once Kubernetes substitutes it. The WebDAV SOPS secret holds the WebDAV username and password.
+The Paperless SOPS secret holds the app secret. The database password is in the secret named by `postgres.secretName`. Keep both when restoring, because new values only fit an empty database. The Paperless gate SOPS secret holds the Pocket ID client secret and the gate cookie secret for this namespace only. The client secret has to be URL-safe, since a quote or a backslash breaks the provider JSON once Kubernetes substitutes it. The WebDAV SOPS secret holds the WebDAV username and password.
 
 ## Sign-in
 
@@ -24,7 +24,7 @@ task sops:edit -- secrets/paperless.enc.yaml
 ```
 
 3. Reconcile and wait until the claims are Bound.
-4. Restore the data, media, and consume claims before signing in. The database claim is not in the backup. On an empty database, sign in first with a Pocket ID user in the `admins` group, because that account becomes the admin. Later users are normal users.
+4. Restore the data, media, and consume claims before signing in. The database is a CloudNativePG cluster, and Velero leaves that volume out. On an empty database, sign in first with a Pocket ID user in the `admins` group, because that account becomes the admin. Later users are normal users. To bring the database back, follow [cloudnative-pg](cloudnative-pg.md).
 5. Wait until Ollama has pulled the models this chart names before using AI.
 6. Set the WebDAV username and password:
 
@@ -38,7 +38,7 @@ HelmRelease `paperless` is Ready, and its Ingress host answers. The WebDAV pod i
 
 ## Restore
 
-Restore the data, media, and consume claims. The database claim is not in the backup, and the broker is left out because the queue is rebuilt.
+Restore the data, media, and consume claims. The database is CloudNativePG, and the broker is left out because the queue is rebuilt. See [cloudnative-pg](cloudnative-pg.md).
 
 ```sh
 task backup:restore -- paperless

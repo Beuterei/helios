@@ -1,0 +1,78 @@
+# Velero skips this volume. Base backups and WAL go to the object store.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+  labels:
+    {{- include "norish.labels" . | nindent 4 }}
+spec:
+  instances: 1
+  imageName: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+  inheritedMetadata:
+    labels:
+      helios.luisbeu.de/backup: skip
+  bootstrap:
+    initdb:
+      database: {{ .Values.postgres.database }}
+      owner: {{ .Values.postgres.user }}
+      secret:
+        name: {{ .Values.postgres.secretName }}
+  storage:
+    size: {{ .Values.postgres.persistence.size }}
+    storageClass: {{ .Values.storageClass }}
+  resources:
+    {{- toYaml .Values.postgres.resources | nindent 4 }}
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: s3
+---
+# Same bucket as Velero, under the cnpg prefix.
+# Hetzner rejects the default AWS checksum trailer.
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: s3
+  labels:
+    {{- include "norish.labels" . | nindent 4 }}
+spec:
+  retentionPolicy: {{ .Values.postgres.backup.retentionPolicy | quote }}
+  instanceSidecarConfiguration:
+    env:
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required
+  configuration:
+    destinationPath: {{ .Values.postgres.backup.destinationPath | quote }}
+    endpointURL: {{ .Values.postgres.backup.endpointURL | quote }}
+    s3Credentials:
+      accessKeyId:
+        name: cnpg-s3
+        key: access-key-id
+      secretAccessKey:
+        name: cnpg-s3
+        key: secret-access-key
+      region:
+        name: cnpg-s3
+        key: aws-region
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: postgres-daily
+  labels:
+    {{- include "norish.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.postgres.backup.schedule | quote }}
+  backupOwnerReference: cluster
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+  cluster:
+    name: postgres

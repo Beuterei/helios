@@ -47,24 +47,6 @@ spec:
     requests:
       storage: {{ .Values.paperless.persistence.consume }}
 ---
-# Left out of Velero. Database backup is CloudNativePG.
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: paperless-postgres
-  labels:
-    {{- include "paperless.labels" . | nindent 4 }}
-    app.kubernetes.io/component: postgres
-    helios.luisbeu.de/backup: skip
-  annotations:
-    helm.sh/resource-policy: keep
-spec:
-  accessModes: [ReadWriteOnce]
-  storageClassName: {{ $sc }}
-  resources:
-    requests:
-      storage: {{ .Values.postgres.persistence.size }}
----
 # The queue is rebuilt, so the claim is left out of Velero.
 apiVersion: v1
 kind: PersistentVolumeClaim

@@ -17,22 +17,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
-  labels:
-    {{- include "norish.labels" . | nindent 4 }}
-    app.kubernetes.io/component: postgres
-spec:
-  selector:
-    {{- include "norish.labels" . | nindent 4 }}
-    app.kubernetes.io/component: postgres
-  ports:
-    - name: postgres
-      port: 5432
-      targetPort: postgres
----
-apiVersion: v1
-kind: Service
-metadata:
   name: valkey
   labels:
     {{- include "norish.labels" . | nindent 4 }}

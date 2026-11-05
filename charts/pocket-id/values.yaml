@@ -1,5 +1,5 @@
 # The Pocket ID SOPS secret holds the encryption key.
-# Change it before the claim exists.
+# The encryption key has to be set before the database exists.
 secretName: pocket-id
 
 image:
@@ -23,12 +23,21 @@ persistence:
 
 postgres:
   image:
-    repository: docker.io/library/postgres
-    tag: 18.6-alpine
+    repository: ghcr.io/cloudnative-pg/postgresql
+    tag: "18.6"
   user: pocketid
   database: pocketid
+  # CloudNativePG reads the keys username and password.
+  secretName: pocket-id-postgres
   persistence:
     size: 1Gi
+  # 04:00 Europe/Berlin. The operator clock is that zone.
+  # An hour before the Velero daily backup.
+  backup:
+    destinationPath: s3://backup-lb/cnpg/pocket-id
+    endpointURL: https://nbg1.your-objectstorage.com
+    schedule: "0 0 4 * * *"
+    retentionPolicy: 30d
   resources:
     requests:
       cpu: 50m

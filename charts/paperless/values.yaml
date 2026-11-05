@@ -73,10 +73,21 @@ paperless:
 
 postgres:
   image:
-    repository: docker.io/library/postgres
-    tag: 18.6-alpine
+    repository: ghcr.io/cloudnative-pg/postgresql
+    tag: "18.6"
+  user: paperless
+  database: paperless
+  # CloudNativePG reads the keys username and password.
+  secretName: paperless-postgres
   persistence:
     size: 10Gi
+  # 04:00 Europe/Berlin. The operator clock is that zone.
+  # An hour before the Velero daily backup.
+  backup:
+    destinationPath: s3://backup-lb/cnpg/paperless
+    endpointURL: https://nbg1.your-objectstorage.com
+    schedule: "0 0 4 * * *"
+    retentionPolicy: 30d
   resources:
     requests:
       cpu: 50m

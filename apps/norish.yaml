@@ -1,5 +1,5 @@
 # Sign-in is Pocket ID.
-# The Norish SOPS secret holds the master key, database password, and Obscura token.
+# The Norish SOPS secret holds the master key and the Obscura token.
 # The Norish gate SOPS secret holds the client secret.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease

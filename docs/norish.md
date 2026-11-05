@@ -8,7 +8,7 @@ Flux applies `apps/norish.yaml` in namespace `norish`, from `charts/norish`. TLS
 
 ## Secrets
 
-The Norish SOPS secret holds the database password, the master key, and the Obscura token. Keep it when restoring, because new values only fit an empty database and the master key decrypts data already stored. The Norish gate SOPS secret holds the Pocket ID client secret and the gate cookie secret for this namespace only.
+The Norish SOPS secret holds the master key and the Obscura token. The database password is in the secret named by `postgres.secretName`. Keep both when restoring, because new values only fit an empty database and the master key decrypts data already stored. The Norish gate SOPS secret holds the Pocket ID client secret and the gate cookie secret for this namespace only.
 
 ## Sign-in
 
@@ -30,7 +30,7 @@ task sops:edit -- secrets/norish-gate.enc.yaml
 ```
 
 4. Reconcile and wait until the claims are Bound.
-5. Restore the uploads claim before signing in. The database claim is not in the backup. On an empty database, sign in first with a Pocket ID user in the `admins` group. That account becomes the admin, and Norish turns registration off. Turn it back on under **Settings → Admin**, on the General card, with **Allow new user registration**, so later Pocket ID users in `norish` or `admins` get an account.
+5. Restore the uploads claim before signing in. The database is a CloudNativePG cluster, and Velero leaves that volume out. On an empty database, sign in first with a Pocket ID user in the `admins` group. That account becomes the admin, and Norish turns registration off. Turn it back on under **Settings → Admin**, on the General card, with **Allow new user registration**, so later Pocket ID users in `norish` or `admins` get an account. To bring the database back, follow [cloudnative-pg](cloudnative-pg.md).
 
 ## Check
 
@@ -38,7 +38,7 @@ HelmRelease `norish` is Ready, and its Ingress host shows the login page.
 
 ## Restore
 
-Restore the uploads claim. The database claim is not in the backup, and Valkey is left out because the queue is rebuilt.
+Restore the uploads claim. The database is CloudNativePG, and Valkey is left out because the queue is rebuilt. See [cloudnative-pg](cloudnative-pg.md).
 
 ```sh
 task backup:restore -- norish

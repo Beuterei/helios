@@ -7,6 +7,7 @@ resources:
   - dns.yaml
   - platform.yaml
   - cert-manager.yaml
+  - cloudnative-pg.yaml
   - secrets.yaml
   - certs.yaml
   - apps.yaml

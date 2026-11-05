@@ -51,14 +51,14 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secretName }}
                   key: ENCRYPTION_KEY
-            - name: POSTGRES_PASSWORD
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secretName }}
-                  key: POSTGRES_PASSWORD
+                  name: {{ .Values.postgres.secretName }}
+                  key: password
             # The server has no TLS. The password is substituted from the env var above.
             - name: DB_CONNECTION_STRING
-              value: "postgres://{{ .Values.postgres.user }}:$(POSTGRES_PASSWORD)@postgres:5432/{{ .Values.postgres.database }}?sslmode=disable"
+              value: "postgres://{{ .Values.postgres.user }}:$(DB_PASSWORD)@postgres-rw:5432/{{ .Values.postgres.database }}?sslmode=disable"
           ports:
             - name: http
               containerPort: 1411

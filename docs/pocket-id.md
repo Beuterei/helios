@@ -8,7 +8,7 @@ Flux applies `apps/pocket-id.yaml` in namespace `pocket-id`. TLS is the reflecte
 
 ## Secrets
 
-The Pocket ID SOPS secret holds the encryption key and the database password. The encryption key has to be set before the database exists, and the password only fits this database. Each app keeps its own client secret in its gate Secret.
+The Pocket ID SOPS secret holds the encryption key. The database password is in the secret named by `postgres.secretName`. The encryption key has to be set before the database exists, and the password only fits this database. Each app keeps its own client secret in its gate Secret.
 
 ## Sign-in
 
@@ -24,7 +24,7 @@ task sops:edit -- secrets/pocket-id.enc.yaml
 ```
 
 3. Reconcile and wait until the claims are Bound.
-4. On an empty database, open the Ingress host and create the admin passkey.
+4. On an empty database, open the Ingress host and create the admin passkey. The database is a CloudNativePG cluster. To bring it back, follow [cloudnative-pg](cloudnative-pg.md).
 5. Create the groups `admins`, `paperless`, `open_webui`, and `norish`, keeping the name the form fills in. Put the admin in all of them.
 6. Create a confidential client for each app. Choose **Set custom client ID** and use `paperless`, `open-webui`, and `norish`. Turn PKCE on. Each host is the app's gate `host` in `apps/oauth2-proxy-<app>.yaml`. Callback URLs:
 
@@ -52,7 +52,7 @@ HelmRelease `pocket-id` is Ready, and its Ingress host shows the login page. Pap
 
 ## Restore
 
-Keep the Pocket ID SOPS secret. The restore rewrites the uploads on the claim. The database is not in the backup.
+Keep the Pocket ID SOPS secret. The restore rewrites the uploads on the claim. The database is CloudNativePG. See [cloudnative-pg](cloudnative-pg.md).
 
 ```sh
 task backup:restore -- pocket-id

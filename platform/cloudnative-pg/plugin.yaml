@@ -1,0 +1,40 @@
+# Barman Cloud plugin. WAL and base backups for every Cluster.
+# The chart issues its own cert-manager certificates.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: plugin-barman-cloud
+  namespace: cnpg-system
+spec:
+  interval: 1h
+  timeout: 10m
+  dependsOn:
+    - name: cloudnative-pg
+      namespace: cnpg-system
+  chart:
+    spec:
+      chart: plugin-barman-cloud
+      version: 0.8.1
+      sourceRef:
+        kind: HelmRepository
+        name: cloudnative-pg
+        namespace: flux-system
+  driftDetection:
+    mode: enabled
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    crds:
+      create: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
