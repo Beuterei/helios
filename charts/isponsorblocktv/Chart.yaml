@@ -1,0 +1,5 @@
+apiVersion: v2
+name: isponsorblocktv
+description: Skip SponsorBlock segments on YouTube TV clients
+type: application
+version: 0.1.0

@@ -24,6 +24,7 @@ Do not sort keys alphabetically. Skip a key that is absent. Keep a comment with 
 **persistence:** a map. One claim uses `size`. Several claims use one key each.
 Component: `image`, identity, config, `persistence`, `resources`.
 oauth2-proxy instance: `app`, `host`, `upstream`, `clientId`, `clientSecretKey`, `cookieSecretKey`, `groups`, `skipAuthRoutes`, `tunnel`.
+isponsorblocktv: `secretName`, `image`, `timeZone`, `device`, skip settings, `lanCIDR`, `resources`.
 
 **Deployment spec:** `replicas`, `strategy`, `selector`, `template`
 **Pod spec:** `serviceAccountName`, `automountServiceAccountToken`, `enableServiceLinks`, `priorityClassName`, `terminationGracePeriodSeconds`, `securityContext`, `initContainers`, `containers`, `volumes`

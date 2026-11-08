@@ -47,6 +47,6 @@ These hold for every file they apply to, so files do not repeat them.
 
 - Local charts live in `charts/` and are not published. Flux installs them from the `flux-system` GitRepository.
 - A local-chart HelmRelease uses `reconcileStrategy: Revision`. The chart version never changes, so `ChartVersion` would keep the first packaged chart.
-- Each app namespace (`ai`, `paperless`, `pocket-id`, `norish`) has `default-deny-ingress`, so nothing reaches a pod until a later policy allows it. `allow-same-namespace` lets the pods in that namespace, including the session gate, reach each other.
+- Each app namespace (`ai`, `paperless`, `pocket-id`, `norish`, `isponsorblocktv`) has `default-deny-ingress`, so nothing reaches a pod until a later policy allows it. `allow-same-namespace` lets the pods in that namespace, including the session gate, reach each other.
 - The wildcard TLS secret is issued in namespace `cert-manager`. Reflector copies it into each namespace that serves its own Ingress.
 - A public URL in a chart's values is served by that namespace's oauth2-proxy release, not by the app chart's own Ingress.

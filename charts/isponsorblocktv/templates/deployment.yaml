@@ -1,0 +1,92 @@
+# The ConfigMap holds the settings. The init container fills the screen id from the Secret.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: isponsorblocktv
+  labels:
+    {{- include "isponsorblocktv.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "isponsorblocktv.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "isponsorblocktv.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: config
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SCREEN_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: screen-id
+          command: ["python3", "-c"]
+          args:
+            - |
+              import json, os
+              with open("/config/config.json", encoding="utf-8") as src:
+                  cfg = json.load(src)
+              cfg["devices"][0]["screen_id"] = os.environ["SCREEN_ID"]
+              with open("/app/data/config.json", "w", encoding="utf-8") as dst:
+                  json.dump(cfg, dst, indent=4)
+                  dst.write("\n")
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: data
+              mountPath: /app/data
+      containers:
+        - name: isponsorblocktv
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: {{ .Values.timeZone | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: isponsorblocktv
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

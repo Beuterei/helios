@@ -1,0 +1,32 @@
+# The SOPS secret holds the YouTube TV screen id.
+secretName: isponsorblocktv
+
+image:
+  repository: ghcr.io/dmunozv04/isponsorblocktv
+  tag: "v2.11.0"
+
+timeZone: Europe/Berlin
+
+device:
+  name: YouTube on TV
+
+skipCategories:
+  - sponsor
+skipCountTracking: false
+muteAds: false
+skipAds: false
+minimumSkipLength: 1
+autoPlay: false
+joinName: iSponsorBlockTV
+useProxy: false
+sponsorblockApiUrl: https://sponsor.ajay.app/api/
+
+# TVs live on the LAN. The SponsorBlock API and YouTube are public.
+lanCIDR: 192.168.1.0/24
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    memory: 256Mi

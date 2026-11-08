@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: isponsorblocktv
+  labels:
+    {{- include "isponsorblocktv.labels" . | nindent 4 }}
+data:
+  config.json: |
+    {
+      "devices": [
+        {
+          "screen_id": "",
+          "name": {{ .Values.device.name | toJson }}
+        }
+      ],
+      "apikey": "",
+      "skip_categories": {{ .Values.skipCategories | toJson }},
+      "channel_whitelist": [],
+      "skip_count_tracking": {{ .Values.skipCountTracking }},
+      "mute_ads": {{ .Values.muteAds }},
+      "skip_ads": {{ .Values.skipAds }},
+      "minimum_skip_length": {{ .Values.minimumSkipLength }},
+      "auto_play": {{ .Values.autoPlay }},
+      "join_name": {{ .Values.joinName | toJson }},
+      "use_proxy": {{ .Values.useProxy }},
+      "sponsorblock_api_url": {{ .Values.sponsorblockApiUrl | toJson }}
+    }

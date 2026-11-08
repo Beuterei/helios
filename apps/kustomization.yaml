@@ -10,3 +10,4 @@ resources:
   - pocket-id.yaml
   - norish.yaml
   - oauth2-proxy-norish.yaml
+  - isponsorblocktv.yaml

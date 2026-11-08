@@ -23,6 +23,7 @@ Each service has one rebuild procedure in `docs/`. Flux applies the manifests, s
 | oauth2-proxy | `norish`, `paperless`, `ai` | [docs/oauth2-proxy.md](docs/oauth2-proxy.md) |
 | velero | `velero` | [docs/velero.md](docs/velero.md) |
 | cloudnative-pg | `cnpg-system` | [docs/cloudnative-pg.md](docs/cloudnative-pg.md) |
+| isponsorblocktv | `isponsorblocktv` | [docs/isponsorblocktv.md](docs/isponsorblocktv.md) |
 
 ## Request path
 
@@ -126,6 +127,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together without containing th
 | `charts/pocket-id` | Chart for Pocket ID; the release lives in `apps` |
 | `charts/norish` | Chart for Norish; the release lives in `apps` |
 | `charts/oauth2-proxy` | Chart for the Pocket ID session gate; the releases live in `apps` |
+| `charts/isponsorblocktv` | Chart for iSponsorBlockTV; the release lives in `apps` |
 | `docs` | Rebuild procedure and docs for each service |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status`, `sops:encrypt`, `sops:edit`, `sops:decrypt`, `backup:restore` |
 
