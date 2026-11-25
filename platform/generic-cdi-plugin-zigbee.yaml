@@ -1,4 +1,4 @@
-# NixOS writes the ConBee CDI spec on the host.
+# A NixOS udev rule writes the ConBee CDI spec whenever the stick appears.
 # One plugin reads one spec, so the stick has its own release.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -24,4 +24,4 @@ spec:
     remediation:
       retries: 3
   values:
-    cdiSpec: /etc/cdi/zigbee.json
+    cdiSpec: /var/run/cdi/zigbee.json

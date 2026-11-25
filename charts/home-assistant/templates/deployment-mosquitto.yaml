@@ -1,6 +1,7 @@
 {{- $m := .Values.mosquitto }}
 # Mosquitto refuses a password file that others can read, so the init container writes it with owner-only permissions.
 # The init container copies the ACL for the same reason.
+# mosquitto_passwd writes a temporary file, so the init container gets a writable /tmp.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,6 +76,8 @@ spec:
               readOnly: true
             - name: auth
               mountPath: /mosquitto/auth
+            - name: tmp
+              mountPath: /tmp
       containers:
         - name: mosquitto
           image: "{{ $m.image.repository }}:{{ $m.image.tag }}"
@@ -112,6 +115,9 @@ spec:
           configMap:
             name: mosquitto
         - name: auth
+          emptyDir:
+            medium: Memory
+        - name: tmp
           emptyDir:
             medium: Memory
         - name: data
