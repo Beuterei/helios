@@ -1,0 +1,151 @@
+views:
+  - theme: Backend-selected
+    title: Home
+    icon: mdi:home
+    badges:
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: person.luis_beu
+        color: ''
+        show_entity_picture: true
+      - type: entity
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: light.all_lights
+        color: ''
+        tap_action:
+          action: toggle
+      - type: entity
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: light.all_lights
+        name: Reset Lights
+        show_entity_picture: false
+        tap_action:
+          action: perform-action
+          perform_action: scene.turn_on
+          target:
+            entity_id: scene.reset_light
+      - type: entity
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: button.door_buzzer
+        tap_action:
+          action: toggle
+        color: ''
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: lock.home_door
+        color: ''
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: template
+            entity: sensor.bathroom_washing_machine_socket_power
+            icon: mdi:washing-machine
+            content: >-
+              {{ (states('sensor.bathroom_washing_machine_socket_power') > '2') |
+              iif('Running', 'Idle') }}
+            icon_color: >-
+              {{ (states('sensor.bathroom_washing_machine_socket_power') > '2') |
+              iif('cyan', '') }}
+            tap_action:
+              action: more-info
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: binary_sensor.all_windows
+        color: ''
+        show_entity_picture: false
+        name: All windows
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.all_lights
+            fill_container: false
+            show_brightness_control: true
+            use_light_color: true
+            show_color_control: false
+            show_color_temp_control: false
+            collapsible_controls: true
+          - type: custom:mushroom-light-card
+            entity: light.living_room_lights
+            show_brightness_control: true
+            use_light_color: true
+            collapsible_controls: true
+          - type: custom:mushroom-light-card
+            entity: light.bedroom_lights
+            use_light_color: true
+            show_brightness_control: true
+            collapsible_controls: true
+          - type: custom:mushroom-light-card
+            entity: light.kitchen_lights
+            use_light_color: true
+            show_brightness_control: true
+            collapsible_controls: true
+            show_color_temp_control: false
+          - type: custom:mushroom-light-card
+            entity: light.bathroom_lights
+            show_brightness_control: true
+            use_light_color: true
+            collapsible_controls: true
+        title: Lights
+      - type: custom:auto-entities
+        show_empty: false
+        card:
+          type: vertical-stack
+          title: Updates
+        card_param: cards
+        filter:
+          include:
+            - entity_id: binary_sensor.*update_available
+              state: "on"
+              options:
+                type: tile
+            - domain: update
+              state: "on"
+              options:
+                type: tile
+          exclude:
+            - integration: unifi
+            - state: unavailable
+            - state: unknown
+        sort:
+          method: name
+      - type: custom:auto-entities
+        show_empty: false
+        card:
+          type: vertical-stack
+          title: Batteries
+        card_param: cards
+        filter:
+          include:
+            - domain: sensor
+              attributes:
+                device_class: battery
+              state: "<= 25"
+              options:
+                type: tile
+            - domain: sensor
+              attributes:
+                device_class: battery
+              state: unavailable
+              options:
+                type: tile
+            - domain: sensor
+              attributes:
+                device_class: battery
+              state: unknown
+              options:
+                type: tile
+        sort:
+          method: state
+          numeric: true

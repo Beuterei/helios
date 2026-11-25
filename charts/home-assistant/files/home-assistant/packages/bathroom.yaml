@@ -1,0 +1,17 @@
+light:
+  - platform: group
+    unique_id: bathroom_lights
+    name: Bathroom Lights
+    entities:
+      - light.bathroom_light
+
+automation:
+  - id: bathroom_light
+    alias: Bathroom Light
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Bathroom Switch/action
+    actions:
+      - action: light.toggle
+        target:
+          entity_id: light.bathroom_lights

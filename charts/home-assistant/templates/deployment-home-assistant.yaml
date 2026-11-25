@@ -1,0 +1,211 @@
+{{- $files := "files/home-assistant/" }}
+# The config checksum rolls the pod, so a pushed package or dashboard takes effect without a manual reload.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-assistant
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: home-assistant
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: home-assistant
+  template:
+    metadata:
+      labels:
+        {{- include "home-assistant.labels" . | nindent 8 }}
+        app.kubernetes.io/component: home-assistant
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-home-assistant.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # Writes the HTTP settings from git into storage, so an HTTP change made in the UI is overwritten.
+        - name: storage
+          image: "{{ .Values.homeAssistant.image.repository }}:{{ .Values.homeAssistant.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "mkdir -p /config/.storage && cp /seed/http.json /config/.storage/http"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: seed
+              mountPath: /seed
+              readOnly: true
+        # hpm ci deletes the package folders before it downloads, so it installs into a staging folder.
+        # A failed install keeps the packages already on the claim, so a GitHub outage does not block the start.
+        # The binary is cached on the claim per version.
+        - name: hpm
+          image: "{{ .Values.homeAssistant.image.repository }}:{{ .Values.homeAssistant.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              bin="/config/.hpm/hpm-${HPM_VERSION}"
+              if [ ! -x "$bin" ]; then
+                mkdir -p /config/.hpm
+                rm -f /config/.hpm/hpm-*
+                curl -fsSL -o "$bin.tmp" "https://github.com/Beuterei/hacs-package-manager/releases/download/${HPM_VERSION}/hpm-linux-x64-musl-modern"
+                chmod +x "$bin.tmp"
+                mv "$bin.tmp" "$bin"
+              fi
+              rm -rf /tmp/staging
+              if "$bin" ci --configPath=/hpm/hpm.json --haConfigPath=/tmp/staging; then
+                for dir in custom_components www/community; do
+                  rm -rf "/config/$dir"
+                  mkdir -p "$(dirname "/config/$dir")"
+                  if [ -d "/tmp/staging/$dir" ]; then
+                    cp -r "/tmp/staging/$dir" "/config/$dir"
+                  fi
+                done
+              elif [ -d /config/custom_components ] || [ -d /config/www/community ]; then
+                echo "hpm ci failed, keeping the installed packages" >&2
+              else
+                exit 1
+              fi
+          env:
+            - name: HOME
+              value: /tmp
+            - name: HPM_VERSION
+              value: {{ .Values.homeAssistant.hpm.version | quote }}
+            - name: HPM_GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: hpm-github-token
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: hpm
+              mountPath: /hpm
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        - name: home-assistant
+          image: "{{ .Values.homeAssistant.image.repository }}:{{ .Values.homeAssistant.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: {{ .Values.timeZone | quote }}
+            - name: LATITUDE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: latitude
+            - name: LONGITUDE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: longitude
+            - name: DOOR_BUZZER_WEBHOOK_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: door-buzzer-webhook-id
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secretName }}
+                  key: password
+            - name: RECORDER_DB_URL
+              value: "postgresql://{{ .Values.postgres.user }}:$(POSTGRES_PASSWORD)@postgres-rw:5432/{{ .Values.postgres.database }}"
+          ports:
+            - name: http
+              containerPort: 8123
+          # The manifest is served without a session.
+          startupProbe:
+            httpGet:
+              path: /manifest.json
+              port: http
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /manifest.json
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /manifest.json
+              port: http
+            periodSeconds: 30
+            failureThreshold: 5
+          resources:
+            {{- toYaml .Values.homeAssistant.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: configuration
+              mountPath: /config/configuration.yaml
+              subPath: configuration.yaml
+              readOnly: true
+            - name: packages
+              mountPath: /config/packages
+              readOnly: true
+            - name: dashboards
+              mountPath: /config/dashboards
+              readOnly: true
+            - name: www
+              mountPath: /config/www/custom
+              readOnly: true
+            - name: sounds
+              mountPath: /media/sounds
+              readOnly: true
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: home-assistant-config
+        - name: tmp
+          emptyDir: {}
+        - name: configuration
+          configMap:
+            name: home-assistant
+            items:
+              - key: configuration.yaml
+                path: configuration.yaml
+        - name: hpm
+          configMap:
+            name: home-assistant
+            items:
+              - key: hpm.json
+                path: hpm.json
+        - name: seed
+          configMap:
+            name: home-assistant
+            items:
+              - key: http.json
+                path: http.json
+        {{- range $dir, $volume := dict "packages" "packages" "dashboards" "dashboards" "www" "www" "media" "sounds" }}
+        - name: {{ $volume }}
+          configMap:
+            name: home-assistant
+            items:
+              {{- range $path, $_ := $.Files.Glob (printf "%s%s/**" $files $dir) }}
+              {{- $rel := trimPrefix $files $path }}
+              - key: {{ include "home-assistant.fileKey" $rel }}
+                path: {{ trimPrefix (printf "%s/" $dir) $rel }}
+              {{- end }}
+        {{- end }}

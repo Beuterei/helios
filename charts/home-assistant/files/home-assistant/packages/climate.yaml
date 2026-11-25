@@ -1,0 +1,65 @@
+# The Zigbee heaters are switches, so the thermostats live here.
+climate:
+  - platform: generic_thermostat
+    unique_id: living_room_thermostat
+    name: Living Room
+    heater: switch.living_room_heater
+    target_sensor: sensor.living_room_thermostat_temperature
+    target_temp: 19
+    max_temp: 25
+    away_temp: 18
+    home_temp: 21
+    sleep_temp: 20
+
+  - platform: generic_thermostat
+    unique_id: bedroom_thermostat
+    name: Bedroom
+    heater: switch.bedroom_heater
+    target_sensor: sensor.bedroom_thermostat_temperature
+    target_temp: 19
+    max_temp: 25
+    away_temp: 18
+    home_temp: 21
+    sleep_temp: 20
+
+binary_sensor:
+  - platform: group
+    unique_id: all_windows_group
+    name: All Windows
+    device_class: opening
+    entities:
+      - binary_sensor.living_room_window_contact
+      - binary_sensor.bedroom_window_contact
+
+automation:
+  # The delay keeps a window opened for a moment from switching the heating.
+  - id: windows_open
+    alias: Some Windows Open
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.all_windows
+        to:
+          - "on"
+          - "off"
+        for:
+          seconds: 30
+    actions:
+      - action: "climate.turn_{{ 'on' if trigger.to_state.state == 'off' else 'off' }}"
+        target:
+          entity_id: all
+
+  - id: morning_prepare
+    alias: Morning Prepare
+    triggers:
+      - trigger: time
+        at: "08:30:00"
+    conditions:
+      - condition: state
+        entity_id: person.luis_beu
+        state: home
+    actions:
+      - action: climate.set_preset_mode
+        target:
+          entity_id: all
+        data:
+          preset_mode: home

@@ -1,0 +1,66 @@
+# Zigbee2MQTT publishes each button press on the switch's action topic.
+# The topic carries the friendly name, so a rename in Zigbee2MQTT breaks these triggers.
+light:
+  - platform: group
+    unique_id: living_room_lights
+    name: Living Room Lights
+    entities:
+      - light.living_room_dining_table_light
+      - light.living_room_coffee_table_light
+      - light.living_room_couch_light
+      - light.emergency_exit_sign
+      - light.treehouse_light
+
+automation:
+  - id: coffe_table_light
+    alias: Coffee Table Light
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Living Room Switch/action
+        payload: press_1
+      - trigger: mqtt
+        topic: zigbee2mqtt/Living Room Switch/action
+        payload: press_2
+    actions:
+      - action: "light.turn_{{ 'on' if trigger.payload == 'press_1' else 'off' }}"
+        target:
+          entity_id: light.living_room_coffee_table_light
+
+  - id: dining_table_light
+    alias: Dining Table Light
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Living Room Switch/action
+        payload: press_3
+      - trigger: mqtt
+        topic: zigbee2mqtt/Living Room Switch/action
+        payload: press_4
+    actions:
+      - action: "light.turn_{{ 'on' if trigger.payload == 'press_3' else 'off' }}"
+        target:
+          entity_id: light.living_room_dining_table_light
+
+  - id: living_room_lights
+    alias: Living Room Lights
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Living Room Switch/action
+        payload: press_1_and_3
+      - trigger: mqtt
+        topic: zigbee2mqtt/Living Room Switch/action
+        payload: press_2_and_4
+    actions:
+      - action: "light.turn_{{ 'on' if trigger.payload == 'press_1_and_3' else 'off' }}"
+        target:
+          entity_id: light.living_room_lights
+
+  - id: living_room_couch_switch
+    alias: Living Room Couch Switch
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Living Room Couch Switch/action
+        payload: single
+    actions:
+      - action: light.toggle
+        target:
+          entity_id: light.living_room_lights

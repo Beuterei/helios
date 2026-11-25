@@ -1,0 +1,41 @@
+# The simple group leaves out the workbench, so the bed and desk switches skip it.
+light:
+  - platform: group
+    unique_id: bedroom_lights
+    name: Bedroom Lights
+    entities:
+      - light.bedroom_light
+      - light.bedroom_workbench_light
+      - light.bedroom_desk_backlight
+
+  - platform: group
+    unique_id: bedroom_lights_simple
+    name: Bedroom Lights simple
+    entities:
+      - light.bedroom_light
+      - light.bedroom_desk_backlight
+
+automation:
+  - id: bedroom_light
+    alias: Bedroom Light
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Bedroom Desk Switch/action
+        payload: left_press
+      - trigger: mqtt
+        topic: zigbee2mqtt/Bedroom Bed Switch/action
+    actions:
+      - action: light.toggle
+        target:
+          entity_id: light.bedroom_lights_simple
+
+  - id: bedroom_workbench_light
+    alias: Workbench Light
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Bedroom Workbench Button/action
+        payload: press
+    actions:
+      - action: light.toggle
+        target:
+          entity_id: light.bedroom_workbench_light

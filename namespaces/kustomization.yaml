@@ -18,3 +18,4 @@ resources:
   - pocket-id.yaml
   - norish.yaml
   - isponsorblocktv.yaml
+  - home-assistant.yaml

@@ -1,0 +1,94 @@
+# The Home Assistant SOPS secret holds the coordinates, the door buzzer webhook id, and the hpm GitHub token.
+secretName: home-assistant
+
+timeZone: Europe/Berlin
+publicURL: https://home.luisbeu.de
+# Traefik runs in the pod CIDR.
+trustProxy: 10.42.0.0/16
+# ESPHome, the kiosk tablet, and the Nuki lock live on the LAN.
+lanCIDR: 192.168.1.0/24
+
+ingress:
+  className: traefik
+  tlsSecret: luisbeu-de-tls
+
+storageClass: local-path
+
+homeAssistant:
+  image:
+    repository: ghcr.io/home-assistant/home-assistant
+    tag: "2026.11.3"
+  # Custom cards and integrations from the pinned hpm.json.
+  # Change a package with hpm add, which pins its files to the release.
+  hpm:
+    version: "0.2.0"
+  persistence:
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+zigbee2mqtt:
+  image:
+    repository: docker.io/koenkk/zigbee2mqtt
+    tag: "2.14.3"
+  # The Zigbee2MQTT SOPS secret holds the network key and the frontend token.
+  secretName: zigbee2mqtt
+  publicURL: https://zigbee.luisbeu.de
+  # Advertised by the zigbee generic-cdi-plugin release.
+  # The CDI spec on the host maps the ConBee to this path.
+  device:
+    resource: luisbeu.de/zigbee-conbee
+    path: /dev/zigbee
+    # The CDI spec gives the node to the host dialout group.
+    group: 27
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+mosquitto:
+  image:
+    repository: docker.io/library/eclipse-mosquitto
+    tag: "2.1.4-alpine"
+  # The Mosquitto SOPS secret holds one password per client.
+  secretName: mosquitto
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      memory: 128Mi
+
+postgres:
+  image:
+    repository: ghcr.io/cloudnative-pg/postgresql
+    tag: "18.6"
+  user: homeassistant
+  database: homeassistant
+  # CloudNativePG reads the keys username and password.
+  secretName: home-assistant-postgres
+  persistence:
+    size: 10Gi
+  # 04:00 Europe/Berlin. The operator clock is that zone.
+  # An hour before the Velero daily backup.
+  backup:
+    destinationPath: s3://backup-lb/cnpg/home-assistant
+    endpointURL: https://nbg1.your-objectstorage.com
+    schedule: "0 0 4 * * *"
+    retentionPolicy: 30d
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 1Gi

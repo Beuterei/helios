@@ -1,0 +1,17 @@
+automation:
+  # The socket idles below the threshold, so a short dip mid-cycle does not count.
+  - id: washing_machine_finished
+    alias: Washing machine finished
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.bathroom_washing_machine_socket_power
+        below: 2
+        for:
+          seconds: 120
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.from_state.state not in ['unknown', 'unavailable'] }}"
+    actions:
+      - action: notify.notify
+        data:
+          message: Washing machine finished!

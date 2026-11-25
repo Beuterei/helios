@@ -1,0 +1,97 @@
+# An init container copies this file over the claim copy on every start, so a rename belongs here.
+# The network key, the MQTT password, and the frontend token come from env vars.
+version: 5
+
+homeassistant:
+  enabled: true
+
+frontend:
+  enabled: true
+  port: 8080
+  url: https://zigbee.luisbeu.de
+
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://mosquitto:1883
+  user: zigbee2mqtt
+
+serial:
+  port: /dev/zigbee
+  adapter: deconz
+
+# The adapter compares these and the key with the network stored on the ConBee.
+# Any difference makes it rewrite the stick, and every paired device drops off.
+# These are the Zigbee2MQTT defaults, which the old config never overrode.
+advanced:
+  pan_id: 6754
+  ext_pan_id: [221, 221, 221, 221, 221, 221, 221, 221]
+  channel: 11
+  log_output:
+    - console
+
+availability:
+  enabled: true
+
+devices:
+  '0x44e2f8fffe239e10':
+    friendly_name: Living Room Thermostat
+  '0x44e2f8fffe33a949':
+    friendly_name: Bedroom Thermostat
+  '0x44e2f8fffe33aed7':
+    friendly_name: Kitchen Thermostat
+  '0x44e2f8fffe33b931':
+    friendly_name: Bathroom Thermostat
+  '0x44e2f8fffe27efaf':
+    friendly_name: Toilet Thermostat
+  '0xc4988600000f774f':
+    friendly_name: Living Room Heater
+  '0xc4988600000f9b7b':
+    friendly_name: Bedroom Heater
+  '0x00178801067afd51':
+    friendly_name: Living Room Dining Table Light
+  '0x00178801093da33f':
+    friendly_name: Living Room Coffee Table Light
+  '0x001788010bb3f847':
+    friendly_name: Bedroom Workbench Light
+  '0x001788010c0b0a14':
+    friendly_name: Bedroom Light
+  '0x001788010bb578aa':
+    friendly_name: Bathroom Light
+  '0x001788010c01960e':
+    friendly_name: Kitchen Light
+  '0x001788010e2cd614':
+    friendly_name: Bedroom Desk Backlight
+  '0x001788010e311547':
+    friendly_name: Kitchen Workbench Light
+  '0x0000000001739bb6':
+    friendly_name: Living Room Switch
+  '0x001788010cc3328c':
+    friendly_name: Bedroom Desk Switch
+  '0x001788010cc3328e':
+    friendly_name: Bedroom Bed Switch
+  '0x001788010cc3328f':
+    friendly_name: Bathroom Switch
+  '0x001788010cc3328d':
+    friendly_name: Kitchen Switch
+  '0x00158d0008d9423c':
+    friendly_name: Living Room Window
+  '0x00158d000891f691':
+    friendly_name: Bedroom Window
+  '0x00178801089632dc':
+    friendly_name: Bedroom Workbench Button
+  '0x00158d0009f50653':
+    friendly_name: One Button To Rule Them All
+  '0xa4c1380991781f75':
+    friendly_name: Bathroom Washing Machine Socket
+  '0xa4c13844a7381525':
+    friendly_name: Bedroom Desk Plant
+  '0x842712fffe825860':
+    friendly_name: Leak Kitchen
+  '0x842712fffe7b61af':
+    friendly_name: Leak Bathroom
+  '0xa4c138aedd4100d7':
+    friendly_name: Present Detector
+  '0x001788010fb0331d':
+    friendly_name: Living Room Couch Light
+  '0x00158d008c746459':
+    friendly_name: Living Room Couch Switch

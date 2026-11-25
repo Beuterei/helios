@@ -1,0 +1,31 @@
+automation:
+  # The webhook has no other authentication, so its id is in the Home Assistant SOPS secret.
+  # Remote callers reach it through the Nabu Casa cloudhook.
+  - id: door_buzzer
+    alias: Door Buzzer
+    triggers:
+      - trigger: webhook
+        webhook_id: !env_var DOOR_BUZZER_WEBHOOK_ID
+        allowed_methods:
+          - POST
+        local_only: false
+    actions:
+      - action: button.press
+        target:
+          entity_id: button.door_buzzer
+
+  # The going-out notification offers this action.
+  - id: lock_door
+    alias: Lock Door
+    triggers:
+      - trigger: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: lock_door
+    actions:
+      - action: lock.lock
+        target:
+          entity_id: lock.home_door
+      - action: notify.notify
+        data:
+          message: Door is locked

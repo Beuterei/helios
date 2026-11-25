@@ -26,10 +26,12 @@
         "apps/paperless.yaml",
         "apps/pocket-id.yaml",
         "apps/norish.yaml",
+        "apps/home-assistant.yaml",
         "apps/oauth2-proxy-norish.yaml",
         "apps/oauth2-proxy-paperless.yaml",
         "apps/oauth2-proxy-open-webui.yaml",
-        "platform/generic-cdi-plugin.yaml"
+        "platform/generic-cdi-plugin.yaml",
+        "platform/generic-cdi-plugin-zigbee.yaml"
       ],
       "matchDepTypes": ["HelmChart"],
       "enabled": false

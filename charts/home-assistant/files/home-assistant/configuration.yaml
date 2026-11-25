@@ -1,0 +1,57 @@
+# Helm renders this file with tpl, so the chart values own the host and zone.
+# Home Assistant keeps the HTTP settings in storage, so http.json carries the proxy range.
+# Everything else lives in packages and dashboards.
+homeassistant:
+  name: Home
+  # The coordinates are in the Home Assistant SOPS secret, because the repo is public.
+  latitude: !env_var LATITUDE
+  longitude: !env_var LONGITUDE
+  elevation: 532
+  unit_system: metric
+  time_zone: {{ .Values.timeZone }}
+  currency: EUR
+  country: DE
+  language: en
+  internal_url: {{ .Values.publicURL }}
+  media_dirs:
+    local: /media
+  packages: !include_dir_named packages
+
+default_config:
+
+recorder:
+  db_url: !env_var RECORDER_DB_URL
+  purge_keep_days: 30
+
+lovelace:
+  resource_mode: yaml
+  dashboards:
+    overview-dashboard:
+      mode: yaml
+      title: Overview
+      icon: mdi:view-dashboard
+      show_in_sidebar: true
+      filename: dashboards/overview.yaml
+    rooms-dashboard:
+      mode: yaml
+      title: Rooms
+      icon: mdi:home
+      show_in_sidebar: true
+      filename: dashboards/rooms/rooms.yaml
+    kiosk-dashboard:
+      mode: yaml
+      title: Kiosk
+      icon: mdi:tablet-dashboard
+      show_in_sidebar: false
+      filename: dashboards/kiosk/kiosk.yaml
+  resources:
+    - url: /local/community/mushroom.js
+      type: module
+    - url: /local/community/mini-graph-card-bundle.js
+      type: module
+    - url: /local/community/auto-entities.js
+      type: module
+    - url: /local/community/kiosk-mode.js
+      type: module
+    - url: /local/custom/kiosk-scroll-indicator.js
+      type: module

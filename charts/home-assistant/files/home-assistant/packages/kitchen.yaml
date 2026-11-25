@@ -1,0 +1,18 @@
+light:
+  - platform: group
+    unique_id: kitchen_lights
+    name: Kitchen Lights
+    entities:
+      - light.kitchen_light
+      - light.kitchen_workbench_light
+
+automation:
+  - id: kitchen_light
+    alias: Kitchen Light
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/Kitchen Switch/action
+    actions:
+      - action: light.toggle
+        target:
+          entity_id: light.kitchen_lights
