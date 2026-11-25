@@ -6,6 +6,8 @@ Home Assistant with Zigbee2MQTT, Mosquitto, and a CloudNativePG recorder databas
 
 Flux applies `apps/home-assistant.yaml` in namespace `home-assistant`, from `charts/home-assistant`. The Home Assistant files live in that chart's `files/`: `configuration.yaml` holds the base setup, `packages/` holds one package per room or concern, and the dashboards are YAML. A change to any of them rolls the pod, so it takes effect on the next reconcile.
 
+Home Assistant keeps its HTTP settings in storage and ignores `http:` in YAML, so `http.json` in the same folder carries the reverse-proxy settings. An init container writes it as the confirmed config on every start, which overwrites an HTTP change made in the UI.
+
 An init container installs the custom cards and integrations pinned in `hpm.json` on every start. It keeps the installed set when GitHub is unreachable, so a restart does not depend on GitHub. Change a package with `hpm add <repo>@<tag>` against that file, because `hpm` pins the files of that release.
 
 Zigbee2MQTT's `configuration.yaml` replaces the claim copy on every start, so rename a device in git and not in the frontend. The friendly names are the MQTT topics the switch automations listen on.

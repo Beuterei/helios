@@ -10,6 +10,11 @@ metadata:
 data:
   configuration.yaml: |
 {{ tpl (.Files.Get "files/home-assistant/configuration.yaml") . | indent 4 }}
+  # Home Assistant reads its HTTP settings only from storage, and holds a changed config
+  # as pending until someone confirms it in the UI.
+  # The init container writes this as the confirmed config, so the proxy settings come from git.
+  http.json: |
+{{ tpl (.Files.Get "files/home-assistant/http.json") . | indent 4 }}
   hpm.json: |
 {{ .Files.Get "files/home-assistant/hpm.json" | indent 4 }}
 {{- range $path, $_ := .Files.Glob "files/home-assistant/{packages,dashboards,www}/**" }}

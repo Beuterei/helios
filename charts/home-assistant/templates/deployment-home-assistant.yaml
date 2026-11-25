@@ -30,6 +30,23 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       initContainers:
+        # Overwrites any HTTP change made in the UI, because git owns the proxy settings.
+        - name: http-config
+          image: "{{ .Values.homeAssistant.image.repository }}:{{ .Values.homeAssistant.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "mkdir -p /config/.storage && cp /seed/http.json /config/.storage/http"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: http-config
+              mountPath: /seed
+              readOnly: true
         # hpm ci deletes the package folders before it downloads, so it installs into a staging folder.
         # A failed install keeps the packages already on the claim, so a GitHub outage does not block the start.
         # The binary is cached on the claim per version.
@@ -175,6 +192,12 @@ spec:
             items:
               - key: hpm.json
                 path: hpm.json
+        - name: http-config
+          configMap:
+            name: home-assistant
+            items:
+              - key: http.json
+                path: http.json
         {{- range $dir, $volume := dict "packages" "packages" "dashboards" "dashboards" "www" "www" "media" "sounds" }}
         - name: {{ $volume }}
           configMap:
