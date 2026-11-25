@@ -8,8 +8,8 @@ climate:
     target_temp: 19
     max_temp: 25
     away_temp: 18
-    home_temp: 20
-    sleep_temp: 19
+    home_temp: 21
+    sleep_temp: 20
 
   - platform: generic_thermostat
     unique_id: bedroom_thermostat
@@ -19,8 +19,8 @@ climate:
     target_temp: 19
     max_temp: 25
     away_temp: 18
-    home_temp: 20
-    sleep_temp: 19
+    home_temp: 21
+    sleep_temp: 20
 
 binary_sensor:
   - platform: group

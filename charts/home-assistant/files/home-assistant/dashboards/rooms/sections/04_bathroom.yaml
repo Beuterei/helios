@@ -9,6 +9,8 @@ cards:
     sensor_classes: []
     type: area
     area: bathroom
+    grid_options:
+      columns: full
   - type: custom:mushroom-light-card
     entity: light.bathroom_lights
     use_light_color: true

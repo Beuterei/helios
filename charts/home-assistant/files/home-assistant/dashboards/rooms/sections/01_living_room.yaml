@@ -3,9 +3,6 @@ cards:
   - type: heading
     heading_style: title
     heading: Living Room
-    grid_options:
-      rows: 1
-      columns: full
     badges:
       - type: entity
         entity: binary_sensor.living_room_window_contact
@@ -14,6 +11,8 @@ cards:
     sensor_classes: []
     type: area
     area: living_room
+    grid_options:
+      columns: full
   - type: custom:mushroom-light-card
     entity: light.living_room_lights
     use_light_color: true

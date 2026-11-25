@@ -101,15 +101,19 @@ views:
       - type: custom:auto-entities
         show_empty: false
         card:
-          type: entities
+          type: vertical-stack
           title: Updates
-          state_color: true
+        card_param: cards
         filter:
           include:
             - entity_id: binary_sensor.*update_available
               state: "on"
+              options:
+                type: tile
             - domain: update
               state: "on"
+              options:
+                type: tile
           exclude:
             - integration: unifi
             - state: unavailable
@@ -119,23 +123,29 @@ views:
       - type: custom:auto-entities
         show_empty: false
         card:
-          type: entities
+          type: vertical-stack
           title: Batteries
-          state_color: true
+        card_param: cards
         filter:
           include:
             - domain: sensor
               attributes:
                 device_class: battery
               state: "<= 25"
+              options:
+                type: tile
             - domain: sensor
               attributes:
                 device_class: battery
               state: unavailable
+              options:
+                type: tile
             - domain: sensor
               attributes:
                 device_class: battery
               state: unknown
+              options:
+                type: tile
         sort:
           method: state
           numeric: true

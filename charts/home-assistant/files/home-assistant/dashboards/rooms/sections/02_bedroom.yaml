@@ -11,6 +11,8 @@ cards:
     sensor_classes: []
     type: area
     area: bedroom
+    grid_options:
+      columns: full
   - type: custom:mushroom-light-card
     entity: light.bedroom_lights
     use_light_color: true
