@@ -118,6 +118,8 @@ spec:
           paperless.luisbeu.de: 192.168.1.151
           recipe.luisbeu.de: 192.168.1.151
           webdav-paperless.luisbeu.de: 192.168.1.151
+          home.luisbeu.de: 192.168.1.151
+          zigbee.luisbeu.de: 192.168.1.151
 
       rebindingProtection:
         enable: true
@@ -127,6 +129,8 @@ spec:
           - paperless.luisbeu.de
           - recipe.luisbeu.de
           - webdav-paperless.luisbeu.de
+          - home.luisbeu.de
+          - zigbee.luisbeu.de
 
       blocking:
         denylists:

@@ -1,0 +1,48 @@
+# The toothbrush reaches Home Assistant through the ESPHome Bluetooth proxy.
+sensor:
+  - platform: statistics
+    unique_id: max_brush_time_12h
+    name: Max Brush Time Last 12h
+    entity_id: sensor.toothbrush_time
+    state_characteristic: value_max
+    max_age:
+      hours: 12
+
+automation:
+  # Ten minutes between reminders, so getting back into bed does not repeat it.
+  - id: bed_occupied_brush_reminder
+    alias: Bed Occupied Brush Reminder
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.bed_tracker_bed_tracker_occupied
+        to: "on"
+    conditions:
+      - condition: time
+        after: "22:00:00"
+        before: "06:00:00"
+      - condition: numeric_state
+        entity_id: sensor.max_brush_time_last_12h
+        below: 120
+      - condition: template
+        value_template: >-
+          {{ this.attributes.last_triggered is none
+             or now() - this.attributes.last_triggered > timedelta(minutes=10) }}
+    actions:
+      - action: media_player.volume_set
+        target:
+          entity_id: media_player.kiosk
+        data:
+          volume_level: 1
+      - action: media_player.play_media
+        target:
+          entity_id: media_player.kiosk
+        data:
+          media_content_id: media-source://media_source/local/sounds/notify.mp3
+          media_content_type: music
+      - action: notify.mobile_app_luis_handy
+        data:
+          title: Brush your teeth
+          message: Brush your teeth, you filthy idiot <3
+          data:
+            ttl: 0
+            priority: high

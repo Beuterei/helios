@@ -1,0 +1,52 @@
+{{- $sc := .Values.storageClass }}
+# Holds the UI state, the installed hpm packages, and the hpm binary.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-config
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: home-assistant
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.homeAssistant.persistence.size }}
+---
+# Holds the device database and the coordinator backup, which keep the paired devices.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zigbee2mqtt-data
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: zigbee2mqtt
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.zigbee2mqtt.persistence.size }}
+---
+# Zigbee2MQTT republishes discovery and state, so the claim is left out of Velero.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mosquitto-data
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mosquitto
+    helios.luisbeu.de/backup: skip
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $sc }}
+  resources:
+    requests:
+      storage: {{ .Values.mosquitto.persistence.size }}

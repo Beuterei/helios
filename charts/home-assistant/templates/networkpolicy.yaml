@@ -1,0 +1,207 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-same-namespace
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+---
+# Traefik serves the UI.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: home-assistant
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: home-assistant
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8123
+---
+# Home Assistant controls LAN devices on their own ports and calls cloud APIs and GitHub.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: home-assistant-egress
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: home-assistant
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - podSelector: {}
+    - to:
+        - ipBlock:
+            cidr: {{ .Values.homeAssistant.lanCIDR | quote }}
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 127.0.0.0/8
+              - 169.254.0.0/16
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zigbee2mqtt-from-traefik
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: zigbee2mqtt
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+# Zigbee2MQTT talks to the broker and fetches the OTA index and firmware.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zigbee2mqtt-egress
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: zigbee2mqtt
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "home-assistant.labels" . | nindent 14 }}
+              app.kubernetes.io/component: mosquitto
+      ports:
+        - protocol: TCP
+          port: 1883
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 127.0.0.0/8
+              - 169.254.0.0/16
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+---
+# The broker only answers clients.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mosquitto-egress
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: mosquitto
+  policyTypes:
+    - Egress
+---
+# The operator reads instance status on the status port.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-from-cnpg
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cnpg-system
+      ports:
+        - protocol: TCP
+          port: 8000

@@ -1,0 +1,9 @@
+# Discovery and the birth message use the homeassistant prefix.
+# Zigbee2MQTT publishes device state and reads commands under its base topic.
+user homeassistant
+topic readwrite homeassistant/#
+topic readwrite zigbee2mqtt/#
+
+user zigbee2mqtt
+topic readwrite homeassistant/#
+topic readwrite zigbee2mqtt/#

@@ -1,0 +1,22 @@
+# Every Home Assistant file from git.
+# The deployment mounts each folder from its own items, so packages, dashboards, and assets land at their paths.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: home-assistant
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: home-assistant
+data:
+  configuration.yaml: |
+{{ tpl (.Files.Get "files/home-assistant/configuration.yaml") . | indent 4 }}
+  hpm.json: |
+{{ .Files.Get "files/home-assistant/hpm.json" | indent 4 }}
+{{- range $path, $_ := .Files.Glob "files/home-assistant/{packages,dashboards,www}/**" }}
+  {{ include "home-assistant.fileKey" (trimPrefix "files/home-assistant/" $path) }}: |
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}
+binaryData:
+{{- range $path, $_ := .Files.Glob "files/home-assistant/media/*" }}
+  {{ include "home-assistant.fileKey" (trimPrefix "files/home-assistant/" $path) }}: {{ $.Files.Get $path | b64enc }}
+{{- end }}

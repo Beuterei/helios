@@ -1,0 +1,77 @@
+# Leaving sets the heating to away and reports what is still on or open.
+# The notification actions are handled in the lighting and entrance packages.
+automation:
+  - id: coming_home
+    alias: Coming Home
+    triggers:
+      - trigger: state
+        entity_id: person.luis_beu
+        to: home
+    actions:
+      - action: climate.set_preset_mode
+        target:
+          entity_id: all
+        data:
+          preset_mode: home
+
+  - id: going_out
+    alias: Going Out
+    triggers:
+      - trigger: state
+        entity_id: person.luis_beu
+        to: not_home
+    actions:
+      - action: climate.set_preset_mode
+        target:
+          entity_id: all
+        data:
+          preset_mode: away
+      # Light groups are left out, so each light is listed once.
+      - variables:
+          lights_on: >-
+            {{ states.light
+               | selectattr('state', 'eq', 'on')
+               | rejectattr('attributes.entity_id', 'defined')
+               | map(attribute='name') | list }}
+      - if:
+          - condition: template
+            value_template: "{{ lights_on | count > 0 }}"
+        then:
+          - action: notify.notify
+            data:
+              title: Lights left on
+              message: >-
+                The following lights are still on:
+                {% for name in lights_on %}
+                  - {{ name }}
+                {% endfor %}
+              data:
+                actions:
+                  - action: turn_off_lights
+                    title: Turn off lights
+      - if:
+          - condition: state
+            entity_id: binary_sensor.all_windows
+            state: "on"
+        then:
+          - action: notify.notify
+            data:
+              title: Windows open
+              message: >-
+                The following windows are open:
+                {% for window in expand('binary_sensor.all_windows') | selectattr('state', 'eq', 'on') %}
+                  - {{ window.name }}
+                {% endfor %}
+      - if:
+          - condition: state
+            entity_id: lock.home_door
+            state: unlocked
+        then:
+          - action: notify.notify
+            data:
+              title: Door unlocked
+              message: The door is unlocked
+              data:
+                actions:
+                  - action: lock_door
+                    title: Lock door

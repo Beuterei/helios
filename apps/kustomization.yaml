@@ -11,3 +11,4 @@ resources:
   - norish.yaml
   - oauth2-proxy-norish.yaml
   - isponsorblocktv.yaml
+  - home-assistant.yaml

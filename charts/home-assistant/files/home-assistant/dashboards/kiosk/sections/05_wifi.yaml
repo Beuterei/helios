@@ -1,0 +1,20 @@
+type: grid
+column_span: 2
+cards:
+  - type: heading
+    heading_style: title
+    heading: WiFi
+    icon: mdi:wifi
+    grid_options:
+      columns: full
+      rows: 1
+  - type: tile
+    entity: image.winternetiscoming_qr_code
+    name: WinternetIsComing · Tap to show QR code
+    icon: mdi:qrcode-scan
+    color: blue
+    hide_state: true
+    tap_action:
+      action: more-info
+    grid_options:
+      columns: full

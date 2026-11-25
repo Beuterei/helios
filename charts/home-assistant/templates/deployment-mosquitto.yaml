@@ -1,0 +1,119 @@
+{{- $m := .Values.mosquitto }}
+# Mosquitto refuses a password file that others can read, so the init container writes it with owner-only permissions.
+# The init container copies the ACL for the same reason.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mosquitto
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: mosquitto
+  template:
+    metadata:
+      labels:
+        {{- include "home-assistant.labels" . | nindent 8 }}
+        app.kubernetes.io/component: mosquitto
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-mosquitto.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1883
+        runAsGroup: 1883
+        fsGroup: 1883
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: auth
+          image: "{{ $m.image.repository }}:{{ $m.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              umask 077
+              : > /mosquitto/auth/passwd
+              mosquitto_passwd -b /mosquitto/auth/passwd homeassistant "$HOMEASSISTANT_PASSWORD"
+              mosquitto_passwd -b /mosquitto/auth/passwd zigbee2mqtt "$ZIGBEE2MQTT_PASSWORD"
+              cp /mosquitto/config/acl /mosquitto/auth/acl
+          env:
+            - name: HOMEASSISTANT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $m.secretName }}
+                  key: homeassistant-password
+            - name: ZIGBEE2MQTT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $m.secretName }}
+                  key: zigbee2mqtt-password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /mosquitto/config
+              readOnly: true
+            - name: auth
+              mountPath: /mosquitto/auth
+      containers:
+        - name: mosquitto
+          image: "{{ $m.image.repository }}:{{ $m.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["mosquitto", "-c", "/mosquitto/config/mosquitto.conf"]
+          ports:
+            - name: mqtt
+              containerPort: 1883
+          readinessProbe:
+            tcpSocket:
+              port: mqtt
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: mqtt
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml $m.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /mosquitto/config
+              readOnly: true
+            - name: auth
+              mountPath: /mosquitto/auth
+              readOnly: true
+            - name: data
+              mountPath: /mosquitto/data
+      volumes:
+        - name: config
+          configMap:
+            name: mosquitto
+        - name: auth
+          emptyDir:
+            medium: Memory
+        - name: data
+          persistentVolumeClaim:
+            claimName: mosquitto-data

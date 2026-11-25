@@ -1,0 +1,50 @@
+{
+  "piitaya/lovelace-mushroom": {
+    "category": "plugin",
+    "hacsConfig": {
+      "filename": "mushroom.js",
+      "name": "Mushroom"
+    },
+    "ref": "v5.3.0",
+    "refType": "tag",
+    "localReferences": [
+      "mushroom.js"
+    ],
+    "releaseUrl": "https://github.com/piitaya/lovelace-mushroom/releases/download/v5.3.0/mushroom.js"
+  },
+  "thomasloven/lovelace-auto-entities": {
+    "category": "plugin",
+    "hacsConfig": {
+      "name": "auto-entities"
+    },
+    "ref": "v1.16.1",
+    "refType": "tag",
+    "remoteFiles": [
+      "auto-entities.js"
+    ]
+  },
+  "kalkih/mini-graph-card": {
+    "category": "plugin",
+    "hacsConfig": {
+      "name": "mini-graph-card"
+    },
+    "ref": "v0.13.0",
+    "refType": "tag",
+    "localReferences": [
+      "mini-graph-card-bundle.js"
+    ],
+    "releaseUrl": "https://github.com/kalkih/mini-graph-card/releases/download/v0.13.0/mini-graph-card-bundle.js"
+  },
+  "NemesisRE/kiosk-mode": {
+    "category": "plugin",
+    "hacsConfig": {
+      "filename": "kiosk-mode.js",
+      "name": "Kiosk Mode"
+    },
+    "ref": "v16.0.0",
+    "refType": "tag",
+    "remoteFiles": [
+      "dist/kiosk-mode.js"
+    ]
+  }
+}

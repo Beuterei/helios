@@ -26,6 +26,7 @@ tasks:
       - helm template oauth2-proxy charts/oauth2-proxy --namespace norish -f charts/oauth2-proxy/ci/test-values.yaml > /dev/null
       - helm template oauth2-proxy charts/oauth2-proxy --namespace norish -f charts/oauth2-proxy/ci/test-values.yaml --set tunnel=true > /dev/null
       - helm template isponsorblocktv charts/isponsorblocktv --namespace isponsorblocktv > /dev/null
+      - helm template home-assistant charts/home-assistant --namespace home-assistant > /dev/null
       - kustomize build apps > /dev/null
       - kustomize build certs > /dev/null
       - kustomize build secrets > /dev/null

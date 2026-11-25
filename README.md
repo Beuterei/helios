@@ -24,10 +24,12 @@ Each service has one rebuild procedure in `docs/`. Flux applies the manifests, s
 | velero | `velero` | [docs/velero.md](docs/velero.md) |
 | cloudnative-pg | `cnpg-system` | [docs/cloudnative-pg.md](docs/cloudnative-pg.md) |
 | isponsorblocktv | `isponsorblocktv` | [docs/isponsorblocktv.md](docs/isponsorblocktv.md) |
+| home-assistant | `home-assistant` | [docs/home-assistant.md](docs/home-assistant.md) |
 
 ## Request path
 
 A LAN browser asks Blocky, which answers every published name with this node, so the browser opens Traefik. Traefik sends the Pocket ID host to Pocket ID and the WebDAV host to WebDAV. The Open WebUI, Paperless, and Norish hosts go to that namespace's oauth2-proxy, which proxies to the app. Without a session the gate redirects the browser to Pocket ID, which returns it to `/oauth2/callback` on the same host before the gate proxies to the app. An internet browser reaches Cloudflare and then cloudflared, and the tunnel serves only the Pocket ID host and the Norish gate.
+A LAN browser asks Blocky, which answers every published name with this node, so the browser opens Traefik. Traefik sends the Pocket ID host to Pocket ID, the WebDAV host to WebDAV, and the Home Assistant and Zigbee2MQTT hosts to those apps, which use their own sign-in. The Open WebUI, Paperless, and Norish hosts go to that namespace's oauth2-proxy, which proxies to the app. Without a session the gate redirects the browser to Pocket ID, which returns it to `/oauth2/callback` on the same host before the gate proxies to the app. An internet browser reaches Cloudflare and then cloudflared, and the tunnel serves only the Pocket ID host and the Norish gate.
 
 ```mermaid
 flowchart TB
@@ -54,11 +56,21 @@ flowchart TB
     webdav[WebDAV]
   end
 
+  subgraph home [home.luisbeu.de]
+    hass[Home Assistant]
+  end
+
+  subgraph zigbee [zigbee.luisbeu.de]
+    z2m[Zigbee2MQTT]
+  end
+
   traefik --> chatgate
   traefik --> docgate
   traefik --> recipegate
   traefik --> pocket
   traefik --> webdav
+  traefik --> hass
+  traefik --> z2m
   cloudflared --> recipegate
   cloudflared --> pocket
 
@@ -115,6 +127,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together without containing th
 | `sources` | Chart repositories |
 | `dns` | Blocky HelmRelease. Applied before the CoreDNS override |
 | `platform` | CDI plugin, CoreDNS override, secret reflector, and secret reloader |
+| `platform` | CDI plugins, CoreDNS override, secret reflector, and secret reloader |
 | `platform/cert-manager` | cert-manager HelmRelease (own Flux layer so CRDs are Ready before certs) |
 | `platform/cloudflared` | cloudflared HelmRelease and its egress allowlist (own Flux layer; waits for the tunnel token) |
 | `platform/velero` | Velero schedules and the node agent (own Flux layer; waits for the S3 secret) |
@@ -128,6 +141,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together without containing th
 | `charts/norish` | Chart for Norish; the release lives in `apps` |
 | `charts/oauth2-proxy` | Chart for the Pocket ID session gate; the releases live in `apps` |
 | `charts/isponsorblocktv` | Chart for iSponsorBlockTV; the release lives in `apps` |
+| `charts/home-assistant` | Chart for Home Assistant, Zigbee2MQTT, Mosquitto, and its Postgres; the release lives in `apps` |
 | `docs` | Rebuild procedure and docs for each service |
 | `Taskfile.yml` | `build`, `diff`, `reconcile`, `status`, `sops:encrypt`, `sops:edit`, `sops:decrypt`, `backup:restore` |
 
@@ -139,6 +153,7 @@ Flux layers (`clusters/helios/*.yaml`) wire these together without containing th
 2. **sources** — chart repos; no dependencies
 3. **dns** — Blocky. Waits for namespaces and sources
 4. **platform** — CDI plugin, CoreDNS override, the secret reflector, and the secret reloader. Waits for dns
+4. **platform** — CDI plugins, CoreDNS override, the secret reflector, and the secret reloader. Waits for dns
 5. **cert-manager** — waits for namespaces and sources, then the operator
 6. **cloudnative-pg** — waits for namespaces, sources, and cert-manager, then the operator and the Barman Cloud plugin
 7. **secrets** — waits for namespaces, then decrypts SOPS

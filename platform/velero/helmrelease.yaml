@@ -1,6 +1,7 @@
 # A mounted claim is copied, except claims labeled skip.
 # Postgres is left for CloudNativePG.
 # The paperless broker, the norish cache, and Ollama models are rebuilt or pulled.
+# The paperless broker, the norish cache, the Mosquitto store, and Ollama models are rebuilt or pulled.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

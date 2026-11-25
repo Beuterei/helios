@@ -1,0 +1,120 @@
+{{- $z := .Values.zigbee2mqtt }}
+{{- $resources := deepCopy $z.resources }}
+{{- $_ := set $resources.limits $z.device.resource 1 }}
+# One coordinator, so one pod.
+# The ConBee arrives through CDI, so the pod needs neither privileges nor a hostPath.
+# The onboarding server stays off, because git owns the configuration.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zigbee2mqtt
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: zigbee2mqtt
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: zigbee2mqtt
+  template:
+    metadata:
+      labels:
+        {{- include "home-assistant.labels" . | nindent 8 }}
+        app.kubernetes.io/component: zigbee2mqtt
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-zigbee2mqtt.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - {{ $z.device.group }}
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # Zigbee2MQTT writes to its configuration file, so it gets a copy on the claim.
+        - name: config
+          image: "{{ $z.image.repository }}:{{ $z.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["cp", "/seed/configuration.yaml", "/app/data/configuration.yaml"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: seed
+              mountPath: /seed
+              readOnly: true
+            - name: data
+              mountPath: /app/data
+      containers:
+        - name: zigbee2mqtt
+          image: "{{ $z.image.repository }}:{{ $z.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: {{ .Values.timeZone | quote }}
+            - name: Z2M_ONBOARD_NO_SERVER
+              value: "1"
+            # Zigbee2MQTT parses an array setting from JSON.
+            - name: ZIGBEE2MQTT_CONFIG_ADVANCED_NETWORK_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $z.secretName }}
+                  key: network-key
+            - name: ZIGBEE2MQTT_CONFIG_FRONTEND_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $z.secretName }}
+                  key: frontend-auth-token
+            - name: ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mosquitto.secretName }}
+                  key: zigbee2mqtt-password
+          ports:
+            - name: http
+              containerPort: 8080
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml $resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: zigbee2mqtt-data
+        - name: seed
+          configMap:
+            name: zigbee2mqtt

@@ -1,0 +1,104 @@
+# The DnD light remote sets the mood, and each cycle runs until the mood changes.
+input_select:
+  dnd_light_mood:
+    name: DND light mood
+    options:
+      - "None"
+      - Day
+      - Night
+      - Forest
+      - Thunderstorm
+    initial: "None"
+    icon: mdi:play-box-outline
+
+automation:
+  - id: forest_light_cycle
+    alias: Forest Light Cycle
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id: input_select.dnd_light_mood
+        to: Forest
+    variables:
+      rgb_values:
+        - [31, 128, 45] # Mossy green
+        - [60, 145, 32] # Leafy green
+        - [143, 188, 143] # darkseagreen
+        - [139, 170, 70] # Fern green
+        - [189, 208, 99] # Spring green
+        - [226, 234, 169] # Pale green
+        - [107, 142, 35] # olivedrab
+        - [173, 255, 47] # greenyellow
+    actions:
+      - repeat:
+          while:
+            - condition: state
+              entity_id: input_select.dnd_light_mood
+              state: Forest
+          sequence:
+            - action: light.turn_on
+              target:
+                entity_id:
+                  - light.living_room_dining_table_light
+                  - light.living_room_coffee_table_light
+              data:
+                brightness: 255
+                transition: 15
+                rgb_color: "{{ rgb_values | random }}"
+            - delay:
+                seconds: 30
+
+  - id: thunderstorm_light_cycle
+    alias: Thunderstorm Light Cycle
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id: input_select.dnd_light_mood
+        to: Thunderstorm
+    variables:
+      storm_lights:
+        - light.living_room_dining_table_light
+        - light.living_room_coffee_table_light
+      thunderstorm_color: [48, 48, 48]
+    actions:
+      - action: light.turn_on
+        target:
+          entity_id: "{{ storm_lights }}"
+        data:
+          brightness: 40
+          transition: 40
+          rgb_color: "{{ thunderstorm_color }}"
+      - repeat:
+          while:
+            - condition: state
+              entity_id: input_select.dnd_light_mood
+              state: Thunderstorm
+          sequence:
+            - variables:
+                flash_entity: "{{ storm_lights | random }}"
+            - action: light.turn_on
+              target:
+                entity_id: "{{ storm_lights }}"
+              data:
+                brightness: 40
+                transition: 1
+                rgb_color: "{{ thunderstorm_color }}"
+            - delay:
+                milliseconds: "{{ range(400, 1200) | random }}"
+            # Roughly one loop in nine flashes.
+            - if:
+                - condition: template
+                  value_template: "{{ range(1, 10) | random == 1 }}"
+              then:
+                - action: light.turn_on
+                  target:
+                    entity_id: "{{ flash_entity }}"
+                  data:
+                    brightness: 255
+                    transition: 0
+                    rgb_color: [255, 255, 255]
+                - delay:
+                    milliseconds: 100
+                - action: light.turn_off
+                  target:
+                    entity_id: "{{ flash_entity }}"

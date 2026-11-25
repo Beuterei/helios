@@ -1,0 +1,43 @@
+# House-wide lights: the group every room joins, the reset scene, and the notification action.
+light:
+  - platform: group
+    unique_id: all_lights
+    name: All Lights
+    entities:
+      - light.living_room_dining_table_light
+      - light.living_room_coffee_table_light
+      - light.living_room_couch_light
+      - light.bedroom_light
+      - light.bedroom_workbench_light
+      - light.bedroom_desk_backlight
+      - light.bathroom_light
+      - light.kitchen_light
+      - light.kitchen_workbench_light
+      - light.emergency_exit_sign
+      - light.treehouse_light
+
+scene:
+  - id: reset_light
+    name: Reset Light
+    entities:
+      light.all_lights:
+        state: "on"
+        brightness: 255
+        color_temp_kelvin: 3333
+
+automation:
+  # The going-out notification offers this action.
+  - id: turn_off_lights
+    alias: Turn Off Lights
+    triggers:
+      - trigger: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: turn_off_lights
+    actions:
+      - action: light.turn_off
+        target:
+          entity_id: all
+      - action: notify.notify
+        data:
+          message: All lights have been turned off

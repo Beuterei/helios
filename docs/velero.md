@@ -21,7 +21,7 @@ task sops:edit -- secrets/velero.enc.yaml
 ```
 
 2. Reconcile, and wait until HelmRelease `velero` is Ready and the target claims are Bound.
-3. Restore each namespace that should come back. See [open-webui](open-webui.md), [paperless](paperless.md), [norish](norish.md), and [pocket-id](pocket-id.md).
+3. Restore each namespace that should come back. See [open-webui](open-webui.md), [paperless](paperless.md), [norish](norish.md), [pocket-id](pocket-id.md), and [home-assistant](home-assistant.md).
 
 ## Check
 
