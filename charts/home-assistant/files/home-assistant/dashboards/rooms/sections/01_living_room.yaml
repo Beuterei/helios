@@ -9,8 +9,6 @@ cards:
     badges:
       - type: entity
         entity: binary_sensor.living_room_window_contact
-      - type: entity
-        entity: remote.game_of_chrome
     icon: mdi:sofa
   - alert_classes: []
     sensor_classes: []

@@ -5,7 +5,7 @@ timeZone: Europe/Berlin
 publicURL: https://home.luisbeu.de
 # Traefik runs in the pod CIDR.
 trustProxy: 10.42.0.0/16
-# ESPHome, Cast, the kiosk tablet, and the Nuki lock live on the LAN.
+# ESPHome, the kiosk tablet, and the Nuki lock live on the LAN.
 lanCIDR: 192.168.1.0/24
 
 ingress:

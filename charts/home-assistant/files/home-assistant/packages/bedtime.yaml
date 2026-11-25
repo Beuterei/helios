@@ -30,12 +30,12 @@ automation:
     actions:
       - action: media_player.volume_set
         target:
-          entity_id: media_player.kiosk
+          entity_id: media_player.living_room_kiosk
         data:
           volume_level: 1
       - action: media_player.play_media
         target:
-          entity_id: media_player.kiosk
+          entity_id: media_player.living_room_kiosk
         data:
           media_content_id: media-source://media_source/local/sounds/notify.mp3
           media_content_type: music

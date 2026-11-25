@@ -47,7 +47,6 @@ Home Assistant uses its own accounts, and the Zigbee2MQTT frontend asks for the 
 7. Add the integrations, because they live in the claim and not in git:
     - **MQTT**: broker `mosquitto`, user `homeassistant`, and the password from the Mosquitto SOPS secret.
     - **ESPHome**: each device from the esp-home repo by its reserved address, with that repo's API key. The Bluetooth proxy brings the toothbrush.
-    - **Google Cast**: the Cast devices as known hosts.
     - **Nuki**: in the Nuki app under Features & Configuration, Smart Home, MQTT, set the broker name from `dns/blocky.yaml`, user `nuki`, and the Nuki password from the Mosquitto SOPS secret, with auto discovery on. The lock then appears through MQTT discovery.
     - **Mobile App**, **Fully Kiosk Browser**, and **UniFi Network** (clients tracked, wired clients and Ubiquiti devices not).
     - **Home Assistant Cloud**: sign in, link Google Assistant, and turn on the cloudhook for the door buzzer webhook under its webhooks. The cloudhook address is new for a new install, so hand it to the callers.
