@@ -30,7 +30,6 @@ spec:
       port: 8080
       targetPort: http
 ---
-# ClusterIP only, because no LAN client speaks MQTT.
 apiVersion: v1
 kind: Service
 metadata:
@@ -39,6 +38,25 @@ metadata:
     {{- include "home-assistant.labels" . | nindent 4 }}
     app.kubernetes.io/component: mosquitto
 spec:
+  selector:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mosquitto
+  ports:
+    - name: mqtt
+      port: 1883
+      targetPort: mqtt
+---
+# The Nuki lock reaches the broker from the LAN.
+# Nuki speaks plain MQTT on this port only, so the port and the missing TLS are fixed.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto-lan
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mosquitto
+spec:
+  type: LoadBalancer
   selector:
     {{- include "home-assistant.labels" . | nindent 4 }}
     app.kubernetes.io/component: mosquitto

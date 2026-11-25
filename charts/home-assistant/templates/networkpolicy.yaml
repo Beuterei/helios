@@ -80,7 +80,7 @@ spec:
         - podSelector: {}
     - to:
         - ipBlock:
-            cidr: {{ .Values.homeAssistant.lanCIDR | quote }}
+            cidr: {{ .Values.lanCIDR | quote }}
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -168,6 +168,34 @@ spec:
       ports:
         - protocol: TCP
           port: 443
+---
+# LAN clients arrive through the servicelb pod, which rewrites the source to its own address.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mosquitto-from-lan
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "home-assistant.labels" . | nindent 6 }}
+      app.kubernetes.io/component: mosquitto
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              svccontroller.k3s.cattle.io/svcname: mosquitto-lan
+        - ipBlock:
+            cidr: {{ .Values.lanCIDR | quote }}
+      ports:
+        - protocol: TCP
+          port: 1883
 ---
 # The broker only answers clients.
 apiVersion: networking.k8s.io/v1

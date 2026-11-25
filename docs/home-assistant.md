@@ -6,17 +6,17 @@ Home Assistant with Zigbee2MQTT, Mosquitto, and a CloudNativePG recorder databas
 
 Flux applies `apps/home-assistant.yaml` in namespace `home-assistant`, from `charts/home-assistant`. The Home Assistant files live in that chart's `files/`: `configuration.yaml` holds the base setup, `packages/` holds one package per room or concern, and the dashboards are YAML. A change to any of them rolls the pod, so it takes effect on the next reconcile.
 
-Home Assistant keeps its HTTP settings in storage and ignores `http:` in YAML, so `http.json` in the same folder carries the reverse-proxy settings. An init container writes it as the confirmed config on every start, which overwrites an HTTP change made in the UI.
+Home Assistant keeps its HTTP settings only in its own storage and ignores `http:` in YAML, so `storage/http.json` in the same folder carries the reverse-proxy settings. An init container writes it as the confirmed config on every start, which overwrites an HTTP change made in the UI.
 
 An init container installs the custom cards and integrations pinned in `hpm.json` on every start. It keeps the installed set when GitHub is unreachable, so a restart does not depend on GitHub. Change a package with `hpm add <repo>@<tag>` against that file, because `hpm` pins the files of that release.
 
 Zigbee2MQTT's `configuration.yaml` replaces the claim copy on every start, so rename a device in git and not in the frontend. The friendly names are the MQTT topics the switch automations listen on.
 
-Both hosts are Blocky mappings in `dns/blocky.yaml` and are left out of the tunnel, so they answer on the LAN only. Home Assistant runs on the pod network, so mDNS and SSDP find nothing. Devices are added by address, so each one has a DHCP reservation on the gateway.
+Both hosts are Blocky mappings in `dns/blocky.yaml` and are left out of the tunnel, so they answer on the LAN only. The broker also listens on the LAN through a servicelb port, under its own Blocky name, because the Nuki lock speaks plain MQTT from the LAN. Its login reaches only its own topics and discovery. Home Assistant runs on the pod network, so mDNS and SSDP find nothing. Devices are added by address, so each one has a DHCP reservation on the gateway.
 
 ## Secrets
 
-The Home Assistant SOPS secret holds the coordinates, the door buzzer webhook id, and the hpm GitHub token. Keep the webhook id, because its callers hold it. The Zigbee2MQTT SOPS secret holds the network key and the frontend token. The key has to match the one on the coordinator, because a different key drops every paired device. The Mosquitto SOPS secret holds one password per broker user, and the Home Assistant password goes into the MQTT integration by hand. The database password is in the secret named by `postgres.secretName`.
+The Home Assistant SOPS secret holds the coordinates, the door buzzer webhook id, and the hpm GitHub token. Keep the webhook id, because its callers hold it. The Zigbee2MQTT SOPS secret holds the network key and the frontend token. The key has to match the one on the coordinator, because a different key drops every paired device. The Mosquitto SOPS secret holds one password per broker user. The Home Assistant password goes into the MQTT integration and the Nuki password into the Nuki app by hand. The database password is in the secret named by `postgres.secretName`.
 
 ```sh
 task sops:decrypt -- secrets/mosquitto.enc.yaml
@@ -48,6 +48,7 @@ Home Assistant uses its own accounts, and the Zigbee2MQTT frontend asks for the 
     - **MQTT**: broker `mosquitto`, user `homeassistant`, and the password from the Mosquitto SOPS secret.
     - **ESPHome**: each device from the esp-home repo by its reserved address, with that repo's API key. The Bluetooth proxy brings the toothbrush.
     - **Google Cast**: the Cast devices as known hosts.
+    - **Nuki**: in the Nuki app under Features & Configuration, Smart Home, MQTT, set the broker name from `dns/blocky.yaml`, user `nuki`, and the Nuki password from the Mosquitto SOPS secret, with auto discovery on. The lock then appears through MQTT discovery.
     - **Mobile App**, **Fully Kiosk Browser**, and **UniFi Network** (clients tracked, wired clients and Ubiquiti devices not).
     - **Home Assistant Cloud**: sign in, link Google Assistant, and turn on the cloudhook for the door buzzer webhook under its webhooks. The cloudhook address is new for a new install, so hand it to the callers.
 8. Assign devices to areas, set each person's device trackers, and set the internal URL in the companion app and the start URL in Fully Kiosk to the Home Assistant host.

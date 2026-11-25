@@ -30,8 +30,8 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       initContainers:
-        # Overwrites any HTTP change made in the UI, because git owns the proxy settings.
-        - name: http-config
+        # Writes the HTTP settings from git into storage, so an HTTP change made in the UI is overwritten.
+        - name: storage
           image: "{{ .Values.homeAssistant.image.repository }}:{{ .Values.homeAssistant.image.tag }}"
           imagePullPolicy: IfNotPresent
           command: ["sh", "-c", "mkdir -p /config/.storage && cp /seed/http.json /config/.storage/http"]
@@ -44,7 +44,7 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: http-config
+            - name: seed
               mountPath: /seed
               readOnly: true
         # hpm ci deletes the package folders before it downloads, so it installs into a staging folder.
@@ -192,7 +192,7 @@ spec:
             items:
               - key: hpm.json
                 path: hpm.json
-        - name: http-config
+        - name: seed
           configMap:
             name: home-assistant
             items:

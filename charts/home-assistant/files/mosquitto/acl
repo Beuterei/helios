@@ -1,9 +1,17 @@
 # Discovery and the birth message use the homeassistant prefix.
 # Zigbee2MQTT publishes device state and reads commands under its base topic.
+# Home Assistant sends lock actions under the Nuki prefix.
 user homeassistant
 topic readwrite homeassistant/#
 topic readwrite zigbee2mqtt/#
+topic readwrite nuki/#
 
 user zigbee2mqtt
 topic readwrite homeassistant/#
 topic readwrite zigbee2mqtt/#
+
+# The lock speaks plain MQTT from the LAN, so its login reaches nothing but its own topics and discovery.
+user nuki
+topic readwrite nuki/#
+topic write homeassistant/#
+topic read homeassistant/status

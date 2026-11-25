@@ -120,6 +120,7 @@ spec:
           webdav-paperless.luisbeu.de: 192.168.1.151
           home.luisbeu.de: 192.168.1.151
           zigbee.luisbeu.de: 192.168.1.151
+          mqtt.luisbeu.de: 192.168.1.151
 
       rebindingProtection:
         enable: true
@@ -131,6 +132,7 @@ spec:
           - webdav-paperless.luisbeu.de
           - home.luisbeu.de
           - zigbee.luisbeu.de
+          - mqtt.luisbeu.de
 
       blocking:
         denylists:
